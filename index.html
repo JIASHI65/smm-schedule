@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>7月社媒排期 · 竖排时间线</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0e14;--surface:#121821;--surface2:#1a2332;
+  --border:#283040;--border-light:#354050;
+  --text:#e4e8ef;--text-dim:#8895a8;--text-muted:#556070;
+  --accent:#58a6ff;--blue:#58a6ff;--green:#3fb950;
+  --orange:#d29922;--pink:#f778ba;--red:#f85149;
+  --purple:#bc8cff;--cyan:#39d2c0;
+  --today:#162240;--glow:0 0 20px rgba(88,166,255,0.08)
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;
+  background:var(--bg);color:var(--text);min-height:100vh;
+}
+
+/* ── Header ── */
+.header{
+  position:sticky;top:0;z-index:100;
+  background:linear-gradient(180deg,var(--surface) 0%,rgba(18,24,33,0.95) 100%);
+  border-bottom:1px solid var(--border);padding:12px 20px;
+  display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(12px);
+}
+.header h1{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+.header h1 span{color:var(--text-dim);font-weight:400;font-size:12px}
+.header .meta{font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:10px}
+.header .actions{display:flex;gap:5px}
+.btn{
+  padding:4px 10px;border:1px solid var(--border);border-radius:5px;
+  background:var(--surface2);color:var(--text);font-size:11px;cursor:pointer;transition:all .12s
+}
+.btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(88,166,255,0.06)}
+.btn-primary{background:#238636;border-color:#2ea043;color:#fff}
+.btn-primary:hover{background:#2ea043;color:#fff}
+.btn-sm{padding:2px 7px;font-size:10px}
+
+/* ── Container ── */
+.container{max-width:1280px;margin:0 auto;display:flex;flex-direction:column}
+
+/* ── Day Row ── */
+.day-row{
+  display:grid;grid-template-columns:60px 1fr 240px;
+  border-bottom:1px solid var(--border);transition:background .12s
+}
+.day-row:hover{background:rgba(88,166,255,0.015)}
+.day-row.today{background:var(--today);border-left:3px solid var(--accent);box-shadow:var(--glow)}
+.day-row.weekend{background:rgba(137,148,168,0.015)}
+
+/* ── Date ── */
+.day-date{padding:8px 4px;text-align:center;border-right:1px solid var(--border);padding-top:10px}
+.day-date .num{font-size:16px;font-weight:700;line-height:1}
+.day-date .dow{font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.4px}
+.day-date .dow.we{color:var(--orange)}
+.day-date .tag{font-size:8px;color:var(--text-muted);margin-top:3px}
+
+/* ── Schedule ── */
+.day-schedule{padding:5px 8px;display:flex;flex-direction:column;gap:4px;border-right:1px solid var(--border)}
+
+/* ── Slot: Collapsed View ── */
+.slot{
+  border-radius:5px;cursor:pointer;transition:all .12s;
+  background:transparent;border:1px solid transparent;
+  display:flex;align-items:center;gap:6px;padding:4px 8px;
+}
+.slot:hover{background:var(--surface2);border-color:var(--border)}
+.slot.collapsed{min-height:28px}
+.slot .badge{
+  font-size:9px;font-weight:600;padding:1px 5px;border-radius:3px;white-space:nowrap;flex-shrink:0;
+}
+.slot .badge.uw{background:rgba(188,140,255,0.15);color:var(--purple)}
+.slot .badge.tt{background:rgba(63,185,80,0.12);color:var(--green)}
+
+.slot .summary{
+  flex:1;font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  display:flex;align-items:center;gap:6px;min-width:0;
+}
+.slot .summary .title-part{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slot .summary .sep{color:var(--text-muted);font-size:10px}
+.slot .summary .progress-badge{
+  font-size:9px;padding:1px 5px;border-radius:3px;white-space:nowrap;flex-shrink:0;
+}
+.progress-badge.p0{background:rgba(136,149,168,0.12);color:var(--text-dim)}
+.progress-badge.p1{background:rgba(210,153,34,0.15);color:var(--orange)}
+.progress-badge.p2{background:rgba(57,210,192,0.12);color:var(--cyan)}
+.progress-badge.p3{background:rgba(63,185,80,0.12);color:var(--green)}
+.progress-badge.p4{background:rgba(63,185,80,0.2);color:var(--green)}
+
+.slot .copy-link{
+  background:none;border:none;color:var(--text-muted);font-size:12px;cursor:pointer;
+  padding:1px 4px;border-radius:3px;opacity:0;transition:all .12s;flex-shrink:0;
+}
+.slot:hover .copy-link{opacity:0.6}
+.copy-link:hover{opacity:1!important;color:var(--accent);background:rgba(88,166,255,0.1)}
+
+/* ── Slot: Expanded (Edit) View ── */
+.slot.expanded{
+  background:var(--surface2);border:1px solid var(--border-light);
+  cursor:default;flex-wrap:wrap;padding:8px 10px;gap:5px;
+}
+.slot.expanded .slot-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:4px 8px;width:100%;
+}
+.slot.expanded .slot-grid .fld{display:flex;flex-direction:column;gap:1px}
+.slot.expanded .slot-grid .fld.full{grid-column:1/-1}
+.slot.expanded .slot-grid .fld label{font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.2px}
+.slot.expanded .slot-grid .fld input,
+.slot.expanded .slot-grid .fld select,
+.slot.expanded .slot-grid .fld textarea{
+  background:rgba(0,0,0,0.25);border:1px solid transparent;border-radius:3px;
+  padding:3px 5px;color:var(--text);font-size:11px;font-family:inherit;width:100%;
+  transition:border-color .1s;
+}
+.slot.expanded .slot-grid .fld input:focus,
+.slot.expanded .slot-grid .fld select:focus,
+.slot.expanded .slot-grid .fld textarea:focus{
+  outline:none;border-color:var(--accent);background:rgba(88,166,255,0.05)
+}
+.slot.expanded .slot-grid .fld input::placeholder{color:var(--text-muted);opacity:0.4}
+.slot.expanded .slot-grid .fld textarea{resize:vertical;min-height:18px}
+
+/* Copy button in expanded mode */
+.copy-btn-exp{
+  background:none;border:none;color:var(--text-muted);font-size:12px;cursor:pointer;
+  padding:0 4px;border-radius:3px;flex-shrink:0;
+}
+.copy-btn-exp:hover{color:var(--accent);background:rgba(88,166,255,0.1)}
+
+.slot .del-btn{
+  background:none;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;
+  padding:1px 4px;border-radius:3px;opacity:0;transition:all .12s;flex-shrink:0;margin-left:auto;
+}
+.slot:hover .del-btn{opacity:0.4}
+.del-btn:hover{opacity:1!important;color:var(--red);background:rgba(248,81,73,0.12)}
+
+/* ── Add Buttons ── */
+.add-bar{display:flex;gap:4px;padding:2px 8px}
+.add-btn{
+  background:none;border:1px dashed var(--border);border-radius:4px;
+  color:var(--text-dim);font-size:10px;padding:2px 8px;cursor:pointer;opacity:0.3;transition:all .12s
+}
+.day-row:hover .add-btn{opacity:0.6}
+.add-btn:hover{opacity:1!important;border-color:var(--accent);color:var(--accent)}
+
+/* ── Reference ── */
+.day-ref{padding:6px 8px;display:flex;flex-direction:column;gap:2px}
+.ref-item{display:flex;gap:3px;align-items:flex-start;padding:1px 0}
+.ref-item .rtag{
+  font-size:8px;padding:1px 3px;border-radius:2px;white-space:nowrap;flex-shrink:0;margin-top:2px;cursor:pointer;
+}
+.rtag.节日{background:rgba(210,153,34,0.12);color:var(--orange)}
+.rtag.版本{background:rgba(88,166,255,0.1);color:var(--blue)}
+.rtag.IP{background:rgba(247,120,186,0.1);color:var(--pink)}
+.rtag.活动{background:rgba(57,210,192,0.1);color:var(--cyan)}
+.ref-item .rtext{
+  font-size:10px;color:var(--text-dim);line-height:1.5;cursor:pointer;flex:1;
+  padding:1px 2px;border-radius:2px;
+}
+.ref-item .rtext:hover{background:rgba(88,166,255,0.05)}
+.ref-item .rtext.editing{outline:1px solid var(--accent)}
+.ref-item .rtext input{
+  font-size:10px;background:rgba(0,0,0,0.3);border:1px solid var(--accent);
+  border-radius:2px;color:var(--text);padding:1px 3px;width:100%;font-family:inherit;
+}
+.ref-item .rdel{
+  background:none;border:none;color:var(--red);font-size:9px;cursor:pointer;
+  opacity:0;padding:0 2px;margin-top:1px;
+}
+.ref-item:hover .rdel{opacity:0.4}
+.rdel:hover{opacity:1!important}
+.ref-empty{color:var(--text-dim);opacity:0.2;font-size:9px;font-style:italic}
+.ref-add{
+  background:none;border:1px dashed var(--border);border-radius:3px;
+  color:var(--text-dim);font-size:9px;padding:1px 6px;cursor:pointer;opacity:0;transition:all .12s;margin-top:1px
+}
+.day-row:hover .ref-add{opacity:0.3}
+.ref-add:hover{opacity:1!important;border-color:var(--accent);color:var(--accent)}
+
+/* ── Modal ── */
+.modal-overlay{
+  display:none;position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,0.75);z-index:200;justify-content:center;align-items:center
+}
+.modal-overlay.active{display:flex}
+.modal{
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:18px;max-width:560px;width:90%;max-height:75vh;overflow-y:auto
+}
+.modal h2{font-size:14px;margin-bottom:8px}
+.modal textarea{
+  width:100%;min-height:200px;background:var(--bg);
+  border:1px solid var(--border);border-radius:5px;
+  padding:8px;color:var(--text);font-size:11px;font-family:monospace;resize:vertical
+}
+.modal .btn-row{display:flex;gap:6px;margin-top:8px;justify-content:flex-end}
+
+/* ── Mobile ── */
+@media(max-width:900px){
+  .day-row{grid-template-columns:48px 1fr}
+  .day-ref{display:none}
+  .slot.expanded .slot-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📅 7月社媒排期 <span>| 竖排 · 双击编辑</span></h1>
+  <div class="meta">
+    <span id="saveStatus">✅ 已保存</span>
+    <span>|</span>
+    <span id="slotCount">0</span>
+  </div>
+  <div class="actions">
+    <button class="btn" onclick="exportData()">📤 导出</button>
+    <button class="btn btn-sm" onclick="clearAll()">🗑️ 清空</button>
+  </div>
+</div>
+
+<div class="container" id="timeline"></div>
+
+<div class="modal-overlay" id="exportModal">
+  <div class="modal">
+    <h2>📤 导出排期</h2>
+    <textarea id="exportText" readonly></textarea>
+    <div class="btn-row">
+      <button class="btn" onclick="copyExport()">📋 复制</button>
+      <button class="btn btn-primary" onclick="closeExport()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Data ──
+const STORAGE_KEY = 'smm_v3_july_2026';
+const REF_DEFAULTS = {"1":[{"type":"版本","text":"沁夏臻境套间"},{"type":"版本","text":"联动签到 12天"},{"type":"版本","text":"kitty拼图"},{"type":"版本","text":"kitty委托 7/1-7/30"},{"type":"版本","text":"沁夏插画动态视频"},{"type":"版本","text":"KT上线PV"},{"type":"版本","text":"更换kitty联动头像&Banner"}],"2":[{"type":"版本","text":"滑雪礼包 7/2-7/27"},{"type":"版本","text":"滑雪服装礼包宣发"}],"3":[],"4":[{"type":"节日","text":"🎆 美国独立日"}],"5":[{"type":"版本","text":"kitty小镇打卡二创活动"}],"6":[],"7":[{"type":"版本","text":"儿童节家具礼包"},{"type":"版本","text":"KT联动预告三（转盘+寻物）"},{"type":"版本","text":"KT创作大赛 投稿：7/7-7/22"}],"8":[],"9":[{"type":"版本","text":"绒雪套间展示（转盘预告）国服复用"}],"10":[{"type":"版本","text":"往日预购"},{"type":"版本","text":"限时转盘"},{"type":"版本","text":"kitty转盘开启（融雪动态KV）"}],"11":[{"type":"版本","text":"庙会服装礼包"}],"12":[],"13":[{"type":"版本","text":"往日回响套间"},{"type":"版本","text":"玫瑰卡牌 7/13-7/22"}],"14":[],"15":[],"16":[],"17":[{"type":"节日","text":"世界emoji日"},{"type":"版本","text":"烘焙套间展示（寻物预告）国服复用"}],"18":[{"type":"版本","text":"kitty寻物"},{"type":"版本","text":"kitty寻物开启（烘焙动态KV）"},{"type":"版本","text":"kitty端内寻物社区配套活动"}],"19":[{"type":"版本","text":"劳动节签到礼包"}],"20":[{"type":"版本","text":"花影预购"}],"21":[],"22":[],"23":[{"type":"版本","text":"花影乞巧套间"},{"type":"版本","text":"乞巧敲敲寻宝 7/23-8/1"}],"24":[],"25":[{"type":"版本","text":"服装（男）礼包"}],"26":[],"27":[{"type":"版本","text":"鹊桥星轨进阶礼包（主界面）"}],"28":[],"29":[],"30":[{"type":"版本","text":"齿轮预购"}],"31":[]};
+
+const DOW=['日','一','二','三','四','五','六'];
+const DOW_EN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const PROGRESS=['素材未到位','制作中','已完成','待发布','已发布'];
+const SOURCES=['投放视频','自制视频','脚本输出','外部KOC','官方素材','其他'];
+
+let S={}, R={};
+let editingSlot = null; // track which slot is currently expanded
+
+function init(){
+  try{
+    const s=localStorage.getItem(STORAGE_KEY);
+    if(s){const p=JSON.parse(s);S=p.slots||{};R=p.refs||{}}
+  }catch(e){}
+  for(let d=1;d<=31;d++){if(!R[d])R[d]=JSON.parse(JSON.stringify(REF_DEFAULTS[d]||[]))}
+  render();
+}
+
+function save(){
+  localStorage.setItem(STORAGE_KEY,JSON.stringify({slots:S,refs:R}));
+  document.getElementById('saveStatus').textContent='✅ 已保存';
+  setTimeout(()=>{document.getElementById('saveStatus').textContent='✅ 已保存'},1500);
+  updateCount();
+}
+
+function updateCount(){
+  let c=0;
+  for(const k in S){if(S[k]&&S[k].t&&S[k].t.trim())c++}
+  document.getElementById('slotCount').textContent=c+' 条';
+}
+
+// ── Slot data helpers ──
+function sk(d,t,i){return d+'_'+t+'_'+i}
+function gs(d,t,i){
+  const k=sk(d,t,i);
+  if(!S[k]) S[k]={t:'',l:'',pd:'',p:'素材未到位',s:'投放视频',n:''};
+  return S[k];
+}
+function us(d,t,i,f,v){
+  const k=sk(d,t,i);
+  if(!S[k]) S[k]={t:'',l:'',pd:'',p:'素材未到位',s:'投放视频',n:''};
+  S[k][f]=v;save();
+}
+function as(d,t){
+  let i=0;while(S[sk(d,t,i)])i++;
+  S[sk(d,t,i)]={t:'',l:'',pd:'',p:'素材未到位',s:'投放视频',n:''};
+  save();render();expandSlot(d,t,i);
+}
+function rs(d,t,i){delete S[sk(d,t,i)];save();render()}
+
+// ── Ref helpers ──
+function ur(d,i,v){if(R[d]&&R[d][i])R[d][i].text=v;save();render()}
+function ar(d){if(!R[d])R[d]=[];R[d].push({type:'活动',text:'新活动...'});save();render()}
+function rr(d,i){if(R[d])R[d].splice(i,1);save();render()}
+function crt(d,i){const C=['版本','节日','IP','活动'];const r=R[d]&&R[d][i];if(!r)return;const ci=C.indexOf(r.type);r.type=C[(ci+1)%C.length];save();render()}
+
+// ── Expand / Collapse ──
+function expandSlot(d,t,i){
+  editingSlot = sk(d,t,i);
+  render();
+  // Focus the title input after render
+  setTimeout(()=>{
+    const inp = document.querySelector(`[data-sk="${sk(d,t,i)}"] .ef-title`);
+    if(inp) inp.focus();
+  },50);
+}
+function collapseSlot(){
+  editingSlot = null;
+  render();
+}
+
+// ── Render ──
+function render(){
+  const today=(()=>{const n=new Date();const u=n.getTime()+n.getTimezoneOffset()*60000;const s=new Date(u+8*3600000);return{m:s.getMonth()+1,d:s.getDate()}})();
+  const el=document.getElementById('timeline');el.innerHTML='';
+  const W=['W1','W2','W3','W4','W5'];
+
+  for(let d=1;d<=31;d++){
+    const dt=new Date(2026,6,d);
+    const dw=dt.getDay();
+    const iT=today.m===7&&today.d===d;
+    const iW=dw===0||dw===6;
+    const wk=W[Math.min(Math.floor((d-1)/7),4)];
+
+    const row=document.createElement('div');
+    row.className='day-row'+(iT?' today':'')+(iW?' weekend':'');
+
+    // Date
+    const dc=document.createElement('div');dc.className='day-date';
+    dc.innerHTML=`<div class="num">${d}</div><div class="dow${iW?' we':''}">${DOW_EN[dw]}</div><div class="tag">${wk}</div>`;
+    row.appendChild(dc);
+
+    // Schedule
+    const sc=document.createElement('div');sc.className='day-schedule';
+    const slots=[];
+
+    // Collect and sort
+    for(const k in S){
+      const m=k.match(/^(\d+)_(uw|tt)_(\d+)$/);
+      if(m&&parseInt(m[1])===d) slots.push({idx:parseInt(m[3]),type:m[2],key:k,data:S[k]});
+    }
+    slots.sort((a,b)=>a.type.localeCompare(b.type)||a.idx-b.idx);
+
+    slots.forEach(s=>{
+      sc.appendChild(makeSlot(d,s.type,s.idx,s.key,s.data));
+    });
+
+    const ab=document.createElement('div');ab.className='add-bar';
+    ab.innerHTML=`<button class="add-btn" onclick="as(${d},'uw')">+ 水下号</button><button class="add-btn" onclick="as(${d},'tt')">+ TT官号</button>`;
+    sc.appendChild(ab);
+    row.appendChild(sc);
+
+    // Reference
+    const rc=document.createElement('div');rc.className='day-ref';
+    const refs=R[d]||[];
+    refs.forEach((r,i)=>{
+      const item=document.createElement('div');item.className='ref-item';
+      const tc={'版本':'版本','节日':'节日','IP':'IP','活动':'活动'}[r.type]||'活动';
+      item.innerHTML=`
+        <span class="rtag ${tc}" onclick="crt(${d},${i})">${r.type}</span>
+        <span class="rtext" id="rt-${d}-${i}" onclick="erf(${d},${i})">${esc(r.text)}</span>
+        <button class="rdel" onclick="rr(${d},${i})">✕</button>
+      `;
+      rc.appendChild(item);
+    });
+    if(refs.length===0) rc.innerHTML+=`<div class="ref-empty">—</div>`;
+    const addB=document.createElement('button');addB.className='ref-add';addB.textContent='+';addB.onclick=()=>ar(d);
+    rc.appendChild(addB);
+    row.appendChild(rc);
+
+    el.appendChild(row);
+  }
+  updateCount();
+}
+
+function makeSlot(d,t,i,k,data){
+  const isExpanded = editingSlot===k;
+  const label = t==='uw'?'水下号':'TT官号';
+  const badgeCls = t==='uw'?'uw':'tt';
+  const pi = Math.max(0,PROGRESS.indexOf(data.p));
+  const progressCls = 'p'+pi;
+  const summaryTitle = data.t||'(未填写)';
+  const hasLink = data.l&&data.l.trim();
+
+  if(!isExpanded){
+    // Collapsed view
+    const div=document.createElement('div');
+    div.className='slot collapsed';
+    div.setAttribute('data-sk',k);
+    div.ondblclick=()=>expandSlot(d,t,i);
+
+    div.innerHTML=`
+      <span class="badge ${badgeCls}">${label}</span>
+      <div class="summary">
+        <span class="title-part">${esc(summaryTitle)}</span>
+        ${hasLink?`<span class="sep">·</span><span style="color:var(--text-muted);font-size:10px">🔗</span>`:''}
+        <span class="progress-badge ${progressCls}">${data.p}</span>
+      </div>
+      ${hasLink?`<button class="copy-link" onclick="event.stopPropagation();cp('${esc(data.l)}')" title="复制素材链接">📋</button>`:''}
+      <button class="del-btn" onclick="event.stopPropagation();rs(${d},'${t}',${i})">✕</button>
+    `;
+    return div;
+  }else{
+    // Expanded edit view
+    const div=document.createElement('div');
+    div.className='slot expanded';
+    div.setAttribute('data-sk',k);
+
+    const dateVal = data.pd||'';
+    div.innerHTML=`
+      <div style="display:flex;align-items:center;gap:6px;width:100%">
+        <span class="badge ${badgeCls}">${label}</span>
+        <span style="flex:1;font-size:11px;color:var(--text-dim)">编辑中 · Enter 折叠</span>
+        <button class="del-btn" style="opacity:0.5" onclick="rs(${d},'${t}',${i})">✕</button>
+      </div>
+      <div class="slot-grid">
+        <div class="fld full">
+          <label>📝 标题 / 文案</label>
+          <input class="ef-title" type="text" value="${esc(data.t||'')}" placeholder="输入标题或文案..."
+            onchange="us(${d},'${t}',${i},'t',this.value)"
+            onkeydown="if(event.key==='Enter'){this.blur();collapseSlot()}">
+        </div>
+        <div class="fld">
+          <label>🔗 素材公共盘</label>
+          <div style="display:flex;gap:3px;align-items:center">
+            <input type="text" value="${esc(data.l||'')}" placeholder="链接或路径..."
+              onchange="us(${d},'${t}',${i},'l',this.value)"
+              style="flex:1">
+            ${data.l&&data.l.trim()?`<button class="copy-btn-exp" onclick="cp('${esc(data.l)}')" title="复制链接">📋</button>`:''}
+          </div>
+        </div>
+        <div class="fld">
+          <label>📅 发布日期</label>
+          <input type="date" value="${dateVal}" onchange="us(${d},'${t}',${i},'pd',this.value)">
+        </div>
+        <div class="fld">
+          <label>📊 素材来源</label>
+          <select onchange="us(${d},'${t}',${i},'s',this.value)">
+            ${SOURCES.map(o=>`<option value="${o}" ${data.s===o?'selected':''}>${o}</option>`).join('')}
+          </select>
+        </div>
+        <div class="fld">
+          <label>📈 进度</label>
+          <select onchange="us(${d},'${t}',${i},'p',this.value)">
+            ${PROGRESS.map(o=>`<option value="${o}" ${data.p===o?'selected':''}>${o}</option>`).join('')}
+          </select>
+        </div>
+        <div class="fld full">
+          <label>💬 备注</label>
+          <textarea rows="1" placeholder="其他说明..." onchange="us(${d},'${t}',${i},'n',this.value)">${esc(data.n||'')}</textarea>
+        </div>
+      </div>
+    `;
+    return div;
+  }
+}
+
+// ── Ref inline edit ──
+function erf(d,i){
+  const sp=document.getElementById(`rt-${d}-${i}`);
+  if(!sp)return;
+  const cur=sp.textContent;
+  sp.innerHTML=`<input type="text" value="${esc(cur)}" onblur="srf(${d},${i},this.value)" onkeydown="if(event.key==='Enter')this.blur()" autofocus>`;
+  sp.querySelector('input').focus();
+}
+function srf(d,i,v){ur(d,i,v)}
+
+// ── Copy ──
+function cp(t){
+  if(!t)return;
+  navigator.clipboard.writeText(t).then(()=>{
+    // flash feedback
+    const btn=event&&event.target;
+    if(btn){const o=btn.textContent;btn.textContent='✅';setTimeout(()=>{btn.textContent=o},800)}
+  }).catch(()=>{});
+}
+
+// ── Export ──
+function exportData(){
+  let txt='📅 7月社媒排期\n═══════════\n\n';
+  for(let d=1;d<=31;d++){
+    const items=[];
+    for(const k in S){
+      const m=k.match(/^(\d+)_(uw|tt)_(\d+)$/);
+      if(m&&parseInt(m[1])===d){
+        const s=S[k];
+        if(s.t&&s.t.trim()) items.push({type:m[2]==='uw'?'水下号':'TT官号',data:s});
+      }
+    }
+    if(items.length===0)continue;
+    const dt=new Date(2026,6,d);
+    txt+=`── 7月${d}日 周${DOW[dt.getDay()]} ──\n`;
+    items.forEach(s=>{
+      txt+=`【${s.type}】\n`;
+      txt+=`  标题：${s.data.t||'-'}\n`;
+      if(s.data.l) txt+=`  素材：${s.data.l}\n`;
+      if(s.data.pd) txt+=`  发布：${s.data.pd}\n`;
+      txt+=`  来源：${s.data.s||'-'} | 进度：${s.data.p||'-'}\n`;
+      if(s.data.n) txt+=`  备注：${s.data.n}\n`;
+      txt+='\n';
+    });
+  }
+  document.getElementById('exportText').value=txt;
+  document.getElementById('exportModal').classList.add('active');
+}
+function closeExport(){document.getElementById('exportModal').classList.remove('active')}
+function copyExport(){
+  const ta=document.getElementById('exportText');ta.select();
+  navigator.clipboard.writeText(ta.value).then(()=>alert('✅ 已复制')).catch(()=>{document.execCommand('copy');alert('✅ 已复制')});
+}
+function clearAll(){if(!confirm('确定清空所有？'))return;S={};save();render()}
+function esc(s){if(!s)return '';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+
+init();
+</script>
+</body>
+</html>

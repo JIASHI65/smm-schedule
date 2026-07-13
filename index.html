@@ -397,7 +397,7 @@ body{
 const GH_USER = 'jiashi65';
 const GH_REPO = 'smm-schedule';
 const GH_BRANCH = 'main';
-const RAW_URL = 'https://raw.githubusercontent.com/'+GH_USER+'/'+GH_REPO+'/'+GH_BRANCH+'/smm_data.json';
+const RAW_URL = 'https://cdn.jsdelivr.net/gh/'+GH_USER+'/'+GH_REPO+'@'+GH_BRANCH+'/smm_data.json';
 const API_URL = 'https://api.github.com/repos/'+GH_USER+'/'+GH_REPO+'/contents/smm_data.json';
 const LS_KEY = 'smm_v3_fallback';
 const PAT_KEY = 'gh_pat_smm';
@@ -416,25 +416,33 @@ let dirty = false;
 
 // ── API ──
 async function loadFromGitHub(){
+  // 1. Try jsDelivr CDN (fast, always fresh)
   try{
-    const r=await fetch(RAW_URL+'?t='+Date.now(), {cache:'no-store'});
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    const d=await r.json();
-    S=d.slots||{};
-    R=d.refs||{};
-    setSync(true);
-    document.getElementById('dataSource').textContent='GitHub';
-    return true;
-  }catch(e){
-    console.warn('GitHub load failed:', e);
-    try{
-      const ls=localStorage.getItem(LS_KEY);
-      if(ls){const p=JSON.parse(ls);S=p.slots||{};R=p.refs||{}}
-      document.getElementById('dataSource').textContent='本地缓存';
-    }catch(e2){}
-    setSync(false);
-    return false;
-  }
+    const r=await fetch(RAW_URL+'?t='+Date.now());
+    if(r.ok){
+      const d=await r.json();
+      if(d.slots&&Object.keys(d.slots).length>0){
+        S=d.slots;R=d.refs||{};setSync(true);
+        document.getElementById('dataSource').textContent='GitHub';return true}}
+  }catch(e){}
+  // 2. Fallback: GitHub API (no cache, rate limited)
+  try{
+    const r=await fetch(API_URL,{headers:{'Accept':'application/vnd.github.v3+json'}});
+    if(r.ok){
+      const m=await r.json();
+      const txt=decodeURIComponent(escape(atob(m.content)));
+      const d=JSON.parse(txt);
+      if(d.slots&&Object.keys(d.slots).length>0){
+        S=d.slots;R=d.refs||{};setSync(true);
+        document.getElementById('dataSource').textContent='GitHub';return true}}
+  }catch(e){}
+  // 3. Fallback: localStorage
+  try{
+    const ls=localStorage.getItem(LS_KEY);
+    if(ls){const p=JSON.parse(ls);S=p.slots||{};R=p.refs||{}}
+    document.getElementById('dataSource').textContent='本地缓存';
+  }catch(e2){}
+  setSync(false);return false;
 }
 
 let saveTimer = null;
@@ -467,6 +475,9 @@ async function saveToGitHub(){
     if(ghSha) body.sha = ghSha;
     const r=await fetch(API_URL, {method:'PUT', headers:{'Authorization':'token '+pat,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'}, body:JSON.stringify(body)});
     if(!r.ok) throw new Error('HTTP '+r.status);
+    // Verify data isn't empty (cached empty)
+    const v=await r.json();
+    if(v.slots&&Object.keys(v.slots).length>0){S=v.slots||{};R=v.refs||{};setSync(true);document.getElementById('dataSource').textContent='GitHub';return true}
     const res=await r.json();
     ghSha = res.content && res.content.sha;
     setSync(true);

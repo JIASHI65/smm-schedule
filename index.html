@@ -7,12 +7,12 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#f8f7f9;--surface:#ffffff;--surface2:#f7f5f8;--surface3:#ffeaf2;
-  --border:#ddd6dc;--border-light:#e6e0e6;
-  --text:#2d1b3d;--text-dim:#8a7f95;--text-muted:#b5aab5;
+  --bg:#fef6f9;--surface:#ffffff;--surface2:#fff0f5;--surface3:#ffeaf2;
+  --border:#e0c4d4;--border-light:#eccedc;
+  --text:#2d1b3d;--text-dim:#8a7a9a;--text-muted:#baaaba;
   --accent:#ff6b9d;--green:#34d399;--orange:#f59e0b;--amber:#d97706;
   --pink:#f472b6;--red:#ef4444;--purple:#8b5cf6;--cyan:#06b6d4;--blue:#6366f1;
-  --today:#f7f2f6;--glow:0 0 20px rgba(255,107,157,0.12)
+  --today:#fff0f5;--glow:0 0 20px rgba(255,107,157,0.12)
 }
 body{
   font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;
@@ -62,23 +62,23 @@ body{
   display:grid;grid-template-columns:54px 1fr 260px;
   margin-bottom:8px;
   transition:all .15s;position:relative;
-  background:#ffffff;
+  background:rgba(255,255,255,0.5);
   border-radius:8px;
   overflow:hidden;
   box-shadow:0 1px 3px rgba(0,0,0,0.03), 0 1px 2px rgba(0,0,0,0.02);
 }
-.day-row:nth-child(4n+2):not(.today):not(.weekend){background:#fcfafb}
-.day-row:nth-child(4n+3):not(.today):not(.weekend){background:#ffffff}
+.day-row:nth-child(4n+2):not(.today):not(.weekend){background:rgba(255,250,252,0.7)}
+.day-row:nth-child(4n+3):not(.today):not(.weekend){background:rgba(255,255,255,0.5)}
 .day-row:hover{
   box-shadow:0 3px 10px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.03);
 }
 .day-row.today{
-  background:#fdf7f9;
+  background:#fff2f6;
   border-left:3px solid var(--accent);
   box-shadow:0 3px 12px rgba(255,107,157,0.12), 0 1px 4px rgba(255,107,157,0.07);
 }
-.day-row.weekend{background:#f9f7f9}
-.day-row.weekend.today{background:#fdf7f9}
+.day-row.weekend{background:rgba(248,242,248,0.45)}
+.day-row.weekend.today{background:#fff2f6}
 
 /* ── Week separator ── */
 .day-row.week-start{border-top:3px solid #ff6b9d80;margin-top:-1px}
@@ -96,7 +96,7 @@ body{
 .day-date{
   padding:8px 2px 6px;text-align:center;
   border-right:2px solid var(--border);
-  background:#faf8f9;
+  background:rgba(255,107,157,0.06);
   position:relative;border-radius:8px 0 0 8px;
 }
 .day-date .num{font-size:17px;font-weight:800;line-height:1.2;color:#2d1b3d}
@@ -135,32 +135,32 @@ body{
   white-space:nowrap;flex-shrink:0;letter-spacing:.2px;
 }
 .slot .badge.uw{
-  background:rgba(139,92,246,0.08);
-  color:#7c3aed;border:1px solid rgba(139,92,246,0.12);
+  background:rgba(139,92,246,0.06);
+  color:#8b5cf6;border:none;
 }
 .slot .badge.tt{
-  background:rgba(16,185,129,0.08);
-  color:#059669;border:1px solid rgba(16,185,129,0.12);
+  background:rgba(16,185,129,0.06);
+  color:#10b981;border:none;
 }
 .slot .badge.hkig{
-  background:rgba(251,146,60,0.08);
-  color:#d97706;border:1px solid rgba(251,146,60,0.12);
+  background:rgba(251,146,60,0.06);
+  color:#f59e0b;border:none;
 }
 .slot .badge.usig{
-  background:rgba(99,102,241,0.08);
-  color:#4f46e5;border:1px solid rgba(99,102,241,0.12);
+  background:rgba(99,102,241,0.06);
+  color:#6366f1;border:none;
 }
 .slot .badge.ustt{
-  background:rgba(6,182,212,0.08);
-  color:#0891b2;border:1px solid rgba(6,182,212,0.12);
+  background:rgba(6,182,212,0.05);
+  color:#06b6d4;border:none;
 }
 .slot .badge.usfb{
-  background:rgba(24,119,242,0.08);
-  color:#1565C0;border:1px solid rgba(24,119,242,0.12);
+  background:rgba(24,119,242,0.05);
+  color:#1877F2;border:none;
 }
 .slot .badge.usigoff{
-  background:rgba(244,63,94,0.08);
-  color:#be123c;border:1px solid rgba(244,63,94,0.12);
+  background:rgba(244,63,94,0.05);
+  color:#e11d48;border:none;
 }
 .slot .summary{
   display:flex;align-items:center;gap:4px;min-width:0;
@@ -175,11 +175,11 @@ body{
   font-size:7px;font-weight:500;padding:1px 4px;border-radius:2px;
   white-space:nowrap;flex-shrink:0;letter-spacing:.1px;
 }
-.pg.p0{background:rgba(148,163,184,0.1);color:#64748b;border:1px solid rgba(148,163,184,0.1)}
-.pg.p1{background:rgba(245,158,11,0.1);color:#d97706;border:1px solid rgba(245,158,11,0.12)}
-.pg.p2{background:rgba(6,182,212,0.08);color:#0891b2;border:1px solid rgba(6,182,212,0.1)}
-.pg.p3{background:rgba(16,185,129,0.08);color:#059669;border:1px solid rgba(16,185,129,0.1)}
-.pg.p4{background:rgba(16,185,129,0.1);color:#047857;border:1px solid rgba(16,185,129,0.12)}
+.pg.p0{background:rgba(148,163,184,0.08);color:#94a3b8;border:none}
+.pg.p1{background:rgba(245,158,11,0.07);color:#f59e0b;border:none}
+.pg.p2{background:rgba(6,182,212,0.06);color:#06b6d4;border:none}
+.pg.p3{background:rgba(16,185,129,0.06);color:#10b981;border:none}
+.pg.p4{background:rgba(16,185,129,0.08);color:#10b981;border:none}
 .slot .cl{
   background:none;border:none;color:var(--text-muted);font-size:10px;cursor:pointer;
   padding:0 3px;border-radius:2px;opacity:0;transition:all .1s;flex-shrink:0;
@@ -229,7 +229,7 @@ body{
 /* ── Reference Column ── */
 .day-ref{
   padding:6px 10px;display:flex;flex-direction:column;gap:2px;
-  position:relative;background:#faf8f9;border-radius:0 8px 8px 0;
+  position:relative;background:rgba(255,107,157,0.008);border-radius:0 8px 8px 0;
 }
 .ref-item{
   display:flex;gap:4px;align-items:flex-start;
@@ -336,9 +336,7 @@ body{
   <div class="meta">
     <span id="slotCount">0</span>
     <span>|</span>
-    <span id="dataSource">GitHub</span>
-    <span>|</span>
-    <span id="patStatus" style="cursor:pointer" onclick="showPATModal()" title="点击配置密钥">⚠️</span>
+    <span id="dataSource">云端</span>
   </div>
   <div class="actions">
     <button class="btn" onclick="exportData()">📤 导出</button>
@@ -366,42 +364,13 @@ body{
   </div>
 </div>
 
-<!-- PAT 配置弹窗 -->
-<div class="modal-overlay" id="patModal">
-  <div class="modal" style="max-width:420px">
-    <h2>🔑 设置 GitHub 密钥</h2>
-    <p style="font-size:10px;color:var(--text-dim);margin:6px 0 10px">
-      只有配置了密钥才能编辑保存。没有密钥的人打开页面只能查看。
-    </p>
-    <input id="patInput" type="password" placeholder="粘贴你的 GitHub Personal Access Token..."
-      style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:4px;font-size:11px;background:var(--bg);color:var(--text)"
-      onkeydown="if(event.key==='Enter')setupPAT()">
-    <div class="br" style="margin-top:8px">
-      <button class="btn" onclick="document.getElementById('patModal').classList.remove('active')">暂不设置</button>
-      <button class="btn btn-primary" onclick="setupPAT()">确认</button>
-    </div>
-    <details style="margin-top:8px;font-size:9px;color:var(--text-dim)">
-      <summary style="cursor:pointer">如何创建密钥？</summary>
-      <ol style="margin:4px 0 0 14px;padding:0;line-height:1.8">
-        <li>打开 <a href="https://github.com/settings/tokens" target="_blank" style="color:var(--accent)">github.com/settings/tokens</a></li>
-        <li>点「Generate new token (classic)」</li>
-        <li>勾选 <code>repo</code> 权限（全选）</li>
-        <li>生成后复制粘贴到上面输入框</li>
-      </ol>
-    </details>
-  </div>
-</div>
-
 <script>
 // ── Data ──
 const GH_USER = 'jiashi65';
 const GH_REPO = 'smm-schedule';
 const GH_BRANCH = 'main';
 const RAW_URL = 'https://cdn.jsdelivr.net/gh/'+GH_USER+'/'+GH_REPO+'@'+GH_BRANCH+'/smm_data.json';
-const API_URL = 'https://api.github.com/repos/'+GH_USER+'/'+GH_REPO+'/contents/smm_data.json';
 const LS_KEY = 'smm_v3_fallback';
-const PAT_KEY = 'gh_pat_smm';
-let ghSha = null;
 
 const REF_DEFAULTS = {"1": [{"type": "版本", "text": "沁夏臻境套间"}, {"type": "IP", "text": "联动签到 12天 持续一个月"}, {"type": "IP", "text": "kitty拼图"}, {"type": "IP", "text": "kitty委托 7/1-7/30"}, {"type": "版本", "text": "沁夏插画动态视频"}, {"type": "IP", "text": "KT上线PV"}, {"type": "IP", "text": "更换kitty联动头像&Banner"}], "2": [{"type": "版本", "text": "滑雪礼包 7/2-7/27"}, {"type": "版本", "text": "滑雪服装礼包宣发"}], "3": [], "4": [{"type": "节日", "text": "🎆 美国独立日"}], "5": [{"type": "IP", "text": "kitty小镇打卡二创活动"}], "6": [], "7": [{"type": "版本", "text": "儿童节家具礼包"}, {"type": "IP", "text": "KT联动预告三（转盘+寻物）"}, {"type": "IP", "text": "KT创作大赛 投稿：7/7-7/22"}], "8": [], "9": [{"type": "版本", "text": "绒雪套间展示（转盘预告）国服复用"}], "10": [{"type": "版本", "text": "往日预购"}, {"type": "版本", "text": "限时转盘"}, {"type": "IP", "text": "kitty转盘开启（融雪动态KV）"}], "11": [{"type": "版本", "text": "庙会服装礼包"}], "12": [], "13": [{"type": "版本", "text": "往日回响套间"}, {"type": "活动", "text": "玫瑰卡牌 7/13-7/22"}], "14": [], "15": [], "16": [], "17": [{"type": "节日", "text": "世界emoji日"}, {"type": "版本", "text": "烘焙套间展示（寻物预告）国服复用"}], "18": [{"type": "IP", "text": "kitty寻物"}, {"type": "IP", "text": "kitty寻物开启（烘焙动态KV）"}, {"type": "IP", "text": "kitty端内寻物社区配套活动"}], "19": [{"type": "版本", "text": "劳动节签到礼包"}], "20": [{"type": "版本", "text": "花影预购"}], "21": [], "22": [], "23": [{"type": "版本", "text": "花影乞巧套间"}, {"type": "活动", "text": "乞巧敲敲寻宝 7/23-8/1"}], "24": [], "25": [{"type": "版本", "text": "服装（男）礼包"}], "26": [], "27": [{"type": "版本", "text": "鹊桥星轨进阶礼包（主界面）"}], "28": [], "29": [], "30": [{"type": "版本", "text": "齿轮预购"}], "31": []};
 
@@ -415,32 +384,21 @@ let editingSlot = null;
 let dirty = false;
 
 // ── API ──
-async function loadFromGitHub(){
-  // 1. Try jsDelivr CDN (fast, always fresh)
+async function loadFromServer(){
+  // Try GitHub data
   try{
-    const r=await fetch(RAW_URL+'?t='+Date.now());
+    const r=await fetch(RAW_URL, {cache:'no-store'});
     if(r.ok){
       const d=await r.json();
       if(d.slots&&Object.keys(d.slots).length>0){
         S=d.slots;R=d.refs||{};setSync(true);
         document.getElementById('dataSource').textContent='GitHub';return true}}
   }catch(e){}
-  // 2. Fallback: GitHub API (no cache, rate limited)
-  try{
-    const r=await fetch(API_URL,{headers:{'Accept':'application/vnd.github.v3+json'}});
-    if(r.ok){
-      const m=await r.json();
-      const txt=decodeURIComponent(escape(atob(m.content)));
-      const d=JSON.parse(txt);
-      if(d.slots&&Object.keys(d.slots).length>0){
-        S=d.slots;R=d.refs||{};setSync(true);
-        document.getElementById('dataSource').textContent='GitHub';return true}}
-  }catch(e){}
-  // 3. Fallback: localStorage
+  // Fallback: localStorage
   try{
     const ls=localStorage.getItem(LS_KEY);
     if(ls){const p=JSON.parse(ls);S=p.slots||{};R=p.refs||{}}
-    document.getElementById('dataSource').textContent='本地缓存';
+    document.getElementById('dataSource').textContent='本地';
   }catch(e2){}
   setSync(false);return false;
 }
@@ -451,43 +409,19 @@ function scheduleSave(){
   document.getElementById('syncText').textContent='待保存...';
   document.getElementById('syncDot').className='sync-dot saving';
   if(saveTimer) clearTimeout(saveTimer);
-  saveTimer = setTimeout(saveToGitHub, 800);
+  saveTimer = setTimeout(saveToServer, 800);
 }
 
-async function saveToGitHub(){
-  const pat = localStorage.getItem(PAT_KEY);
-  if(!pat){
-    document.getElementById('syncText').textContent='未设置密钥';
-    return;
-  }
-  const payload = JSON.stringify({slots:S, refs:R, _meta:{updated_at:new Date().toISOString(),version:1}});
+async function saveToServer(){
+  const payload = JSON.stringify({slots:S, refs:R});
   try{
-    // Get current file SHA
-    if(!ghSha){
-      try{
-        const metaR=await fetch(API_URL, {headers:{'Authorization':'token '+pat,'Accept':'application/vnd.github.v3+json'}});
-        if(metaR.ok){const m=await metaR.json();ghSha=m.sha}
-      }catch(me){}
-    }
-    // Encode content
-    const enc = btoa(unescape(encodeURIComponent(payload)));
-    const body = {message:'📅 更新排期数据',content:enc,branch:GH_BRANCH};
-    if(ghSha) body.sha = ghSha;
-    const r=await fetch(API_URL, {method:'PUT', headers:{'Authorization':'token '+pat,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'}, body:JSON.stringify(body)});
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    // Verify data isn't empty (cached empty)
-    const v=await r.json();
-    if(v.slots&&Object.keys(v.slots).length>0){S=v.slots||{};R=v.refs||{};setSync(true);document.getElementById('dataSource').textContent='GitHub';return true}
-    const res=await r.json();
-    ghSha = res.content && res.content.sha;
+    localStorage.setItem(LS_KEY, payload);
     setSync(true);
-    document.getElementById('syncText').textContent='已同步';
+    document.getElementById('syncText').textContent='已保存';
     dirty=false;
   }catch(e){
-    console.warn('GitHub save failed:', e);
-    try{localStorage.setItem(LS_KEY, payload)}catch(e2){}
     setSync(false);
-    document.getElementById('syncText').textContent='保存失败·已存本地';
+    document.getElementById('syncText').textContent='保存失败';
   }
   updateCount();
 }
@@ -499,21 +433,17 @@ function setSync(on){
 
 // ── Init ──
 async function init(){
-  const ok = await loadFromGitHub();
-  // Merge defaults for missing refs
+  const ok = await loadFromServer();
   for(let d=1;d<=31;d++){
     if(!R[d]) R[d]=JSON.parse(JSON.stringify(REF_DEFAULTS[d]||[]));
   }
-  render();
-  // Periodic sync check
+  if(!ok) render(); else render();
   setInterval(async ()=>{
     if(!dirty){
-      const fresh = await loadFromGitHub();
+      const fresh = await loadFromServer();
       if(fresh) render();
     }
-  }, 60000);
-  // Check PAT after render
-  checkPAT();
+  }, 30000);
 }
 
 function updateCount(){
@@ -656,9 +586,7 @@ function render(){
     slots.forEach(s=>{sc.appendChild(makeSlot(d,s.type,s.idx,s.key,s.data))});
 
     const ab=document.createElement('div');ab.className='add-bar';
-    if(localStorage.getItem(PAT_KEY)){
     ab.innerHTML=`<button class="add-btn" onclick="as(${d},'uw')">+ 欧美水下号</button><button class="add-btn" onclick="as(${d},'tt')">+ 欧美TT官号</button><button class="add-btn" onclick="as(${d},'hkig')">+ 港台条漫IG</button><button class="add-btn" onclick="as(${d},'usig')">+ 欧美条漫IG</button><button class="add-btn" onclick="as(${d},'ustt')">+ 欧美条漫TT</button><button class="add-btn" onclick="as(${d},'usfb')">+ 欧美FB官号</button><button class="add-btn" onclick="as(${d},'usigoff')">+ 欧美IG官号</button>`;
-  }
     sc.appendChild(ab);
     row.appendChild(sc);
 
@@ -721,7 +649,7 @@ function makeSlot(d,t,i,k,data){
         <span class="pg ${pc}">${data.p}</span>
       </div>
       ${hasLink?`<button class="cl" onclick="event.stopPropagation();copyText('${esc(data.l)}')" title="复制链接">📋</button>`:''}
-      ${localStorage.getItem(PAT_KEY)?`<button class="del" onclick="event.stopPropagation();rs(${d},'${t}',${i})">✕</button>`:''}
+      <button class="del" onclick="event.stopPropagation();rs(${d},'${t}',${i})">✕</button>
     `;
     return div;
   }else{
@@ -732,7 +660,7 @@ function makeSlot(d,t,i,k,data){
       <div style="display:flex;align-items:center;gap:4px;width:100%">
         <span class="badge ${bc}">${label}</span>
         <span style="flex:1;font-size:10px;color:var(--text-dim)">编辑中 · Enter 折叠</span>
-        ${localStorage.getItem(PAT_KEY)?`<button class="del" style="opacity:0.4" onclick="rs(${d},'${t}',${i})">✕</button>`:''}
+        <button class="del" style="opacity:0.4" onclick="rs(${d},'${t}',${i})">✕</button>
       </div>
       <div class="sg">
         <div class="fd fu">
@@ -808,27 +736,6 @@ function copyExport(){
 function clearAll(){if(!confirm('确定清空所有？'))return;S={};scheduleSave();render()}
 function esc(s){if(!s)return '';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
 
-function checkPAT(){
-  const has = !!localStorage.getItem(PAT_KEY);
-  document.getElementById('patStatus').innerHTML = has ? '<span style="color:#34d399">●</span> 已配置' : '<span style="color:var(--accent)">●</span> 未配置';
-}
-function showPATModal(){
-  if(!localStorage.getItem(PAT_KEY)) document.getElementById('patModal').classList.add('active');
-}
-function setupPAT(){
-  const pat = document.getElementById('patInput').value.trim();
-  if(!pat) return;
-  localStorage.setItem(PAT_KEY, pat);
-  document.getElementById('patModal').classList.remove('active');
-  checkPAT();
-  document.getElementById('syncText').textContent='密钥已配置';
-}
-function clearPAT(){
-  if(!confirm('确定清除密钥？之后将无法保存到GitHub')) return;
-  localStorage.removeItem(PAT_KEY);
-  checkPAT();
-  document.getElementById('syncText').textContent='密钥已清除';
-}
 init();
 </script>
 </body>

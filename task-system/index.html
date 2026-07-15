@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌟 星币任务系统</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#1a1a2e;--surface:#16213e;--surface2:#1a2744;--surface3:#0f3460;
+  --border:#2a3a5a;--text:#e8e8f0;--text-dim:#8899bb;--text-muted:#5a6a8a;
+  --gold:#ffd700;--gold-dim:#b8960f;--pink:#ff6b9d;--cyan:#06d6a0;
+  --purple:#7b5cf6;--red:#ef4444;--orange:#f59e0b;--blue:#6366f1;
+  --green:#34d399;--glow:0 0 30px rgba(255,215,0,0.1);
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;
+  background:var(--bg);color:var(--text);min-height:100vh;
+}
+/* ── Header ── */
+.header{
+  position:sticky;top:0;z-index:100;
+  background:linear-gradient(135deg,#1a1a2e,#16213e);
+  border-bottom:1px solid var(--border);padding:12px 16px;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;
+}
+.header h1{font-size:16px;font-weight:700;display:flex;align-items:center;gap:6px}
+.header h1 .star{color:var(--gold)}
+.star-display{font-size:24px;font-weight:800;color:var(--gold);display:flex;align-items:center;gap:4px}
+.star-display small{font-size:12px;font-weight:400;color:var(--text-dim);margin-left:4px}
+/* ── Tabs ── */
+.tabs{
+  display:flex;background:var(--surface);border-bottom:1px solid var(--border);
+  position:sticky;top:56px;z-index:99;
+}
+.tab{padding:10px 18px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-dim);
+  border-bottom:2px solid transparent;transition:all .15s;user-select:none}
+.tab:hover{color:var(--text);background:var(--surface2)}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab .badge{background:var(--pink);color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px}
+/* ── Content ── */
+.content{display:none;padding:12px 16px;max-width:800px;margin:0 auto}
+.content.active{display:block}
+/* ── Layer groups ── */
+.layer{padding:12px;border-radius:10px;margin-bottom:12px}
+.layer-badge{font-size:11px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.layer-badge .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+/* daily form */
+.task-row{
+  display:flex;align-items:center;gap:8px;padding:6px 0;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.task-row:last-child{border-bottom:none}
+.task-row .ck{cursor:pointer;width:18px;height:18px;border-radius:4px;border:2px solid var(--text-dim);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;
+  background:var(--surface2);color:transparent;font-size:11px}
+.task-row .ck.done{border-color:var(--gold);background:var(--gold);color:#1a1a2e}
+.task-row .ck.warn{border-color:var(--red);background:var(--red);color:#fff}
+.task-row .task-name{flex:1;font-size:13px;line-height:1.3}
+.task-row .task-name.done{color:var(--text-dim);text-decoration:line-through}
+.task-row .score{font-size:12px;font-weight:700;white-space:nowrap}
+.task-row .score.pos{color:var(--cyan)}
+.task-row .score.neg{color:var(--red)}
+/* ── Weekly ── */
+.weekly-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+.weekly-card{
+  background:var(--surface2);border-radius:10px;padding:12px;border:1px solid var(--border);
+  cursor:pointer;transition:all .15s;user-select:none;
+}
+.weekly-card:hover{border-color:var(--gold);background:var(--surface3)}
+.weekly-card.done{border-color:var(--gold);background:rgba(255,215,0,0.06)}
+.weekly-card .w-name{font-size:13px;font-weight:600;margin-bottom:4px}
+.weekly-card .w-meta{font-size:11px;color:var(--text-dim);display:flex;justify-content:space-between}
+.weekly-card .w-score{font-size:16px;font-weight:800;color:var(--gold)}
+.weekly-card .w-std{font-size:11px;color:var(--text-muted)}
+/* ── Shop ── */
+.shop-cat{margin-bottom:16px}
+.shop-cat-title{font-size:13px;font-weight:700;color:var(--text-dim);margin-bottom:8px}
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px}
+.shop-item{
+  background:var(--surface2);border-radius:8px;padding:10px;border:1px solid var(--border);
+  cursor:pointer;transition:all .15s;user-select:none;text-align:center;
+}
+.shop-item:hover{border-color:var(--gold);background:var(--surface3)}
+.shop-item .si-name{font-size:12px;font-weight:600;margin-bottom:4px}
+.shop-item .si-cost{font-size:14px;font-weight:800;color:var(--gold)}
+.shop-item .si-cost.insufficient{color:var(--red)}
+/* ── History ── */
+.history-list{display:flex;flex-direction:column;gap:4px}
+.hist-item{font-size:12px;color:var(--text-dim);padding:6px 8px;background:var(--surface2);border-radius:6px;
+  display:flex;justify-content:space-between}
+.hist-item .h-date{color:var(--text-muted)}
+.hist-item .h-score{font-weight:700}
+.hist-item .h-score.pos{color:var(--cyan)}
+.hist-item .h-score.neg{color:var(--red)}
+/* ── Stats ── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:16px}
+.stat-card{background:var(--surface2);border-radius:10px;padding:12px;text-align:center;border:1px solid var(--border)}
+.stat-card .stat-num{font-size:22px;font-weight:800}
+.stat-card .stat-label{font-size:11px;color:var(--text-dim);margin-top:2px}
+/* ── Misc ── */
+.reset-btn{background:var(--surface2);color:var(--text-dim);border:1px solid var(--border);padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;margin-top:8px}
+.reset-btn:hover{background:var(--red);color:#fff;border-color:var(--red)}
+.section-title{font-size:14px;font-weight:700;margin:16px 0 10px;display:flex;align-items:center;gap:6px}
+.modal{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.6);align-items:center;justify-content:center}
+.modal.active{display:flex}
+.modal-box{background:var(--surface);border-radius:12px;padding:20px;max-width:360px;width:90%;border:1px solid var(--border);text-align:center}
+.modal-box h3{margin-bottom:8px}
+.modal-box p{font-size:13px;color:var(--text-dim);margin-bottom:12px}
+.modal-actions{display:flex;gap:8px;justify-content:center}
+.modal-actions button{padding:8px 20px;border-radius:6px;border:none;cursor:pointer;font-weight:600;font-size:13px}
+.btn-confirm{background:var(--gold);color:#1a1a2e}
+.btn-cancel{background:var(--surface2);color:var(--text-dim);border:1px solid var(--border)!important}
+/* 空状态 */
+.empty-state{padding:20px;text-align:center;color:var(--text-muted);font-size:13px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🌟 星币任务系统</h1>
+  <div class="star-display">
+    <span id="starTotal">0</span> ⭐
+    <small id="todayEarn" style="color:var(--cyan)"></small>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="daily" onclick="switchTab('daily')">每日任务</div>
+  <div class="tab" data-tab="weekly" onclick="switchTab('weekly')">周任务</div>
+  <div class="tab" data-tab="shop" onclick="switchTab('shop')">商店</div>
+  <div class="tab" data-tab="history" onclick="switchTab('history')">记录</div>
+</div>
+
+<!-- ── Daily ── -->
+<div id="tab-daily" class="content active"></div>
+
+<!-- ── Weekly ── -->
+<div id="tab-weekly" class="content"></div>
+
+<!-- ── Shop ── -->
+<div id="tab-shop" class="content"></div>
+
+<!-- ── History ── -->
+<div id="tab-history" class="content"></div>
+
+<!-- ── Confirm Modal ── -->
+<div id="confirmModal" class="modal">
+  <div class="modal-box">
+    <h3 id="modalTitle">确认</h3>
+    <p id="modalDesc">确定要执行此操作吗？</p>
+    <div class="modal-actions">
+      <button class="btn-confirm" id="modalConfirm">确认</button>
+      <button class="btn-cancel" onclick="closeModal()">取消</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ──
+let TASKS = {}, RECORDS = {};
+let todayStr = '';
+let pendingAction = null;
+
+// ── Init ──
+async function init(){
+  todayStr = new Date().toISOString().slice(0,10);
+  try{
+    const rt = await fetch('/api/tasks'); TASKS = await rt.json();
+    const rr = await fetch('/api/records'); RECORDS = await rr.json();
+  }catch(e){
+    document.getElementById('tab-daily').innerHTML='<div class="empty-state">⚠ 加载失败，请确认服务已启动</div>';
+    return;
+  }
+  if(!RECORDS.history) RECORDS.history = [];
+  if(!RECORDS.logs) RECORDS.logs = {};
+  if(!RECORDS.shop_log) RECORDS.shop_log = [];
+  if(RECORDS.stars === undefined) RECORDS.stars = 0;
+  if(!RECORDS.logs) RECORDS.logs = {};
+  renderDaily();
+  renderWeekly();
+  renderShop();
+  renderHistory();
+  updateStarDisplay();
+}
+function saveRecords(){
+  fetch('/api/records', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(RECORDS)});
+}
+
+// ── Tab Switch ──
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  document.querySelectorAll('.content').forEach(c=>c.classList.toggle('active', c.id==='tab-'+name));
+}
+
+// ── Star display ──
+function updateStarDisplay(){
+  document.getElementById('starTotal').textContent = RECORDS.stars;
+  const todayLogs = RECORDS.logs[todayStr] || [];
+  const todayTotal = todayLogs.reduce((s,id)=> {
+    const task = TASKS.daily.find(t=>t.id===id);
+    return s + (task ? task.score : 0);
+  }, 0);
+  document.getElementById('todayEarn').textContent = todayTotal ? `今日 +${todayTotal}⭐` : '';
+}
+
+// ── Daily Render ──
+function renderDaily(){
+  const el = document.getElementById('tab-daily');
+  const todayDone = new Set(RECORDS.logs[todayStr] || []);
+  const layers = ['基础健康层','核心禁令层','专注成长层','行为修正层'];
+  const colors = {'基础健康层':'#06d6a0','核心禁令层':'#ff6b9d','专注成长层':'#6366f1','行为修正层':'#f59e0b'};
+  let html = '';
+  html += `<div style="text-align:right;margin-bottom:8px;font-size:11px;color:var(--text-dim)">📅 ${todayStr}</div>`;
+  for(const layer of layers){
+    const tasks = TASKS.daily.filter(t=>t.layer===layer);
+    if(!tasks.length) continue;
+    html += `<div class="layer" style="border-left:3px solid ${colors[layer]}">`;
+    html += `<div class="layer-badge"><span class="dot" style="background:${colors[layer]}"></span>${layer}</div>`;
+    for(const t of tasks){
+      const done = todayDone.has(t.id);
+      const isNeg = t.score < 0;
+      html += `<div class="task-row">`;
+      html += `<div class="ck ${done?'done':''} ${isNeg&&done?'warn':''}" onclick="toggleTask('${t.id}')">${done?'✓':''}</div>`;
+      html += `<div class="task-name ${done?'done':''}">${esc(t.name)}</div>`;
+      html += `<div class="score ${t.score>0?'pos':'neg'}">${t.score>0?'+':''}${t.score}</div>`;
+      html += `</div>`;
+    }
+    html += `</div>`;
+  }
+  html += `<button class="reset-btn" onclick="resetToday()">🔄 重置今日</button>`;
+  el.innerHTML = html;
+}
+
+function toggleTask(id){
+  const todayDone = RECORDS.logs[todayStr] || [];
+  const idx = todayDone.indexOf(id);
+  if(idx > -1){
+    todayDone.splice(idx, 1);
+  } else {
+    todayDone.push(id);
+  }
+  RECORDS.logs[todayStr] = todayDone;
+  recalcStars();
+  saveRecords();
+  renderDaily();
+  renderWeekly();
+  renderHistory();
+  updateStarDisplay();
+}
+
+function resetToday(){
+  if(!confirm('确定重置今日所有打卡记录？')) return;
+  delete RECORDS.logs[todayStr];
+  recalcStars();
+  saveRecords();
+  renderDaily();
+  renderWeekly();
+  renderHistory();
+  updateStarDisplay();
+}
+
+function recalcStars(){
+  let total = 0;
+  for(const [date, ids] of Object.entries(RECORDS.logs)){
+    for(const id of ids){
+      const t = TASKS.daily.find(t=>t.id===id);
+      if(t) total += t.score;
+    }
+  }
+  // weekly
+  for(const id of (RECORDS.weekly_done||[])){
+    const t = TASKS.weekly.find(t=>t.id===id);
+    if(t) total += t.score;
+  }
+  // shop spending
+  for(const s of (RECORDS.shop_log||[])){
+    total -= s.cost;
+  }
+  RECORDS.stars = total;
+}
+
+// ── Weekly Render ──
+function renderWeekly(){
+  const el = document.getElementById('tab-weekly');
+  const weeklyDone = new Set(RECORDS.weekly_done || []);
+  const byStd = {7:[], 4:[]};
+  for(const t of TASKS.weekly){
+    byStd[t.std||7].push(t);
+  }
+  let html = '';
+  for(const [std, tasks] of Object.entries(byStd)){
+    if(!tasks.length) continue;
+    html += `<div class="section-title">📋 ${std}天标准</div>`;
+    html += `<div class="weekly-grid">`;
+    for(const t of tasks){
+      const done = weeklyDone.has(t.id);
+      html += `<div class="weekly-card ${done?'done':''}" onclick="toggleWeekly('${t.id}')">`;
+      html += `<div class="w-name">${esc(t.name)}</div>`;
+      html += `<div class="w-meta"><span class="w-std">${std}天</span><span class="w-score">${done?'✓':'+'+t.score}</span></div>`;
+      html += `</div>`;
+    }
+    html += `</div>`;
+  }
+  html += `<button class="reset-btn" style="margin-top:12px" onclick="resetWeekly()">🔄 重置周任务</button>`;
+  el.innerHTML = html;
+}
+
+function toggleWeekly(id){
+  const arr = RECORDS.weekly_done || [];
+  const idx = arr.indexOf(id);
+  if(idx > -1) arr.splice(idx, 1);
+  else arr.push(id);
+  RECORDS.weekly_done = arr;
+  recalcStars();
+  saveRecords();
+  renderWeekly();
+  renderHistory();
+  updateStarDisplay();
+}
+
+function resetWeekly(){
+  if(!confirm('确定重置所有周任务？')) return;
+  RECORDS.weekly_done = [];
+  recalcStars();
+  saveRecords();
+  renderWeekly();
+  renderHistory();
+  updateStarDisplay();
+}
+
+// ── Shop Render ──
+function renderShop(){
+  const el = document.getElementById('tab-shop');
+  const cats = {};
+  for(const item of TASKS.shop){
+    if(!cats[item.category]) cats[item.category] = [];
+    cats[item.category].push(item);
+  }
+  let html = `<div style="margin-bottom:12px;font-size:13px;color:var(--text-dim)">
+    当前星币：<strong style="color:var(--gold)">${RECORDS.stars} ⭐</strong>
+  </div>`;
+  for(const [cat, items] of Object.entries(cats)){
+    html += `<div class="shop-cat"><div class="shop-cat-title">${esc(cat)}</div><div class="shop-grid">`;
+    for(const item of items){
+      const canAfford = RECORDS.stars >= item.cost;
+      html += `<div class="shop-item ${canAfford?'':'insufficient'}" onclick="buyItem('${item.id}')">`;
+      html += `<div class="si-name">${esc(item.name)}</div>`;
+      html += `<div class="si-cost ${canAfford?'':'insufficient'}">${item.cost}⭐</div>`;
+      html += `</div>`;
+    }
+    html += `</div></div>`;
+  }
+  el.innerHTML = html;
+}
+
+function buyItem(id){
+  const item = TASKS.shop.find(s=>s.id===id);
+  if(!item) return;
+  if(RECORDS.stars < item.cost){
+    showModal('星币不足', `需要 ${item.cost}⭐，当前只有 ${RECORDS.stars}⭐`, null);
+    return;
+  }
+  showModal('确认兑换', `${esc(item.name)}\n消耗 ${item.cost}⭐，确认吗？`, ()=>{
+    RECORDS.stars -= item.cost;
+    RECORDS.shop_log.push({id:item.id, name:item.name, cost:item.cost, date:todayStr});
+    saveRecords();
+    renderShop();
+    renderHistory();
+    updateStarDisplay();
+    closeModal();
+  });
+}
+
+// ── History Render ──
+function renderHistory(){
+  const el = document.getElementById('tab-history');
+  let html = '<div class="section-title">📊 统计</div>';
+  html += '<div class="stats-grid">';
+  html += `<div class="stat-card"><div class="stat-num" style="color:var(--gold)">${RECORDS.stars}</div><div class="stat-label">总星币</div></div>`;
+  const days = Object.keys(RECORDS.logs||{}).length;
+  html += `<div class="stat-card"><div class="stat-num" style="color:var(--cyan)">${days}</div><div class="stat-label">打卡天数</div></div>`;
+  const wkDone = (RECORDS.weekly_done||[]).length;
+  html += `<div class="stat-card"><div class="stat-num" style="color:var(--purple)">${wkDone}</div><div class="stat-label">周任务完成</div></div>`;
+  const shopCount = (RECORDS.shop_log||[]).length;
+  html += `<div class="stat-card"><div class="stat-num" style="color:var(--pink)">${shopCount}</div><div class="stat-label">兑换次数</div></div>`;
+  html += '</div>';
+
+  // Recent activity
+  html += '<div class="section-title">📜 近期记录</div><div class="history-list">';
+  const allLogs = [];
+  for(const [date, ids] of Object.entries(RECORDS.logs||{})){
+    for(const id of ids){
+      const t = TASKS.daily.find(t=>t.id===id);
+      if(t) allLogs.push({date, name: t.name, score: t.score, type:'daily'});
+    }
+  }
+  for(const id of (RECORDS.weekly_done||[])){
+    const t = TASKS.weekly.find(t=>t.id===id);
+    if(t) allLogs.push({date:'周', name: t.name, score: t.score, type:'weekly'});
+  }
+  for(const s of (RECORDS.shop_log||[])){
+    allLogs.push({date: s.date, name: '🛒 '+s.name, score: -s.cost, type:'shop'});
+  }
+  allLogs.sort((a,b)=>b.date.localeCompare(a.date) || (b.score||0)-(a.score||0));
+  const recent = allLogs.slice(0,50);
+  if(!recent.length){
+    html += '<div class="empty-state">还没有记录，开始打卡吧！</div>';
+  } else {
+    for(const r of recent){
+      const sc = r.score>0?`+${r.score}`:r.score;
+      html += `<div class="hist-item"><span class="h-date">${esc(r.date)}</span><span>${esc(r.name)}</span><span class="h-score ${r.score>=0?'pos':'neg'}">${sc}</span></div>`;
+    }
+  }
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+// ── Modal ──
+function showModal(title, desc, onConfirm){
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalDesc').textContent = desc;
+  document.getElementById('modalConfirm').onclick = onConfirm || closeModal;
+  document.getElementById('confirmModal').classList.add('active');
+}
+function closeModal(){document.getElementById('confirmModal').classList.remove('active')}
+
+function esc(s){if(!s)return '';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+init();
+</script>
+</body>
+</html>

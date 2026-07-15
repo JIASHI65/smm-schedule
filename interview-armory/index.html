@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚔️ 面试军火库</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0f;--surface:#12121a;--surface2:#1a1a28;--surface3:#22223a;
+  --border:#2a2a3a;--text:#eeeef0;--text-dim:#8888aa;--text-muted:#55557a;
+  --gold:#ffd700;--red:#ff4466;--cyan:#06d6a0;--purple:#7b5cf6;
+  --blue:#6366f1;--orange:#f59e0b;--pink:#ff6b9d;
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;
+  background:var(--bg);color:var(--text);min-height:100vh;
+}
+.header{
+  position:sticky;top:0;z-index:100;
+  background:linear-gradient(135deg,#0a0a0f,#12121a);
+  border-bottom:1px solid var(--border);padding:10px 14px;
+  display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap;
+}
+.header h1{font-size:15px;font-weight:700;display:flex;align-items:center;gap:6px}
+.header .sub{font-size:10px;color:var(--text-dim)}
+.tabs{
+  display:flex;background:var(--surface);border-bottom:1px solid var(--border);
+  position:sticky;top:54px;z-index:99;overflow-x:auto;
+}
+.tab{padding:9px 14px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text-dim);
+  border-bottom:2px solid transparent;transition:all .12s;white-space:nowrap;user-select:none}
+.tab:hover{color:var(--text);background:var(--surface2)}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.content{display:none;padding:10px 12px;max-width:700px;margin:0 auto}
+.content.active{display:block}
+.section-title{font-size:12px;font-weight:700;margin:12px 0 6px;color:var(--text-dim);display:flex;align-items:center;gap:4px}
+/* ── Stories ── */
+.story-card{
+  background:var(--surface);border-radius:8px;padding:12px;margin-bottom:6px;
+  border:1px solid var(--border);cursor:pointer;transition:all .12s;
+}
+.story-card:hover{border-color:var(--purple);background:var(--surface2)}
+.story-card .sc-company{font-size:10px;color:var(--text-muted);margin-bottom:2px}
+.story-card .sc-title{font-size:14px;font-weight:700;margin-bottom:2px}
+.story-card .sc-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:4px}
+.story-card .sc-tag{font-size:9px;padding:1px 6px;border-radius:3px;background:var(--surface3);color:var(--text-dim)}
+.story-card .sc-conflict{font-size:11px;color:var(--text-dim);line-height:1.4}
+/* story detail modal */
+.modal{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.75);overflow-y:auto}
+.modal.active{display:block}
+.modal-box{background:var(--surface);margin:16px auto;max-width:550px;border-radius:10px;border:1px solid var(--border);padding:18px}
+.modal-close{float:right;color:var(--text-dim);cursor:pointer;font-size:16px;background:none;border:none;padding:4px}
+.modal-box h2{font-size:16px;margin-bottom:2px}
+.modal-box .mb-company{font-size:11px;color:var(--text-muted);margin-bottom:8px}
+.modal-box h4{font-size:11px;font-weight:700;color:var(--text-dim);margin:8px 0 3px}
+.modal-box p{font-size:12px;color:var(--text);line-height:1.5;margin-bottom:4px}
+.modal-box .star-box{background:var(--surface2);border-radius:6px;padding:10px;margin-top:6px;font-size:11px;line-height:1.6}
+.modal-box .star-box strong{color:var(--gold)}
+/* ── Q&A ── */
+.qa-card{
+  background:var(--surface);border-radius:8px;padding:12px;margin-bottom:6px;border:1px solid var(--border);
+  cursor:pointer;transition:all .12s;
+}
+.qa-card:hover{border-color:var(--cyan);background:var(--surface2)}
+.qa-card .qa-q{font-size:13px;font-weight:600;margin-bottom:4px}
+.qa-card .qa-a{font-size:11px;color:var(--text-dim);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.qa-card .qa-tags{display:flex;gap:3px;margin-top:3px;flex-wrap:wrap}
+.qa-card .qa-tag{font-size:8px;padding:1px 5px;border-radius:3px;background:var(--surface3);color:var(--text-muted)}
+.qa-card .qa-practice{font-size:10px;color:var(--cyan);margin-top:4px}
+/* ── Practice mode ── */
+.practice-bar{
+  position:sticky;top:90px;z-index:98;background:var(--surface);padding:8px 12px;
+  border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+}
+.practice-bar select{background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:5px 8px;border-radius:4px;font-size:11px}
+.practice-bar button{background:var(--purple);color:#fff;border:none;padding:5px 12px;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600}
+.practice-bar button:hover{opacity:.85}
+.practice-card{background:var(--surface);border-radius:8px;padding:16px;border:1px solid var(--border);min-height:140px;display:flex;flex-direction:column}
+.practice-card .pc-q{font-size:15px;font-weight:700;margin-bottom:8px}
+.practice-card .pc-hint{font-size:11px;color:var(--text-dim);margin-bottom:10px;padding:8px;background:var(--surface2);border-radius:6px;border-left:3px solid var(--purple)}
+.practice-card textarea{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:12px;min-height:100px;resize:vertical;width:100%;font-family:inherit}
+.practice-card textarea:focus{outline:none;border-color:var(--purple)}
+.practice-card .pc-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.practice-card .pc-actions button{padding:5px 12px;border-radius:4px;border:none;cursor:pointer;font-size:11px;font-weight:600}
+.pc-btn-answer{background:var(--cyan);color:#000}
+.pc-btn-next{background:var(--purple);color:#fff}
+.pc-btn-hint{background:var(--surface2);color:var(--text-dim);border:1px solid var(--border)!important}
+/* ── Daily ── */
+.daily-input{display:flex;gap:6px;margin-bottom:8px}
+.daily-input input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--text);font-size:12px}
+.daily-input input::placeholder{color:var(--text-muted)}
+.daily-input input:focus{outline:none;border-color:var(--gold)}
+.daily-input button{background:var(--gold);color:#000;border:none;border-radius:6px;padding:8px 12px;font-weight:700;cursor:pointer;font-size:12px}
+.daily-item{
+  background:var(--surface2);border-radius:6px;padding:8px 10px;margin-bottom:3px;
+  display:flex;justify-content:space-between;align-items:center;font-size:12px;
+}
+.daily-item .di-date{color:var(--text-muted);font-size:10px}
+.daily-item .di-text{flex:1;margin:0 8px}
+.daily-item .di-del{color:var(--text-muted);cursor:pointer;font-size:14px;background:none;border:none}
+.daily-item .di-del:hover{color:var(--red)}
+/* ── Reset ── */
+.reset-btn{background:var(--surface2);color:var(--text-dim);border:1px solid var(--border);padding:4px 10px;border-radius:4px;cursor:pointer;font-size:10px}
+.reset-btn:hover{background:var(--red);color:#fff;border-color:var(--red)}
+.empty-state{padding:20px;text-align:center;color:var(--text-muted);font-size:12px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>⚔️ 面试军火库</h1>
+  <div class="sub">把你的伤疤变成勋章</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="practice" onclick="switchTab('practice')">🎯 练习</div>
+  <div class="tab" data-tab="stories" onclick="switchTab('stories')">📖 经历库</div>
+  <div class="tab" data-tab="qa" onclick="switchTab('qa')">❓ Q&A</div>
+  <div class="tab" data-tab="knowledge" onclick="switchTab('knowledge')">🧠 知识库</div>
+  <div class="tab" data-tab="resume" onclick="switchTab('resume')">📋 履历</div>
+  <div class="tab" data-tab="daily" onclick="switchTab('daily')">✨ 每日打卡</div>
+</div>
+
+<!-- Practice -->
+<div id="tab-practice" class="content active">
+  <div class="practice-bar">
+    <select id="practiceFilter"><option value="">全部问题</option></select>
+    <button onclick="randomPractice()">🎲 随机一题</button>
+    <span id="practiceCount" style="font-size:11px;color:var(--text-dim);margin-left:auto"></span>
+  </div>
+  <div id="practiceArea" class="practice-card">
+    <div class="empty-state">选择一个标签或点"随机一题"开始练习</div>
+  </div>
+</div>
+
+<!-- Stories -->
+<div id="tab-stories" class="content"></div>
+
+<!-- Q&A -->
+<div id="tab-qa" class="content"></div>
+
+<!-- Resume -->
+<div id="tab-knowledge" class="content"></div>
+<div id="tab-resume" class="content"></div>
+<!-- Daily -->
+<div id="tab-daily" class="content"></div>
+
+<!-- Story Modal -->
+<div id="storyModal" class="modal" onclick="if(event.target===this)closeStory()">
+  <div class="modal-box" id="storyModalBox"></div>
+</div>
+
+<!-- Answer Modal -->
+<div id="answerModal" class="modal" onclick="if(event.target===this)closeAnswer()">
+  <div class="modal-box" id="answerModalBox"></div>
+</div>
+
+<script>
+let DATA = null, PROGRESS = null;
+let currentQ = null;
+
+async function init(){
+  try{
+    const [d, p] = await Promise.all([
+      fetch('/api/armory').then(r=>r.json()),
+      fetch('/api/progress').then(r=>r.json())
+    ]);
+    DATA = d; PROGRESS = p;
+  }catch(e){
+    document.getElementById('tab-stories').innerHTML='<div class="empty-state">⚠ 加载失败</div>';
+    return;
+  }
+  if(!PROGRESS.daily_logs) PROGRESS.daily_logs = [];
+  if(!PROGRESS.practiced_qa) PROGRESS.practiced_qa = [];
+  if(!PROGRESS.fav_stories) PROGRESS.fav_stories = [];
+  initPracticeFilter();
+  renderStories();
+  renderQA();
+  renderKnowledge();
+  renderResume();
+  renderDaily();
+}
+function save(){fetch('/api/progress',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(PROGRESS)})}
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  document.querySelectorAll('.content').forEach(c=>c.classList.toggle('active', c.id==='tab-'+name));
+}
+
+// ── Practice ──
+function initPracticeFilter(){
+  const sel = document.getElementById('practiceFilter');
+  const tags = new Set();
+  for(const q of DATA.qa_pairs) for(const t of q.tags) tags.add(t);
+  const sorted = [...tags].sort((a,b)=>b.length-a.length);
+  for(const t of sorted){
+    const opt = document.createElement('option');
+    opt.value = t; opt.textContent = t;
+    sel.appendChild(opt);
+  }
+  sel.onchange = ()=>{
+    const tag = sel.value;
+    if(tag){
+      const qs = DATA.qa_pairs.filter(q=>q.tags.includes(tag));
+      if(qs.length) showPractice(qs[Math.floor(Math.random()*qs.length)]);
+    }
+  };
+}
+function randomPractice(){
+  const tag = document.getElementById('practiceFilter').value;
+  let pool = tag ? DATA.qa_pairs.filter(q=>q.tags.includes(tag)) : DATA.qa_pairs;
+  if(!pool.length) pool = DATA.qa_pairs;
+  showPractice(pool[Math.floor(Math.random()*pool.length)]);
+}
+function showPractice(q){
+  currentQ = q;
+  const el = document.getElementById('practiceArea');
+  const practiced = PROGRESS.practiced_qa.filter(p=>p.id===q.q).length;
+  document.getElementById('practiceCount').textContent = practiced ? `练习过 ${practiced} 次` : '还没练过';
+  el.innerHTML = `
+    <div class="pc-q">${esc(q.q)}</div>
+    <div class="pc-tags" style="margin-bottom:6px">${q.tags.map(t=>`<span class="sc-tag">${t}</span>`).join('')}</div>
+    <textarea id="practiceAnswer" placeholder="说出你的答案...（可以打字练习）"></textarea>
+    <div class="pc-actions">
+      <button class="pc-btn-answer" onclick="showAnswer()">📖 看参考答案</button>
+      <button class="pc-btn-next" onclick="randomPractice()">🎲 下一题</button>
+      <button class="pc-btn-hint" onclick="document.getElementById('practiceAnswer').value=''">清空</button>
+    </div>
+  `;
+  document.getElementById('practiceAnswer').focus();
+}
+function showAnswer(){
+  if(!currentQ) return;
+  const modal = document.getElementById('answerModal');
+  const box = document.getElementById('answerModalBox');
+  // mark practiced
+  PROGRESS.practiced_qa.push({id: currentQ.q, date: new Date().toISOString().slice(0,10)});
+  save();
+  const practiced = PROGRESS.practiced_qa.filter(p=>p.id===currentQ.q).length;
+  box.innerHTML = `
+    <button class="modal-close" onclick="closeAnswer()">✕</button>
+    <h2>💡 参考答案</h2>
+    <div style="font-size:11px;color:var(--text-dim);margin:4px 0 8px">已练习 ${practiced} 次</div>
+    <div style="font-size:12px;line-height:1.6;background:var(--surface2);padding:12px;border-radius:6px;border-left:3px solid var(--cyan)">${esc(currentQ.a).replace(/\n/g,'<br>')}</div>
+    <div style="margin-top:10px;display:flex;gap:6px">
+      <button class="pc-btn-answer" onclick="closeAnswer();randomPractice()">🎲 下一题</button>
+      <button class="pc-btn-hint" onclick="closeAnswer()">继续练习</button>
+    </div>
+  `;
+  modal.classList.add('active');
+}
+function closeAnswer(){document.getElementById('answerModal').classList.remove('active')}
+
+// ── Stories ──
+function renderStories(){
+  const el = document.getElementById('tab-stories');
+  const fav = new Set(PROGRESS.fav_stories||[]);
+  let html = '<div class="section-title">📖 我的经历库 · 用STAR法则武装每个故事</div>';
+  for(const s of DATA.stories){
+    const isFav = fav.has(s.id);
+    html += `<div class="story-card" onclick="showStory('${s.id}')">
+      <div class="sc-company">${esc(s.company)} ${isFav?'⭐':''}</div>
+      <div class="sc-title">${esc(s.title)}</div>
+      <div class="sc-tags">${s.tags.map(t=>`<span class="sc-tag">${t}</span>`).join('')}</div>
+      <div class="sc-conflict">⚡ ${esc(s.conflict)}</div>
+    </div>`;
+  }
+  el.innerHTML = html;
+}
+function showStory(id){
+  const s = DATA.stories.find(x=>x.id===id);
+  if(!s) return;
+  const modal = document.getElementById('storyModal');
+  const box = document.getElementById('storyModalBox');
+  const star = s.star;
+  box.innerHTML = `
+    <button class="modal-close" onclick="closeStory()">✕</button>
+    <h2>${esc(s.title)}</h2>
+    <div class="mb-company">${esc(s.company)}</div>
+    <h4>⚡ 冲突</h4>
+    <p>${esc(s.conflict)}</p>
+    <h4>💪 行动</h4>
+    <p>${esc(s.action)}</p>
+    <h4>🏆 结果</h4>
+    <p>${esc(s.result)}</p>
+    <h4>🎯 STAR 拆解</h4>
+    <div class="star-box">
+      <strong>S</strong> ${esc(star.situation)}<br>
+      <strong>T</strong> ${esc(star.task)}<br>
+      <strong>A</strong> ${esc(star.action)}<br>
+      <strong>R</strong> ${esc(star.result)}
+    </div>
+    <div style="margin-top:10px;display:flex;gap:6px">
+      <button class="pc-btn-next" onclick="copyStory('${s.id}')">📋 一键复制</button>
+      <button class="pc-btn-hint" onclick="closeStory()">关闭</button>
+    </div>
+  `;
+  modal.classList.add('active');
+}
+function closeStory(){document.getElementById('storyModal').classList.remove('active')}
+function copyStory(id){
+  const s = DATA.stories.find(x=>x.id===id);
+  if(!s) return;
+  const star = s.star;
+  const text = `【${s.title}】\n\nS（情境）：${star.situation}\nT（任务）：${star.task}\nA（行动）：${star.action}\nR（结果）：${star.result}`;
+  navigator.clipboard.writeText(text).then(()=>alert('✅ 已复制到剪贴板'));
+}
+
+// ── Q&A ──
+function renderQA(){
+  const el = document.getElementById('tab-qa');
+  const practiced = new Map();
+  for(const p of (PROGRESS.practiced_qa||[])){
+    practiced.set(p.id, (practiced.get(p.id)||0)+1);
+  }
+  let html = '<div class="section-title">❓ 高频面试题 · 点开看参考答案</div>';
+  for(const qa of DATA.qa_pairs){
+    const pCount = practiced.get(qa.q)||0;
+    html += `<div class="qa-card" onclick="showQA('${esc(qa.q)}')">
+      <div class="qa-q">${esc(qa.q)}</div>
+      <div class="qa-a">${esc(qa.a)}</div>
+      <div class="qa-tags">${qa.tags.map(t=>`<span class="qa-tag">${t}</span>`).join('')}</div>
+      ${pCount ? `<div class="qa-practice">已练习 ${pCount} 次</div>` : ''}
+    </div>`;
+  }
+  el.innerHTML = html;
+}
+function showQA(qText){
+  const qa = DATA.qa_pairs.find(x=>x.q===qText);
+  if(!qa) return;
+  const modal = document.getElementById('answerModal');
+  const box = document.getElementById('answerModalBox');
+  const practiced = PROGRESS.practiced_qa.filter(p=>p.id===qa.q).length;
+  box.innerHTML = `
+    <button class="modal-close" onclick="closeAnswer()">✕</button>
+    <h2>${esc(qa.q)}</h2>
+    <div class="mb-company" style="margin:4px 0 8px">已练习 ${practiced} 次</div>
+    <div style="font-size:12px;line-height:1.6;background:var(--surface2);padding:12px;border-radius:6px;border-left:3px solid var(--cyan)">${esc(qa.a).replace(/\n/g,'<br>')}</div>
+    <div style="margin-top:8px;display:flex;gap:6px">
+      <button class="pc-btn-answer" onclick="closeAnswer()">关闭</button>
+      <button class="pc-btn-next" onclick="closeAnswer();switchTab('practice');showPractice(qa)">去练习</button>
+    </div>
+  `;
+  modal.classList.add('active');
+}
+
+// ── Daily ──
+function renderDaily(){
+  const el = document.getElementById('tab-daily');
+  const logs = PROGRESS.daily_logs||[];
+  let html = `
+    <div class="section-title">✨ 每天记录一个"今天我做到了什么"</div>
+    <div class="daily-input">
+      <input id="dailyInput" placeholder="比如：今天把'学历话术'练了3遍，开始有底气了..." onkeydown="if(event.key==='Enter')addDaily()">
+      <button onclick="addDaily()">记录</button>
+    </div>
+  `;
+  if(!logs.length){
+    html += '<div class="empty-state">还没有记录，写下一件你今天做到的事吧 ✊</div>';
+  } else {
+    for(const log of [...logs].reverse()){
+      html += `<div class="daily-item">
+        <span class="di-date">${esc(log.date)}</span>
+        <span class="di-text">${esc(log.text)}</span>
+        <button class="di-del" onclick="delDaily('${log.date}::${log.text}')">✕</button>
+      </div>`;
+    }
+  }
+  el.innerHTML = html;
+}
+function addDaily(){
+  const inp = document.getElementById('dailyInput');
+  const text = inp.value.trim();
+  if(!text) return;
+  const logs = PROGRESS.daily_logs;
+  logs.push({date: new Date().toISOString().slice(0,10), text});
+  save();
+  inp.value = '';
+  renderDaily();
+}
+function delDaily(key){
+  const [date, text] = [key.split('::')[0], key.slice(key.indexOf('::')+2)];
+  PROGRESS.daily_logs = PROGRESS.daily_logs.filter(l=>!(l.date===date && l.text===text));
+  save();
+  renderDaily();
+}
+
+
+function renderResume(){
+  var el=document.getElementById('tab-resume');
+  var r=DATA.resume;
+  if(!r){el.innerHTML='<div class=\'empty-state\'>暂无履历数据</div>';return}
+  var h='';
+  h+='<div class=\'section-title\'>📊 求职概览</div>';
+  h+='<div class=\'stats-grid\'>';
+  h+='<div class=\'stat-card\'><div class=\'sn\' style=\'color:var(--gold)\'>'+r.stats.total_interview_companies+'</div><div class=\'sl\'>面试过</div></div>';
+  h+='<div class=\'stat-card\'><div class=\'sn\' style=\'color:var(--cyan)\'>'+r.stats.total_exam_companies+'</div><div class=\'sl\'>笔试过</div></div>';
+  h+='<div class=\'stat-card\'><div class=\'sn\' style=\'color:var(--pink)\'>'+r.stats.total_offers+'</div><div class=\'sl\'>拿到Offer</div></div>';
+  h+='<div class=\'stat-card\'><div class=\'sn\' style=\'color:var(--purple)\'>'+r.offers.length+'</div><div class=\'sl\'>入职经历</div></div>';
+  h+='</div>';
+  if(r.stats.work_experience&&r.stats.work_experience.length){
+    h+='<div class=\'section-title\'>💼 工作经历</div>';
+    for(var w of r.stats.work_experience){
+      h+='<div class=\'info-block\' style=\'border-left:3px solid var(--gold)\'>';
+      h+='<h4>'+esc(w.company)+'</h4><p>'+esc(w.role)+' \u00b7 '+esc(w.period)+'</p></div>';
+    }
+  }
+  h+='<div class=\'section-title\'>✅ 已拿Offer</div>';
+  for(var o of r.offers){
+    h+='<div class=\'story-card\' style=\'border-left:3px solid var(--cyan);cursor:default\'>';
+    h+='<div class=\'sc-company\'>'+o.date+'</div>';
+    h+='<div class=\'sc-title\'>'+esc(o.company)+(o.role?' \u00b7 '+esc(o.role):'')+'</div>';
+    if(o.note)h+='<div class=\'sc-conflict\'>'+esc(o.note)+'</div>';
+    h+='</div>';
+  }
+  h+='<div class=\'section-title\'>🎯 面试过的公司</div>';
+  h+='<div style=\'display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:4px\'>';
+  for(var iv of r.interviews){
+    var c=iv.count>=10?'var(--gold)':iv.count>=5?'var(--purple)':iv.count>=3?'var(--cyan)':'var(--text-dim)';
+    h+='<div class=\'story-card\' style=\'cursor:default;padding:8px 10px\'>';
+    h+='<div style=\'display:flex;justify-content:space-between;align-items:center\'>';
+    h+='<div><span style=\'font-weight:700;font-size:13px\'>'+esc(iv.company)+'</span>';
+    if(iv.note)h+='<div style=\'font-size:10px;color:var(--text-muted)\'>'+esc(iv.note)+'</div>';
+    h+='</div>';
+    h+='<div style=\'text-align:right\'><span style=\'font-size:18px;font-weight:800;color:'+c+'\'>'+iv.count+'</span><span style=\'font-size:10px;color:var(--text-dim);display:block\'>'+iv.type+'</span></div>';
+    h+='</div></div>';
+  }
+  h+='</div>';
+  h+='<div class=\'section-title\'>📝 笔试/测评过的公司</div>';
+  h+='<div style=\'display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:4px\'>';
+  for(var e of r.written_exams){
+    h+='<div class=\'story-card\' style=\'cursor:default;padding:6px 10px\'>';
+    h+='<div style=\'display:flex;justify-content:space-between;align-items:center\'>';
+    h+='<span style=\'font-size:12px\'>'+esc(e.company)+'</span>';
+    h+='<span style=\'font-size:14px;font-weight:700;color:var(--text-dim)\'>'+e.count+'次</span>';
+    h+='</div></div>';
+  }
+  h+='</div>';
+  h+='<div class=\'section-title\' style=\'margin-top:16px\'>📬 邮件来源</div>';
+  h+='<div class=\'info-block\'><p>QQ邮箱（2812836498@qq.com）185封求职邮件全量分析</p></div>';
+  el.innerHTML=h;
+}
+
+
+function renderKnowledge(){
+  var el=document.getElementById('tab-knowledge');
+  var mk=DATA.mubu_knowledge;
+  if(!mk||!mk.length){el.innerHTML='<div class=\'empty-state\'>暂无知识库数据</div>';return}
+  var h='';
+  h+='<div class=\'section-title\'>🧠 幕布知识库 · '+mk.length+' 个工作文档</div>';
+  h+='<div style=\'display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px\' id=\'knowledgeFilter\'>';
+  h+='<button class=\'pc-btn-hint\' style=\'padding:3px 10px;font-size:11px;cursor:pointer\' onclick=\'showAllKnowledge()\'>全部</button>';
+  // 提取所有一级节点关键字做标签
+  var tags=new Set();
+  for(var d of mk){
+    var title=d.title;
+    if(title.includes('UGC')||title.includes('社区'))tags.add('UGC/社区');
+    else if(title.includes('AI'))tags.add('AI');
+    else if(title.includes('平台')||title.includes('抖音')||title.includes('快手'))tags.add('平台研究');
+    else if(title.includes('发行')||title.includes('欧美'))tags.add('发行');
+    else if(title.includes('用户')||title.includes('传播'))tags.add('用户/传播');
+    else if(title.includes('竞品')||title.includes('宝洁'))tags.add('方法论');
+    else if(title.includes('OKR')||title.includes('数据'))tags.add('数据');
+    else if(title.includes('卖点')||title.includes('产品'))tags.add('产品');
+    else if(title.includes('梦幻')||title.includes('竞技'))tags.add('案例');
+    else tags.add('其他');
+  }
+  for(var t of tags)h+='<button class=\'pc-btn-hint\' style=\'padding:3px 10px;font-size:11px;cursor:pointer\' onclick=\'filterKnowledge("'+t+'")\'>'+t+'</button>';
+  h+='</div>';
+  h+='<div id=\'knowledgeList\'>';
+  for(var d of mk){
+    h+='<div class=\'story-card\' style=\'cursor:pointer\' onclick=\'showKnowledge("'+esc(d.title)+'")\'>';
+    h+='<div class=\'sc-title\'>'+esc(d.title)+'</div>';
+    h+='<div class=\'sc-conflict\' style=\'font-size:11px\'>共 '+d.node_count+' 条笔记</div>';
+    // 显示前几条预览
+    if(d.preview&&d.preview.length){
+      for(var i=0;i<Math.min(3,d.preview.length);i++){
+        var p=d.preview[i];
+        if(p.text&&p.text.length>1){
+          h+='<div style=\'font-size:10px;color:var(--text-muted);padding-left:'+(12+p.depth*12)+'px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap\'>'+esc(p.text.slice(0,80))+'</div>';
+        }
+      }
+    }
+    h+='</div>';
+  }
+  h+='</div>';
+  el.innerHTML=h;
+}
+function showAllKnowledge(){
+  document.querySelectorAll('#knowledgeList .story-card').forEach(function(e){e.style.display='block'});
+}
+function filterKnowledge(tag){
+  // 简易过滤 - 通过标题匹配
+  var mk=DATA.mubu_knowledge;
+  var cards=document.querySelectorAll('#knowledgeList .story-card');
+  var titles=Object.fromEntries([...mk].map(function(d,i){return [d.title,i]}));
+  cards.forEach(function(card){
+    var title=card.querySelector('.sc-title').textContent;
+    var d=mk[titles[title]];
+    var match=false;
+    if(d){
+      if(tag=='UGC/社区'&&(d.title.includes('UGC')||d.title.includes('社区')))match=true;
+      else if(tag=='AI'&&d.title.includes('AI'))match=true;
+      else if(tag=='平台研究'&&(d.title.includes('平台')))match=true;
+      else if(tag=='发行'&&(d.title.includes('发行')||d.title.includes('欧美')))match=true;
+      else if(tag=='用户/传播'&&(d.title.includes('用户')||d.title.includes('传播')))match=true;
+      else if(tag=='方法论'&&(d.title.includes('竞品')||d.title.includes('宝洁')))match=true;
+      else if(tag=='数据'&&(d.title.includes('OKR')||d.title.includes('数据')))match=true;
+      else if(tag=='产品'&&(d.title.includes('卖点')||d.title.includes('产品')))match=true;
+      else if(tag=='案例'&&(d.title.includes('梦幻')||d.title.includes('竞技')))match=true;
+    }
+    card.style.display=match?'block':'none';
+  });
+}
+function showKnowledge(title){
+  var mk=DATA.mubu_knowledge;
+  var d=mk.find(function(x){return x.title===title});
+  if(!d)return;
+  var modal=document.getElementById('answerModal');
+  var box=document.getElementById('answerModalBox');
+  var h='<button class=\'modal-close\' onclick=\'closeAnswer()\'>✕</button>';
+  h+='<h2>'+esc(d.title)+'</h2>';
+  h+='<div class=\'mb-company\' style=\'margin:4px 0 8px\'>共 '+d.node_count+' 条笔记</div>';
+  h+='<div style=\'max-height:400px;overflow-y:auto;font-size:12px;line-height:1.6\'>';
+  for(var n of d.preview){
+    if(n.text&&n.text.length>1){
+      h+='<div style=\'padding-left:'+(n.depth*16)+'px;margin:2px 0\'>'+esc(n.text.slice(0,300))+'</div>';
+    }
+  }
+  if(d.node_count>d.preview.length)h+='<div style=\'color:var(--text-muted);font-size:11px;margin-top:8px\'>...还有 '+(d.node_count-d.preview.length)+' 条未显示</div>';
+  h+='</div>';
+  box.innerHTML=h;
+  modal.classList.add('active');
+}
+
+function esc(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+init();
+</script>
+</body>
+</html>

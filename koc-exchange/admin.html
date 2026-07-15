@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yoyo Town · Admin</title>
+<style>
+  :root {
+    --pink: #f2a6c4; --pink-light: #fce4ec; --pink-dark: #d4749a;
+    --bg: #fef6f9; --card: #ffffff; --text: #3d2b36; --text-light: #8a7a83;
+    --border: #f0dae4; --shadow: 0 4px 20px rgba(210,120,150,0.12); --radius: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg); color: var(--text); font-size: 14px;
+  }
+  .container { max-width: 1100px; padding: 20px; margin: 0 auto; }
+  .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; flex-wrap: wrap; gap: 8px; }
+  .header h1 { font-size: 22px; color: var(--pink-dark); }
+  .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; margin-bottom: 16px; }
+  .card-title { font-size: 15px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
+  input, select, textarea {
+    padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 8px;
+    font-size: 13px; outline: none; background: #faf5f7; font-family: inherit;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--pink); }
+  textarea { resize: vertical; min-height: 60px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 7px 14px; border: none; border-radius: 8px; font-size: 12px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s; gap: 4px;
+  }
+  .btn-primary { background: var(--pink); color: white; }
+  .btn-primary:hover { background: var(--pink-dark); }
+  .btn-sm { padding: 4px 10px; font-size: 11px; }
+  .btn-success { background: #4caf50; color: white; }
+  .btn-danger { background: #e74c3c; color: white; }
+  .btn-outline { background: transparent; border: 1.5px solid var(--border); }
+  .btn-warning { background: #ff9800; color: white; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 8px 6px; border-bottom: 2px solid var(--border); font-weight: 600; color: var(--text-light); font-size: 11px; letter-spacing: 0.3px; white-space: nowrap; }
+  td { padding: 8px 6px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:hover td { background: #faf5f7; }
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  }
+  .badge-pending { background: #fff3e0; color: #e65100; }
+  .badge-shipped { background: #e8f5e9; color: #2e7d32; }
+  .badge-cancelled { background: #fbe9e7; color: #bf360c; }
+  .toast {
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+    padding: 10px 20px; border-radius: 8px; font-size: 13px;
+    z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+  .toast.success { background: #4caf50; color: white; }
+  .toast.error { background: #e74c3c; color: white; }
+  .hidden { display: none !important; }
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.3); display: flex; align-items: center;
+    justify-content: center; z-index: 100;
+  }
+  .modal { background: white; border-radius: var(--radius); padding: 24px; max-width: 520px; width: 92%; max-height: 85vh; overflow-y: auto; }
+  .modal h3 { margin-bottom: 12px; font-size: 15px; display: flex; align-items: center; gap: 6px; }
+  .modal label { display: block; font-size: 12px; font-weight: 500; margin: 6px 0 2px; color: var(--text-light); }
+  .modal input, .modal select, .modal textarea { width: 100%; margin-bottom: 4px; }
+  .modal .btn { margin-top: 4px; }
+  .pts { font-weight: 700; color: var(--pink-dark); font-size: 14px; }
+  .order-row { font-size: 12px; color: var(--text-light); padding: 3px 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .stats-bar { display: flex; gap: 16px; font-size: 13px; color: var(--text-light); margin-bottom: 12px; flex-wrap: wrap; }
+  .stats-bar span { background: var(--pink-light); padding: 4px 12px; border-radius: 20px; font-weight: 500; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 2px; margin-bottom: 16px; background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 4px; flex-wrap: wrap; }
+  .tab {
+    flex: 1; min-width: 80px; padding: 10px 12px; border: none; border-radius: 8px;
+    font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    background: transparent; color: var(--text-light); text-align: center;
+  }
+  .tab:hover { background: var(--pink-light); color: var(--text); }
+  .tab.active { background: var(--pink); color: white; }
+  .tab .count { font-size: 11px; opacity: 0.7; margin-left: 2px; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Toggle switch for CC */
+  .toggle-wrap { display: flex; align-items: center; gap: 6px; justify-content: center; }
+  .toggle-cb { display: none; }
+  .toggle-label {
+    display: inline-block; width: 36px; height: 20px; background: #ddd; border-radius: 10px;
+    position: relative; cursor: pointer; transition: background 0.2s; flex-shrink: 0;
+  }
+  .toggle-label::after {
+    content: ''; display: block; width: 16px; height: 16px; background: white; border-radius: 50%;
+    position: absolute; top: 2px; left: 2px; transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .toggle-cb:checked + .toggle-label { background: var(--pink); }
+  .toggle-cb:checked + .toggle-label::after { transform: translateX(16px); }
+
+  .deadline-box { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 10px 14px; background: #faf5f7; border-radius: 8px; font-size: 13px; }
+ .deadline-box input[type="date"] { width: 150px; }
+ .deadline-box input[type="time"] { width: 110px; }
+  .cc-badge { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 10px; background: var(--pink-light); color: var(--pink-dark); }
+  .month-section { margin-bottom: 24px; }
+  .month-header { 
+    font-size: 16px; font-weight: 700; padding: 14px 18px; 
+    background: linear-gradient(135deg, var(--pink-light), #fff);
+    border-radius: 12px 12px 0 0;
+    margin-bottom: 0; display: flex; align-items: center; gap: 10px;
+    border: 1.5px solid var(--border); border-bottom: none;
+  }
+  .month-header .count { font-size: 12px; font-weight: 400; color: var(--text-light); }
+  .month-header .month-icon { font-size: 22px; line-height: 1; }
+  .month-table { width: 100%; border-collapse: collapse; font-size: 13px; border: 1.5px solid var(--border); border-radius: 0 0 12px 12px; overflow: hidden; }
+  .month-table th { text-align: left; padding: 8px 6px; border-bottom: 2px solid var(--border); font-weight: 600; color: var(--text-light); font-size: 11px; white-space: nowrap; background: #faf5f7; }
+  .month-table td { padding: 8px 6px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .month-table tr:last-child td { border-bottom: none; }
+  .month-table tr:hover td { background: #fef6f9; }
+  .section-divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--text-light); font-size: 14px; }
+  .sortable-ghost { opacity:0.4; background:var(--pink-light)!important; box-shadow:0 0 0 2px var(--pink) inset }
+  .sortable-drag { background:white!important; box-shadow:0 8px 24px rgba(0,0,0,0.15); opacity:0.95 }
+  .drag-handle:hover { color:var(--pink-dark)!important }
+  .drag-handle:active { cursor:grabbing!important }
+  .month-table tbody { min-height:30px }
+  .truncate { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: middle; }
+  @media (max-width: 768px) {
+    .container { padding: 12px; }
+    .tabs { gap: 1px; }
+    .tab { font-size: 12px; padding: 8px 6px; min-width: 60px; }
+    th, td { font-size: 12px; padding: 6px 4px; }
+    .truncate { max-width: 100px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <!-- ===== LOGIN ===== -->
+  <div id="login-screen" class="card" style="max-width:320px;margin:80px auto;">
+    <div class="card-title">🔐 Admin</div>
+    <input type="password" id="admin-pw" placeholder="Password" style="width:100%;margin-bottom:8px;">
+    <button class="btn btn-primary" onclick="adminLogin()" style="width:100%;">Login</button>
+  </div>
+
+  <!-- ===== ADMIN PANEL ===== -->
+  <div id="admin-panel" class="hidden">
+    <div class="header">
+      <h1>🎀 Admin · KOC Redemption</h1>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span id="deadline-show" style="font-size:12px;color:var(--text-light);"></span>
+        <button class="btn btn-outline btn-sm" onclick="adminLogout()">Logout</button>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tabs" id="tab-nav">
+      <button class="tab active" onclick="switchTab('koc-ledger')">📋 KOC台账</button>
+      <button class="tab" onclick="switchTab('merch')">📦 周边发货</button>
+      <button class="tab" onclick="switchTab('diamond')">💎 端内奖励</button>
+      <button class="tab" onclick="switchTab('gplay')">🎮 谷歌卡</button>
+    </div>
+
+    <!-- ======== TAB: KOC台账 ======== -->
+    <div id="tab-koc-ledger" class="tab-content active">
+      <div class="card">
+        <div class="stats-bar" id="stats-bar">
+          <span id="stat-total">Loading...</span>
+          <span id="stat-shipped">Loading...</span>
+          <span id="stat-pending">Loading...</span>
+        </div>
+        <div class="row" style="margin-bottom:4px;">
+          <input type="text" id="new-discord" placeholder="Discord name" style="width:150px;">
+          <input type="text" id="new-uid" placeholder="UID" style="width:130px;">
+          <label style="font-size:12px;display:flex;align-items:center;gap:4px;cursor:pointer;"><input type="checkbox" id="cb-welcome" checked> 🎁 Welcome gift</label><button class="btn btn-primary btn-sm" onclick="addKOC()">+ Add KOC</button>
+        </div>
+        <div class="row">
+          <input type="text" id="search-input" placeholder="Search Discord or UID..." style="width:220px;" oninput="renderKocTable()">
+          <span id="koc-count" style="font-size:12px;color:var(--text-light);"></span>
+        </div>
+        <div style="overflow-x:auto;">
+        <table>
+          <thead><tr>
+            <th>Discord</th>
+            <th>UID</th>
+            <th>Pts</th>
+            <th>Name</th>
+            <th>Region</th>
+            <th>Account ID</th>
+            <th>Server</th>
+            <th style="text-align:center;">CC ✓</th>
+            <th>Edit</th>
+            <th>Orders</th>
+          </tr></thead>
+          <tbody id="koc-table"></tbody>
+        </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">⏰ 提交截止时间</div>
+        <div class="deadline-box">
+          <span>Submission closes:</span>
+          <input type="date" id="deadline-date">
+          <input type="time" id="deadline-time">
+          <button class="btn btn-primary btn-sm" onclick="saveDeadline()">Save</button>
+          <span id="deadline-status" style="font-size:12px;color:var(--text-light);"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======== TAB: 周边发货 ======== -->
+    <div id="tab-merch" class="tab-content">
+      <div class="card">
+        <div class="card-title">📦 周边发货清单 <span id="merch-count" style="font-size:12px;color:var(--text-light);"></span></div>
+       <div style="overflow-x:auto;">
+         <div id="merch-table"></div>
+       </div>
+      </div>
+    </div>
+
+    <!-- ======== TAB: 端内奖励 ======== -->
+    <div id="tab-diamond" class="tab-content">
+      <div class="card">
+        <div class="card-title">💎 端内奖励清单 <span id="diamond-count" style="font-size:12px;color:var(--text-light);"></span></div>
+       <div style="overflow-x:auto;">
+         <div id="diamond-table"></div>
+       </div>
+      </div>
+    </div>
+
+    <!-- ======== TAB: 谷歌卡 ======== -->
+    <div id="tab-gplay" class="tab-content">
+      <div class="card">
+        <div class="card-title">🎮 Google Play 礼品卡清单 <span id="gplay-count" style="font-size:12px;color:var(--text-light);"></span></div>
+       <div style="overflow-x:auto;">
+         <div id="gplay-table"></div>
+       </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: Edit KOC ===== -->
+<div id="edit-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeEditModal()">
+  <div class="modal">
+    <h3>✏️ Edit KOC</h3>
+    <label>Discord Name</label>
+    <input type="text" id="edit-discord" readonly style="background:#f0e8ec;">
+    <label>UID</label>
+    <input type="text" id="edit-uid" readonly style="background:#f0e8ec;">
+    <label>Name</label>
+    <input type="text" id="edit-name" placeholder="Real name / game name">
+    <label>Channel Tag</label>
+    <input type="text" id="edit-channel" placeholder="TT / Ins / FB / Reddit">
+    <label>Region / Country</label>
+    <input type="text" id="edit-region" placeholder="e.g. USA, Canada">
+    <label>Address (full)</label>
+    <textarea id="edit-address" rows="4" placeholder="Street, city, state, zip, country"></textarea>
+    <label>Phone</label>
+    <input type="text" id="edit-phone" placeholder="Phone number">
+    <label>Account ID (game)</label>
+    <input type="text" id="edit-account" placeholder="Game Account ID">
+    <label>Server</label>
+    <input type="text" id="edit-server" placeholder="正式服 / 灯塔服">
+    <label>Notes</label>
+    <textarea id="edit-notes" rows="3" placeholder="Level, months, auth info"></textarea>
+    <div class="row" style="margin-top:10px;">
+      <button class="btn btn-primary" onclick="saveEditKOC()" style="flex:1;">Save</button>
+      <button class="btn btn-outline" onclick="closeEditModal()" style="flex:1;">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: Point Adjust ===== -->
+<div id="point-modal" class="modal-overlay hidden" onclick="if(event.target===this)closePointModal()">
+  <div class="modal">
+    <h3 id="modal-title">✏️ Adjust Points</h3>
+    <select id="modal-action">
+      <option value="">Select...</option>
+      <option value="add">➕ Add points</option>
+      <option value="deduct">➖ Deduct points</option>
+    </select>
+    <input type="number" id="modal-points" placeholder="Points" min="1">
+    <input type="text" id="modal-reason" placeholder="Reason (e.g. June settlement)">
+    <div class="row" style="margin-top:6px;">
+      <button class="btn btn-primary" onclick="submitPoints()" style="flex:1;">Confirm</button>
+      <button class="btn btn-outline" onclick="closePointModal()" style="flex:1;">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://rryzofimrehmkijkckrm.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_oyewqnQ8AnitAOD94Qg0nA_v6Zqkr7r';
+const ADMIN_PASSWORD = 'yoyo2026';
+
+// -- Drag-and-Drop Reorder --
+function loadSortableJS() {
+  if (window.Sortable) return Promise.resolve();
+  return new Promise(function(resolve, reject) {
+    var s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js';
+    s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+let allKocs = [];
+let allOrders = [];
+let editingUid = null;
+
+function supabaseFetch(url, opts = {}) {
+  return fetch(url, { ...opts, headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json', ...opts.headers } });
+}
+
+function showToast(m, t = '') {
+  const x = document.getElementById('toast');
+  x.textContent = m; x.className = 'toast ' + t + ' show';
+  setTimeout(() => x.classList.remove('show'), 2500);
+}
+
+// ===== LOGIN =====
+function adminLogin() {
+  if (document.getElementById('admin-pw').value === ADMIN_PASSWORD) {
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('admin-panel').classList.remove('hidden');
+    loadData();
+  } else { showToast('Wrong password', 'error'); }
+}
+
+function adminLogout() {
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('admin-panel').classList.add('hidden');
+  document.getElementById('admin-pw').value = '';
+}
+
+// ===== TABS =====
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelector('.tab[onclick*="' + name + '"]').classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  // Refresh tab content
+  if (name === 'koc-ledger') renderKocTable();
+  if (name === 'merch') renderMerchTab();
+  if (name === 'diamond') renderDiamondTab();
+  if (name === 'gplay') renderGplayTab();
+}
+
+// ===== DATA LOADING =====
+async function loadData() {
+  try {
+    const [kocRes, ordRes] = await Promise.all([
+      supabaseFetch(SUPABASE_URL + '/rest/v1/kocs?order=discord_name.asc&select=*'),
+      supabaseFetch(SUPABASE_URL + '/rest/v1/redemption_orders?order=created_at.desc&limit=500&select=*')
+    ]);
+    allKocs = await kocRes.json();
+    allOrders = await ordRes.json();
+    renderKocTable();
+    loadDeadline();
+  } catch (e) { showToast('Error loading data', 'error'); }
+}
+
+async function getBalance(uid) {
+  try {
+    const r = await supabaseFetch(SUPABASE_URL + '/rest/v1/point_logs?uid=eq.' + encodeURIComponent(uid) + '&order=created_at.desc&limit=1');
+    const d = await r.json();
+    return d.length ? d[0].balance_after : 0;
+  } catch { return 0; }
+}
+
+// ===== CHECK CC STATUS =====
+function hasCC(notes) {
+  if (!notes) return false;
+  const now = new Date();
+  const m = String(now.getMonth()+1).padStart(2,'0');
+  const y = now.getFullYear();
+  return notes.includes('CC:' + y + '-' + m);
+}
+
+function toggleCC(uid, notes) {
+  const now = new Date();
+  const m = String(now.getMonth()+1).padStart(2,'0');
+  const y = now.getFullYear();
+  const tag = 'CC:' + y + '-' + m;
+  let updated = notes || '';
+  if (hasCC(notes)) {
+    updated = updated.replace(new RegExp(',?\\s*' + tag, 'g'), '');
+  } else {
+    updated = updated ? updated + ', ' + tag : tag;
+  }
+  updated = updated.replace(/^,\s*/, '').replace(/,\s*$/, '');
+  // Update via API
+  supabaseFetch(SUPABASE_URL + '/rest/v1/kocs?uid=eq.' + encodeURIComponent(uid), {
+    method: 'PATCH',
+    body: JSON.stringify({ notes: updated })
+  }).then(function(r) {
+    if (r.ok) {
+      var koc = allKocs.find(function(k) { return k.uid === uid; });
+      if (koc) koc.notes = updated;
+      renderKocTable();
+      showToast('CC updated', 'success');
+    } else {
+      showToast('Failed to update CC', 'error');
+    }
+  }).catch(function() { showToast('Error updating CC', 'error'); });
+}
+
+// ===== RENDER KOC LEDGER =====
+function renderKocTable() {
+  var q = document.getElementById('search-input').value.toLowerCase();
+  var filtered = allKocs.filter(function(k) {
+    return (k.discord_name || '').toLowerCase().includes(q) || (k.uid || '').toLowerCase().includes(q);
+  });
+
+  document.getElementById('koc-count').textContent = filtered.length + ' creators';
+  document.getElementById('stat-total').textContent = '\uD83D\uDC65 Total: ' + allKocs.length;
+  var shipped = allOrders.filter(function(o) { return o.status === 'shipped'; }).length;
+  var pending = allOrders.filter(function(o) { return o.status === 'pending'; }).length;
+  document.getElementById('stat-shipped').textContent = '\u2705 Shipped: ' + shipped;
+  document.getElementById('stat-pending').textContent = '\u23F3 Pending: ' + pending;
+
+  var tbody = document.getElementById('koc-table');
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:24px;color:var(--text-light);">No creators</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(function(k) {
+    var orders = allOrders.filter(function(o) { return o.uid === k.uid; });
+    var pendingOrders = orders.filter(function(o) { return o.status === 'pending'; });
+    var cc = hasCC(k.notes);
+    return '<tr>' +
+      '<td><strong>' + esc(k.discord_name) + '</strong></td>' +
+      '<td style="font-family:monospace;font-size:12px;color:var(--text-light);">' + esc(k.uid) + '</td>' +
+      '<td><span class="pts" id="pts-' + k.uid + '">\u22EF</span></td>' +
+      '<td>' + esc(k.name || '-') + '</td>' +
+      '<td style="font-size:12px;">' + esc(k.region || '-') + '</td>' +
+      '<td style="font-family:monospace;font-size:12px;color:var(--text-light);">' + esc(k.account_id || '-') + '</td>' +
+      '<td style="font-size:12px;">' + esc(k.server || '-') + '</td>' +
+      '<td style="text-align:center;">' +
+        '<div class="toggle-wrap">' +
+          '<input type="checkbox" class="toggle-cb" id="cc-' + k.uid + '" ' + (cc ? 'checked' : '') + ' onchange="toggleCC(\'' + k.uid + '\',\'' + escAttr(k.notes||'') + '\')">' +
+          '<label class="toggle-label" for="cc-' + k.uid + '"></label>' +
+        '</div>' +
+      '</td>' +
+      '<td>' +
+        (pendingOrders.length > 0 ? '<span class="badge badge-pending" style="cursor:pointer;" onclick="toggleOrders(\'' + k.uid + '\')">' + pendingOrders.length + ' pending</span>' : '<span style="color:var(--text-light);font-size:12px;">0</span>') +
+        '<div id="orders-' + k.uid + '" class="hidden" style="margin-top:4px;max-width:240px;">' +
+          orders.slice(0,5).map(function(o) {
+            return '<div class="order-row">' + esc(o.option_name) + ' \u00B7 <span class="badge badge-' + o.status + '">' + o.status + '</span> ' + (o.status === 'pending' ? '<span class="btn btn-success btn-sm" onclick="shipOrder(' + o.id + ')">\u2713</span>' : '') + '</div>';
+          }).join('') +
+          (orders.length > 5 ? '<div style="font-size:11px;color:var(--text-light);">+' + (orders.length-5) + ' more</div>' : '') +
+        '</div>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+
+  // Load balances
+  filtered.forEach(function(k) {
+    getBalance(k.uid).then(function(p) {
+      var el = document.getElementById('pts-' + k.uid);
+      if (el) el.textContent = p;
+    });
+  });
+}
+
+function esc(s) { return s == null ? '' : String(s).replace(/[&<>]/g, function(c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]; }); }
+function escAttr(s) { return String(s).replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n'); }
+
+function toggleOrders(uid) {
+  var el = document.getElementById('orders-' + uid);
+  if (el) el.classList.toggle('hidden');
+}
+
+// ===== ADD KOC =====
+async function addKOC() {
+  var discord = document.getElementById('new-discord').value.trim();
+  var uid = document.getElementById('new-uid').value.trim();
+  if (!discord || !uid) { showToast('Discord name and UID required', 'error'); return; }
+  try {
+    await supabaseFetch(SUPABASE_URL + '/rest/v1/kocs', {
+      method: 'POST',
+      body: JSON.stringify({ uid: uid, discord_name: discord, name: discord, status: 'active', created_at: new Date().toISOString() })
+    });
+    
+    // Auto-create welcome gift if checkbox is checked
+    var sendGift = document.getElementById('cb-welcome') && document.getElementById('cb-welcome').checked;
+    if (sendGift) {
+      await supabaseFetch(SUPABASE_URL + '/rest/v1/redemption_orders', {
+        method: 'POST',
+        body: JSON.stringify({
+          uid: uid, discord_name: discord, koc_name: discord,
+          option_type: 'merch', option_name: '\uD83C\uDF81 \u65B0\u4EBA\u5165\u804C\u5468\u8FB9',
+          points_spent: 0, reward_amount: '\u968F\u673A\u5468\u8FB9 \u00D7 1',
+          contact_info: '', status: 'pending',
+          admin_notes: 'Welcome gift - auto created',
+          created_at: new Date().toISOString()
+        })
+      });
+      showToast('\u2705 Added ' + discord + ' + welcome gift', 'success');
+    } else {
+      showToast('\u2705 Added ' + discord, 'success');
+    }
+    document.getElementById('new-discord').value = '';
+    document.getElementById('new-uid').value = '';
+    loadData();
+  } catch (e) { showToast('Error: maybe UID exists', 'error'); }
+}
+
+// ===== SHIP ORDER =====
+async function shipOrder(id) {
+  try {
+    var oRes = await supabaseFetch(SUPABASE_URL + '/rest/v1/redemption_orders?id=eq.' + id + '&select=*');
+    var oData = await oRes.json();
+    var order = oData[0];
+    if (!order) throw new Error('Order not found');
+
+    // Check if points already deducted (old system compatibility)
+    var lRes = await supabaseFetch(SUPABASE_URL + '/rest/v1/point_logs?uid=eq.' + order.uid + '&change=eq.' + (-order.points_spent) + '&source=eq.redemption&order=created_at.desc&limit=1');
+    var logs = await lRes.json();
+    var alreadyDeducted = logs.length > 0 && 
+      (Math.abs(new Date(logs[0].created_at).getTime() - new Date(order.created_at).getTime()) < 10000);
+
+    // Ship the order
+    await supabaseFetch(SUPABASE_URL + '/rest/v1/redemption_orders?id=eq.' + id, {
+      method: 'PATCH',
+      body: JSON.stringify({ status: 'shipped', processed_at: new Date().toISOString(), processed_by: 'admin' })
+    });
+
+    // Deduct points if not already deducted (new system)
+    if (!alreadyDeducted) {
+      var curBal = await getBalance(order.uid);
+      await supabaseFetch(SUPABASE_URL + '/rest/v1/point_logs', {
+        method: 'POST',
+        body: JSON.stringify({
+          uid: order.uid, change: -order.points_spent,
+          balance_after: curBal - order.points_spent,
+          source: 'redemption', reason: 'Shipped order #' + id,
+          created_at: new Date().toISOString()
+        })
+      });
+    }
+
+    showToast('\u2705 Shipped' + (alreadyDeducted ? '' : ' + pts deducted'), 'success');
+    loadData();
+  } catch (e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+// ===== POINT MODAL =====
+function openPointModal(uid, discord) {
+  editingUid = uid;
+  document.getElementById('modal-title').textContent = '\u270F\uFE0F ' + discord;
+  document.getElementById('modal-points').value = '';
+  document.getElementById('modal-reason').value = '';
+  document.getElementById('modal-action').value = '';
+  document.getElementById('point-modal').classList.remove('hidden');
+}
+
+function closePointModal() {
+  document.getElementById('point-modal').classList.add('hidden');
+  editingUid = null;
+}
+
+async function submitPoints() {
+  var action = document.getElementById('modal-action').value;
+  var pts = parseInt(document.getElementById('modal-points').value);
+  var reason = document.getElementById('modal-reason').value.trim();
+  if (!action || !pts || pts < 1 || !reason) { showToast('Fill in all fields', 'error'); return; }
+
+  var change = action === 'add' ? pts : -pts;
+  try {
+    var bal = await getBalance(editingUid);
+    var newBal = Math.max(0, bal + change);
+    await supabaseFetch(SUPABASE_URL + '/rest/v1/point_logs', {
+      method: 'POST',
+      body: JSON.stringify({ uid: editingUid, change: change, balance_after: newBal, source: 'manual', reason: reason, created_by: 'admin', created_at: new Date().toISOString() })
+    });
+    showToast('\u2705 ' + (change > 0 ? '+' : '') + change + ' pts', 'success');
+    closePointModal();
+    renderKocTable();
+  } catch (e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+// ===== EDIT KOC MODAL =====
+function openEditModal(uid) {
+  var koc = allKocs.find(function(k) { return k.uid === uid; });
+  if (!koc) return;
+  editingUid = uid;
+  
+  // Parse address to extract phone if present
+  var addr = koc.address || '';
+  var parsed = parseAddress(addr);
+
+  document.getElementById('edit-discord').value = koc.discord_name || '';
+  document.getElementById('edit-uid').value = koc.uid || '';
+  document.getElementById('edit-name').value = koc.name || '';
+  document.getElementById('edit-channel').value = koc.channel_tag || '';
+  document.getElementById('edit-region').value = koc.region || '';
+  document.getElementById('edit-address').value = parsed.address;
+  document.getElementById('edit-phone').value = parsed.phone;
+  document.getElementById('edit-account').value = koc.account_id || '';
+  document.getElementById('edit-server').value = koc.server || '';
+  document.getElementById('edit-notes').value = koc.notes || '';
+  document.getElementById('edit-modal').classList.remove('hidden');
+}
+
+function parseAddress(addr) {
+  if (!addr) return { address: '', phone: '' };
+  // Check if phone is separated by \n\n at end
+  var parts = addr.split('\n\n');
+  if (parts.length >= 2 && /[\d\-\(\)\+\s]{7,}/.test(parts[parts.length-1])) {
+    return { address: parts.slice(0,-1).join('\n\n'), phone: parts[parts.length-1].trim() };
+  }
+  // Try last line
+  var lines = addr.split('\n');
+  var last = lines[lines.length-1];
+  if (/[\d\-\(\)\+\s]{7,}/.test(last) && lines.length > 1) {
+    return { address: lines.slice(0,-1).join('\n'), phone: last.trim() };
+  }
+  return { address: addr, phone: '' };
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal').classList.add('hidden');
+  editingUid = null;
+}
+
+async function saveEditKOC() {
+  if (!editingUid) return;
+  var addr = document.getElementById('edit-address').value.trim();
+  var phone = document.getElementById('edit-phone').value.trim();
+  var fullAddr = phone ? addr + '\n\n' + phone : addr;
+
+  var updates = {
+    name: document.getElementById('edit-name').value.trim(),
+    channel_tag: document.getElementById('edit-channel').value.trim(),
+    region: document.getElementById('edit-region').value.trim(),
+    address: fullAddr,
+    account_id: document.getElementById('edit-account').value.trim(),
+    server: document.getElementById('edit-server').value.trim(),
+    notes: document.getElementById('edit-notes').value.trim()
+  };
+
+  try {
+    await supabaseFetch(SUPABASE_URL + '/rest/v1/kocs?uid=eq.' + encodeURIComponent(editingUid), {
+      method: 'PATCH',
+      body: JSON.stringify(updates)
+    });
+    showToast('\u2705 Saved', 'success');
+    closeEditModal();
+    loadData();
+  } catch (e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+// ===== RENDER SHIPPING TABS =====
+function getKocMap() {
+  var m = {};
+  allKocs.forEach(function(k) { m[k.uid] = k; });
+  return m;
+}
+
+function fmtDate(d) {
+  if (!d) return '-';
+  try { return new Date(d).toLocaleDateString('en-CA'); } catch(e) { return '-'; }
+}
+
+function getMonthGroup(o) {
+  var d = new Date(o.created_at);
+  var y = d.getFullYear();
+  var m = d.getMonth() + 1;
+  return y + '年' + m + '月';
+}
+
+function groupByMonth(arr) {
+  var groups = {};
+  arr.forEach(function(o) {
+    var label = getMonthGroup(o);
+    if (!groups[label]) groups[label] = [];
+    groups[label].push(o);
+  });
+  // Sort month labels descending (most recent first)
+  var sorted = Object.keys(groups).sort();
+  sorted.sort(function(a, b) {
+    var pa = a.match(/(\d+)年(\d+)月/);
+    var pb = b.match(/(\d+)年(\d+)月/);
+    if (!pa || !pb) return 0;
+    var ka = parseInt(pa[1]) * 12 + parseInt(pa[2]);
+    var kb = parseInt(pb[1]) * 12 + parseInt(pb[2]);
+    return kb - ka;
+  });
+  var result = [];
+  sorted.forEach(function(label) {
+    result.push({ label: label, items: groups[label] });
+  });
+  return result;
+}
+
+function renderMerchTab() {
+  var kmap = getKocMap();
+  var merchOrders = allOrders.filter(function(o) { return o.option_type === 'merch' && o.status === 'shipped'; });
+  document.getElementById('merch-count').textContent = '(' + merchOrders.length + ' orders)';
+  var container = document.getElementById('merch-table');
+  if (!merchOrders.length) {
+    container.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--text-light);font-size:14px;">No shipped merch orders yet</div>';
+    return;
+  }
+  var groups = groupByMonth(merchOrders);
+  groups.forEach(function(g) { g.items = applyOrder('merch', g.label, g.items); });
+  container.innerHTML = groups.map(function(g) {
+   return '<div class="month-section">' +
+      '<div class="month-header">' +
+      '<span class="month-icon">\uD83D\uDCC5</span>' +
+      '<span>' + g.label + '</span>' +
+      '<span class="count">(' + g.items.length + ' orders)</span>' +
+      '<div style="margin-left:auto;display:flex;gap:6px;">' +
+      '<button class="btn btn-primary btn-sm export-btn" data-type="merch" data-label="' + g.label + '" style="border-radius:20px;padding:5px 14px;">\uD83D\uDCCB \u5BFC\u51FA\u8868\u683C</button>' +
+      '</div>' +
+      '</div>' +
+     '<table class="month-table"><thead><tr>' +
+        '<th style="width:22px;">&#8944;</th><th>Discord</th><th>UID</th><th>Address</th><th>Reward</th>' +
+     '</tr></thead><tbody>' +
+     g.items.map(function(o) {
+       var koc = kmap[o.uid];
+       var addr = koc ? (koc.address || '') : '';
+       return '<tr' + ' data-order-id="' + o.id + '"' + '>' +
+         '<td style="text-align:center;cursor:grab;font-size:16px;color:var(--text-light);user-select:none;" class="drag-handle" title="Drag to reorder">⠇</td>' +
+         '<td><strong>' + esc(koc ? koc.discord_name : o.discord_name) + '</strong></td>' +
+         '<td style="font-family:monospace;font-size:12px;color:var(--text-light);">' + esc(o.uid) + '</td>' +
+          '<td style="font-size:12px;white-space:pre-wrap;min-width:300px;">' + (esc(koc ? koc.address : '-') || '-') + '</td>' +
+          '<td>' + esc(o.option_name) + '</td>' +
+       '</tr>';
+      }).join('') +
+      '</tbody></table></div>';
+  }).join('');
+  setTimeout(function() { initSortable('merch'); }, 100);
+}
+
+function renderDiamondTab() {
+  var kmap = getKocMap();
+  var orders = allOrders.filter(function(o) { return o.option_type === 'diamonds' && o.status === 'shipped'; });
+  document.getElementById('diamond-count').textContent = '(' + orders.length + ' orders)';
+  var container = document.getElementById('diamond-table');
+  if (!orders.length) {
+    container.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--text-light);font-size:14px;">No shipped diamond rewards yet</div>';
+    return;
+  }
+  var groups = groupByMonth(orders);
+  groups.forEach(function(g) { g.items = applyOrder('diamonds', g.label, g.items); });
+  container.innerHTML = groups.map(function(g) {
+   return '<div class="month-section">' +
+      '<div class="month-header">' +
+      '<span class="month-icon">\uD83D\uDCC5</span>' +
+      '<span>' + g.label + '</span>' +
+      '<span class="count">(' + g.items.length + ' orders)</span>' +
+      '<div style="margin-left:auto;display:flex;gap:6px;">' +
+      '<button class="btn btn-primary btn-sm export-btn" data-type="diamonds" data-label="' + g.label + '" style="border-radius:20px;padding:5px 14px;">\uD83D\uDCCB \u5BFC\u51FA\u8868\u683C</button>' +
+      '</div>' +
+      '</div>' +
+     '<table class="month-table"><thead><tr>' +
+        '<th style="width:22px;">&#8944;</th><th>Discord</th><th>UID</th><th>Account ID</th><th>Server</th><th>Reward</th>' +
+     '</tr></thead><tbody>' +
+     g.items.map(function(o) {
+       var koc = kmap[o.uid];
+       return '<tr' + ' data-order-id="' + o.id + '"' + '>' +
+         '<td style="text-align:center;cursor:grab;font-size:16px;color:var(--text-light);user-select:none;" class="drag-handle" title="Drag to reorder">⠇</td>' +
+         '<td><strong>' + esc(koc ? koc.discord_name : o.discord_name) + '</strong></td>' +
+         '<td style="font-family:monospace;font-size:12px;color:var(--text-light);">' + esc(o.uid) + '</td>' +
+         '<td style="font-family:monospace;font-size:12px;">' + (esc(koc ? koc.account_id : '-') || '-') + '</td>' +
+         '<td style="font-size:12px;">' + (esc(koc ? koc.server : '-') || '-') + '</td>' +
+          '<td>' + esc(o.option_name) + '</td>' +
+       '</tr>';
+      }).join('') +
+      '</tbody></table></div>';
+  }).join('');
+  setTimeout(function() { initSortable('diamonds'); }, 100);
+}
+
+function renderGplayTab() {
+  var kmap = getKocMap();
+  var orders = allOrders.filter(function(o) { return o.option_type === 'gplay' && o.status === 'shipped'; });
+  document.getElementById('gplay-count').textContent = '(' + orders.length + ' orders)';
+  var container = document.getElementById('gplay-table');
+  if (!orders.length) {
+    container.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--text-light);font-size:14px;">No shipped Google Play cards yet</div>';
+    return;
+  }
+  var groups = groupByMonth(orders);
+  groups.forEach(function(g) { g.items = applyOrder('gplay', g.label, g.items); });
+  container.innerHTML = groups.map(function(g) {
+   return '<div class="month-section">' +
+      '<div class="month-header">' +
+      '<span class="month-icon">\uD83D\uDCC5</span>' +
+      '<span>' + g.label + '</span>' +
+      '<span class="count">(' + g.items.length + ' orders)</span>' +
+      '<div style="margin-left:auto;display:flex;gap:6px;">' +
+      '<button class="btn btn-primary btn-sm export-btn" data-type="gplay" data-label="' + g.label + '" style="border-radius:20px;padding:5px 14px;">\uD83D\uDCCB \u5BFC\u51FA\u8868\u683C</button>' +
+      '</div>' +
+      '</div>' +
+     '<table class="month-table"><thead><tr>' +
+        '<th style="width:22px;">&#8944;</th><th>Discord</th><th>UID</th><th>Region / Country</th><th>Reward</th>' +
+     '</tr></thead><tbody>' +
+     g.items.map(function(o) {
+       var koc = kmap[o.uid];
+       return '<tr' + ' data-order-id="' + o.id + '"' + '>' +
+         '<td style="text-align:center;cursor:grab;font-size:16px;color:var(--text-light);user-select:none;" class="drag-handle" title="Drag to reorder">⠇</td>' +
+         '<td><strong>' + esc(koc ? koc.discord_name : o.discord_name) + '</strong></td>' +
+         '<td style="font-family:monospace;font-size:12px;color:var(--text-light);">' + esc(o.uid) + '</td>' +
+         '<td style="font-size:12px;">' + (esc(koc ? koc.region : '-') || '-') + '</td>' +
+          '<td>' + esc(o.option_name) + '</td>' +
+       '</tr>';
+      }).join('') +
+      '</tbody></table></div>';
+  }).join('');
+  setTimeout(function() { initSortable('gplay'); }, 100);
+}
+
+
+// ===== EXPORT FUNCTIONS =====
+function exportToClipboard(text, count) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      showToast('\uD83D\uDCCB Exported ' + count + ' orders', 'success');
+    }).catch(function() { fallbackCopy(text, count); });
+  } else { fallbackCopy(text, count); }
+}
+function fallbackCopy(text, count) {
+  var ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+  document.body.appendChild(ta); ta.select();
+  document.execCommand('copy'); document.body.removeChild(ta);
+  showToast('\uD83D\uDCCB Exported ' + count + ' orders', 'success');
+}
+
+function exportMonth(type, label) {
+  if (typeof type === 'object' && type !== null) {
+    label = type.getAttribute('data-label');
+    type = type.getAttribute('data-type');
+  }
+  var kmap = getKocMap();
+  var orders = allOrders.filter(function(o) {
+    return o.option_type === type && o.status === 'shipped' && getMonthGroup(o) === label;
+  });
+  if (!orders.length) { showToast('No orders to export', 'error'); return; }
+  
+  var header, rows;
+  if (type === 'merch') {
+    header = 'Discord\tUID\tReward\tAddress';
+    rows = orders.map(function(o) {
+      var koc = kmap[o.uid];
+      var addr = koc ? (koc.address || '') : '';
+      return clean(esc(o.discord_name)) + '\t' + o.uid + '\t' + clean(esc(o.option_name)) + '\t' + clean(esc(addr));
+    }).join('\n');
+  } else if (type === 'diamonds') {
+    header = 'Discord\tUID\tReward\tAccount ID\tServer';
+    rows = orders.map(function(o) {
+      var koc = kmap[o.uid];
+      return clean(esc(o.discord_name)) + '\t' + o.uid + '\t' + clean(esc(o.option_name)) + '\t' + (koc ? koc.account_id : '-') + '\t' + (koc ? koc.server : '-');
+    }).join('\n');
+  } else if (type === 'gplay') {
+    header = 'Discord\tUID\tReward\tRegion';
+    rows = orders.map(function(o) {
+      var koc = kmap[o.uid];
+      return clean(esc(o.discord_name)) + '\t' + o.uid + '\t' + clean(esc(o.option_name)) + '\t' + (koc ? koc.region : '-');
+    }).join('\n');
+  }
+  var text = header + '\n' + rows;
+  exportToClipboard(text, orders.length);
+}
+
+function clean(s) { return s || '-'; }
+
+// -- Drag Reorder --
+function initSortable(type) {
+  loadSortableJS().then(function() {
+    document.querySelectorAll('#tab-' + type + ' .month-table tbody').forEach(function(tb) {
+      var ml = null;
+      var sec = tb.closest('.month-section');
+      if (sec) { var h = sec.querySelector('.month-header span:nth-child(2)'); if (h) ml = h.textContent.trim(); }
+      new Sortable(tb, {
+        handle: '.drag-handle', animation: 150, ghostClass: 'sortable-ghost', dragClass: 'sortable-drag',
+        onEnd: function() {
+          var ids = []; tb.querySelectorAll('tr').forEach(function(tr) { var id = tr.getAttribute('data-order-id'); if (id) ids.push(parseInt(id)); });
+          saveOrder(type, ml, ids);
+        }
+      });
+    });
+  }).catch(function() { console.warn('SortableJS failed'); });
+}
+function saveOrder(type, month, ids) {
+  var key = 'koc_order_' + type + '_' + (month||'unknown');
+  try { localStorage.setItem(key, JSON.stringify(ids)); } catch(e) {}
+  supabaseFetch(SUPABASE_URL + '/rest/v1/kocs?uid=eq.__config__&select=notes')
+  .then(function(r){return r.json()}).then(function(d) {
+    var notes = (d&&d.length&&d[0].notes)||'{}'; var cfg; try{cfg=JSON.parse(notes)}catch(e){cfg={}};
+    if(!cfg.display_orders)cfg.display_orders={};
+    var ck='display_order_'+type;
+    if(!cfg.display_orders[ck])cfg.display_orders[ck]={};
+    cfg.display_orders[ck][month||'unknown']=ids;
+    var method=d&&d.length?'PATCH':'POST';
+    var url=SUPABASE_URL+'/rest/v1/kocs?uid=eq.__config__';
+    if(method==='POST'){
+      supabaseFetch(url,{method:'POST',body:JSON.stringify({uid:'__config__',discord_name:'__config__',name:'System Config',status:'active',notes:JSON.stringify(cfg)})}).catch(function(){})
+    } else {
+      supabaseFetch(url,{method:'PATCH',body:JSON.stringify({notes:JSON.stringify(cfg)})}).catch(function(){})
+    }
+  }).catch(function(){});
+}
+function loadOrder(type, month) {
+  try{var d=JSON.parse(localStorage.getItem('koc_order_'+type+'_'+(month||'unknown')));if(d&&d.length)return d}catch(e){}
+  return null;
+}
+function applyOrder(type, month, items) {
+  var o=loadOrder(type,month);if(!o||!o.length||!items||items.length<2)return items;
+  var m={};items.forEach(function(i){m[i.id]=i});
+  var r=[];o.forEach(function(id){if(m[id]){r.push(m[id]);delete m[id]}});
+  Object.keys(m).forEach(function(id){r.push(m[id])});
+  return r;
+}
+function resetOrder(type, month) {
+  if(!confirm('Reset "'+month+'" order?'))return;
+  try{localStorage.removeItem('koc_order_'+type+'_'+month)}catch(e){}
+  supabaseFetch(SUPABASE_URL+'/rest/v1/kocs?uid=eq.__config__&select=notes')
+  .then(function(r){return r.json()}).then(function(d){
+    if(d&&d.length&&d[0].notes){try{var cfg=JSON.parse(d[0].notes);var ck='display_order_'+type;if(cfg.display_orders&&cfg.display_orders[ck]){delete cfg.display_orders[ck][month];supabaseFetch(SUPABASE_URL+'/rest/v1/kocs?uid=eq.__config__',{method:'PATCH',body:JSON.stringify({notes:JSON.stringify(cfg)})}).catch(function(){})}}catch(e){}}
+  }).catch(function(){});
+  if(type==='merch')renderMerchTab();else if(type==='diamonds')renderDiamondTab();else if(type==='gplay')renderGplayTab();
+}
+// Global click handler for export buttons
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('.export-btn');
+  if (btn) {
+    exportMonth(btn.getAttribute('data-type'), btn.getAttribute('data-label'));
+  }
+});
+// ===== DEADLINE =====
+async function loadDeadline() {
+  try {
+    var res = await supabaseFetch(SUPABASE_URL + '/rest/v1/kocs?uid=eq.__config__&select=notes');
+    var data = await res.json();
+    if (data && data.length > 0 && data[0].notes) {
+      try {
+        var cfg = JSON.parse(data[0].notes);
+        if (cfg.submission_deadline_date) {
+          document.getElementById('deadline-date').value = cfg.submission_deadline_date || '';
+          document.getElementById('deadline-time').value = cfg.submission_deadline_time || '23:59';
+          updateDeadlineDisplay(cfg.submission_deadline_date, cfg.submission_deadline_time);
+        }
+      } catch(e) {}
+    }
+  } catch(e) {}
+}
+
+async function saveDeadline() {
+  var date = document.getElementById('deadline-date').value;
+  var time = document.getElementById('deadline-time').value || '23:59';
+  if (!date) { showToast('Select a date', 'error'); return; }
+  
+  var config = JSON.stringify({ submission_deadline_date: date, submission_deadline_time: time });
+  try {
+    // Upsert: check if config record exists
+    var res = await supabaseFetch(SUPABASE_URL + '/rest/v1/kocs?uid=eq.__config__&select=uid');
+    var existing = await res.json();
+    if (existing && existing.length > 0) {
+      await supabaseFetch(SUPABASE_URL + '/rest/v1/kocs?uid=eq.__config__', {
+        method: 'PATCH',
+        body: JSON.stringify({ notes: config })
+      });
+    } else {
+      await supabaseFetch(SUPABASE_URL + '/rest/v1/kocs', {
+        method: 'POST',
+        body: JSON.stringify({ uid: '__config__', discord_name: '__config__', name: 'System Config', status: 'active', notes: config })
+      });
+    }
+    updateDeadlineDisplay(date, time);
+    showToast('\u2705 Deadline saved', 'success');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+function updateDeadlineDisplay(date, time) {
+  document.getElementById('deadline-status').textContent = date ? '\u23F0 ' + date + ' ' + time : '';
+  document.getElementById('deadline-show').textContent = date ? '\u23F0 Closes: ' + date : '';
+}
+</script>
+</body>
+</html>
+      '<td><button class="btn btn-outline btn-sm" onclick="openEditModal(\'' + k.uid + '\')">\u270E</button> <button class="btn btn-primary btn-sm" onclick="openPointModal(\'' + k.uid + '\',\'' + escAttr(k.discord_name) + '\')">+/-</button></td>' +

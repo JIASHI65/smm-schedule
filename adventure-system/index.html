@@ -1,0 +1,691 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>🧭 莎莎的冒险系统</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0b0d12;--surface:#12151c;--surface2:#1a1e28;--surface3:#242836;--border:#2e3345;--text:#e0e4f0;--text-dim:#8890aa;--text-muted:#556077;--green:#34d399;--red:#ef4444;--gold:#ffd700;--cyan:#22d3ee;--purple:#7b5cf6;--pink:#ff6b9d;--blue:#3b82f6;--orange:#f59e0b;--teal:#14b8a6}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.header{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,#0b0d12,#12151c);border-bottom:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
+.header h1{font-size:15px;font-weight:700;display:flex;align-items:center;gap:6px}
+.header .meta{font-size:11px;color:var(--text-dim)}
+.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:54px;z-index:99;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab{padding:9px 12px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text-dim);border-bottom:2px solid transparent;transition:all .12s;white-space:nowrap;user-select:none}
+.tab:hover{color:var(--text);background:var(--surface2)}
+.tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+.content{display:none;padding:10px 12px;max-width:700px;margin:0 auto}
+.content.active{display:block}
+.section-title{font-size:12px;font-weight:700;margin:10px 0 5px;color:var(--text-dim);display:flex;align-items:center;gap:4px}
+.btn{background:var(--surface3);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:5px;cursor:pointer;font-size:11px;font-weight:600}
+.btn:hover{background:var(--border)}
+.btn-green{background:rgba(52,211,153,0.15);border:1px solid var(--green);color:var(--green);padding:6px 12px;border-radius:5px;cursor:pointer;font-size:11px;font-weight:600}
+.btn-green:hover{background:rgba(52,211,153,0.25)}
+.btn-cyan{background:rgba(34,211,238,0.15);border:1px solid var(--cyan);color:var(--cyan);padding:6px 12px;border-radius:5px;cursor:pointer;font-size:11px;font-weight:600}
+.btn-cyan:hover{background:rgba(34,211,238,0.25)}
+.btn-gold{background:rgba(255,215,0,0.15);border:1px solid var(--gold);color:var(--gold);padding:6px 12px;border-radius:5px;cursor:pointer;font-size:11px;font-weight:600}
+.btn-gold:hover{background:rgba(255,215,0,0.25)}
+.btn-red{background:rgba(239,68,68,0.15);border:1px solid var(--red);color:var(--red);padding:6px 12px;border-radius:5px;cursor:pointer;font-size:11px;font-weight:600}
+.btn-row{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center}
+.modal.active{display:flex}
+.modal-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;width:90%;max-width:400px;max-height:80vh;overflow-y:auto;position:relative}
+.modal-box h2{font-size:14px;font-weight:700;margin-bottom:10px}
+.modal-close{position:absolute;top:8px;right:10px;background:none;border:none;color:var(--text-dim);font-size:16px;cursor:pointer}
+.modal-close:hover{color:var(--text)}
+.modal-box input,.modal-box textarea,.modal-box select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:7px 9px;color:var(--text);font-size:12px;margin-bottom:6px}
+.modal-box textarea{min-height:60px;resize:vertical}
+.modal-btns{display:flex;gap:6px;margin-top:10px;justify-content:flex-end}
+.empty-state{padding:30px 20px;text-align:center;color:var(--text-muted)}
+.empty-state .empty-icon{font-size:36px;margin-bottom:8px}
+.empty-state .empty-text{font-size:13px;font-weight:600;margin-bottom:4px}
+.empty-state .empty-hint{font-size:11px;color:var(--text-dim);line-height:1.6}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px;margin-bottom:10px}
+.stat-card{background:var(--surface2);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--border)}
+.stat-card .sn{font-size:18px;font-weight:800}
+.stat-card .sl{font-size:10px;color:var(--text-dim);margin-top:2px}
+.stat-card .sn.gold{color:var(--gold)}.stat-card .sn.cyan{color:var(--cyan)}.stat-card .sn.green{color:var(--green)}.stat-card .sn.pink{color:var(--pink)}.stat-card .sn.purple{color:var(--purple)}
+.card{background:var(--surface);border-radius:8px;padding:10px 12px;margin-bottom:4px;border:1px solid var(--border);border-left:3px solid var(--text-dim)}
+.card.goal{border-left-color:var(--gold)}.card.flight{border-left-color:var(--cyan)}.card.activity{border-left-color:var(--green)}.card.mission{border-left-color:var(--orange)}.card.memoir{border-left-color:var(--purple)}
+.card .c-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.card .c-name{font-size:13px;font-weight:700}
+.card .c-tag{font-size:10px;padding:1px 6px;border-radius:4px;background:var(--surface3)}
+.card .c-tag.active{color:var(--red)}.card .c-tag.done{color:var(--green)}.card .c-tag.pending{color:var(--orange)}
+.card .c-date{font-size:10px;color:var(--text-muted);margin-top:2px}
+.card .c-note{font-size:11px;color:var(--text-dim);line-height:1.4;margin-top:2px}
+.card .c-detail{font-size:11px;color:var(--cyan);margin-top:2px}
+.progress-bar{height:4px;background:var(--surface3);border-radius:2px;margin:4px 0;overflow:hidden}
+.progress-bar .fill{height:100%;border-radius:2px;transition:width .3s}
+.progress-bar .fill.gold{background:var(--gold)}.progress-bar .fill.green{background:var(--green)}.progress-bar .fill.cyan{background:var(--cyan)}
+.countdown{font-size:24px;font-weight:800;text-align:center;padding:12px;background:var(--surface2);border-radius:10px;border:1px solid var(--border);margin-bottom:8px}
+.countdown .cd-label{font-size:11px;color:var(--text-dim);font-weight:400}
+.countdown .cd-num{color:var(--gold)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--surface3);border:1px solid var(--green);color:var(--green);padding:8px 16px;border-radius:8px;font-size:12px;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+.timeline-item{display:flex;gap:8px;margin-bottom:6px}
+.timeline-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px;background:var(--border)}
+.timeline-dot.gold{background:var(--gold)}.timeline-dot.cyan{background:var(--cyan)}.timeline-dot.green{background:var(--green)}.timeline-dot.purple{background:var(--purple)}.timeline-dot.pink{background:var(--pink)}
+.timeline-content{flex:1;background:var(--surface2);border-radius:6px;padding:6px 10px;font-size:12px}
+.timeline-content .tl-date{color:var(--text-muted);font-size:10px}
+.timeline-content .tl-title{font-weight:600}
+.timeline-content .tl-note{color:var(--text-dim);font-size:11px}
+.import-area{background:var(--surface2);border:1px dashed var(--border);border-radius:8px;padding:14px;margin-bottom:8px}
+.import-area textarea{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:8px;color:var(--text);font-size:11px;min-height:80px;font-family:monospace;resize:vertical;margin-bottom:6px}
+.city-wall{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0}
+.city-tag{background:var(--surface3);border:1px solid var(--border);border-radius:12px;padding:3px 10px;font-size:11px;color:var(--text-dim)}
+.city-tag.visited{color:var(--cyan);border-color:var(--cyan);background:rgba(34,211,238,0.08)}
+.daily-item{background:var(--surface2);border-radius:6px;padding:6px 10px;margin-bottom:3px;font-size:12px;display:flex;justify-content:space-between}
+</style></head>
+<body>
+<div class="header">
+  <h1>🧭 莎莎的冒险系统</h1>
+  <div class="meta" id="headerMeta">loading...</div>
+</div>
+<div class="tabs" id="tabs">
+  <div class="tab active" data-tab="dashboard">🗺️ 总览</div>
+  <div class="tab" data-tab="footprints">✈️ 足迹</div>
+  <div class="tab" data-tab="goals">🎯 目标</div>
+  <div class="tab" data-tab="missions">💪 执行</div>
+  <div class="tab" data-tab="memoir">🏅 回忆录</div>
+  <div class="tab" data-tab="timeline">📅 时间轴</div>
+  <div class="tab" data-tab="import">📥 导入</div>
+</div>
+<div id="tab-dashboard" class="content active"></div>
+<div id="tab-footprints" class="content"></div>
+<div id="tab-goals" class="content"></div>
+<div id="tab-missions" class="content"></div>
+<div id="tab-memoir" class="content"></div>
+<div id="tab-timeline" class="content"></div>
+<div id="tab-import" class="content"></div>
+<div class="modal" id="modal"><div class="modal-box" id="modalBox"></div></div>
+<div class="toast" id="toast"></div>
+<script>
+var DATA = null, ACTIVE_TAB = 'dashboard';
+
+async function loadData(){
+  var r = await fetch('/api/data'); DATA = await r.json();
+}
+async function saveData(){
+  await fetch('/api/data', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(DATA)});
+  renderAll();
+}
+
+document.getElementById('tabs').addEventListener('click', function(e){
+  var tab = e.target.closest('.tab'); if(!tab) return;
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  tab.classList.add('active');
+  document.querySelectorAll('.content').forEach(function(c){c.classList.remove('active')});
+  document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+  ACTIVE_TAB = tab.dataset.tab;
+  renderAll();
+});
+
+function esc(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2500)}
+function dateStr(d){if(!d)return'';return d.slice(0,10)}
+function daysDiff(a,b){return Math.floor((new Date(b)-new Date(a))/86400000)}
+
+var _formFields=null, _formOnSave=null;
+function showForm(title, fields, onSave){
+  var box=document.getElementById('modalBox');
+  var html='<button class="modal-close" onclick="closeModal()">✕</button><h2>'+esc(title)+'</h2><div id="formFields">';
+  for(var f of fields){
+    html+='<div style="margin-bottom:4px"><label style="font-size:11px;color:var(--text-dim);display:block;margin-bottom:2px">'+esc(f.label)+'</label>';
+    if(f.type==='select'){
+      html+='<select id="f_'+f.key+'">';
+      for(var o of f.options) html+='<option value="'+esc(o.v)+'" '+(f.value===o.v?'selected':'')+'>'+esc(o.l)+'</option>';
+      html+='</select>';
+    } else if(f.type==='textarea'){
+      html+='<textarea id="f_'+f.key+'" placeholder="'+(f.placeholder||'')+'">'+(f.value||'')+'</textarea>';
+    } else {
+      html+='<input id="f_'+f.key+'" type="text" placeholder="'+(f.placeholder||'')+'" value="'+(f.value||'')+'">';
+    }
+    html+='</div>';
+  }
+  html+='</div><div class="modal-btns"><button class="btn-green" onclick="saveModal()">💾 保存</button><button class="btn" onclick="closeModal()">取消</button></div>';
+  box.innerHTML=html;
+  document.getElementById('modal').classList.add('active');
+  _formFields=fields; _formOnSave=onSave;
+}
+function saveModal(){
+  var data={};
+  for(var f of _formFields){var el=document.getElementById('f_'+f.key);if(el) data[f.key]=el.value;}
+  if(_formOnSave) _formOnSave(data);
+}
+function closeModal(){document.getElementById('modal').classList.remove('active')}
+
+// ── Helpers ──
+function totalFlights(){return (DATA.footprints.flights||[]).length}
+function totalCities(){return (DATA.footprints.cities||[]).length}
+function totalActivities(){return (DATA.memoir.activities||[]).length}
+function activeGoals(){return (DATA.goals.lifetime||[]).filter(function(g){return g.status!=='done'}).length}
+
+// ── Dashboard ──
+function renderDashboard(){
+  var el=document.getElementById('tab-dashboard');
+  var flights=DATA.footprints.flights||[], cities=DATA.footprints.cities||[];
+  var activities=DATA.memoir.activities||[], goals=DATA.goals.lifetime||[];
+  var html='<div class="section-title">🗺️ 冒险概览</div>';
+  html+='<div class="stats-grid">';
+  html+='<div class="stat-card"><div class="sn cyan">'+flights.length+'</div><div class="sl">飞行次数</div></div>';
+  html+='<div class="stat-card"><div class="sn green">'+cities.length+'</div><div class="sl">去过城市</div></div>';
+  html+='<div class="stat-card"><div class="sn gold">'+activeGoals()+'</div><div class="sl">进行中目标</div></div>';
+  html+='<div class="stat-card"><div class="sn pink">'+activities.length+'</div><div class="sl">冒险记录</div></div>';
+  html+='</div>';
+
+  // lifetime goals countdown
+  var everest = goals.find(function(g){return g.name&&g.name.includes('珠峰')});
+  if(everest && everest.target_date){
+    var days = daysDiff(new Date().toISOString().slice(0,10), everest.target_date);
+    if(days > 0){
+      html += '<div class="countdown"><div class="cd-num">'+days+'</div><div class="cd-label">天 直到珠峰计划</div>';
+      html += '<div style="font-size:11px;color:var(--text-dim);margin-top:4px">'+esc(everest.name)+'</div></div>';
+    }
+  }
+
+  // recent activity timeline
+  if(activities.length){
+    html+='<div class="section-title">🏅 最新冒险</div>';
+    var sorted=[...activities].sort(function(a,b){return(b.date||b.created||'').localeCompare(a.date||a.created||'')});
+    for(var a of sorted.slice(0,4)){
+      html+='<div class="card activity"><div class="c-header"><span class="c-name">'+esc(a.type||a.name)+'</span><span class="c-date">'+dateStr(a.date||a.created)+'</span></div>';
+      if(a.location) html+='<div class="c-note">📍 '+esc(a.location)+'</div>';
+      if(a.note) html+='<div class="c-note">'+esc(a.note)+'</div></div>';
+    }
+  }
+
+  // visited cities wall
+  if(cities.length){
+    html+='<div class="section-title">🌏 足迹城市</div><div class="city-wall">';
+    for(var c of cities) html+='<span class="city-tag visited">'+esc(c)+'</span>';
+    html+='</div>';
+  } else {
+    html+='<div class="empty-state"><div class="empty-icon">🗺️</div><div class="empty-text">还没有足迹数据</div><div class="empty-hint">去「导入」Tab添加航旅纵横或手动记录</div></div>';
+  }
+  el.innerHTML=html;
+}
+// ── Footprints ──
+function renderFootprints(){
+  var el=document.getElementById('tab-footprints');
+  var fp=DATA.footprints;
+  var flights=fp.flights||[], cities=fp.cities||[], trips=fp.trips||[];
+  var html='<div class="section-title">✈️ 飞行足迹</div>';
+  html+='<div class="btn-row"><button class="btn-cyan" onclick="addFlight()">+ 添加航班</button></div>';
+  if(!flights.length){
+    html+='<div class="empty-state"><div class="empty-icon">✈️</div><div class="empty-text">还没有飞行记录</div><div class="empty-hint">从航旅纵横导出数据或手动添加</div></div>';
+  } else {
+    var totalMiles=0;
+    for(var f of flights){
+      totalMiles += parseInt(f.miles)||0;
+      html+='<div class="card flight"><div class="c-header"><span class="c-name">✈️ '+esc(f.from||'')+' → '+esc(f.to||'')+'</span><span class="c-date">'+dateStr(f.date)+'</span></div>';
+      if(f.flight_no) html+='<div class="c-detail">'+esc(f.flight_no)+'</div>';
+      if(f.airline) html+='<div class="c-note">'+esc(f.airline)+'</div>';
+      if(f.miles) html+='<div class="c-note">📏 '+f.miles+'km</div>';
+      html+='<div style="margin-top:2px"><button class="btn" style="padding:1px 6px;font-size:10px" onclick="editFlight(\''+esc(f.id)+'\')">✏️</button> <button class="btn-red" style="padding:1px 6px;font-size:10px" onclick="deleteFlight(\''+esc(f.id)+'\')">✕</button></div></div>';
+    }
+    html='<div class="stats-grid"><div class="stat-card"><div class="sn cyan">'+flights.length+'</div><div class="sl">总飞行</div></div><div class="stat-card"><div class="sn cyan">'+totalMiles+'</div><div class="sl">累计公里</div></div></div>'+html;
+  }
+
+  html+='<div class="section-title" style="margin-top:10px">🌏 足迹城市</div>';
+  html+='<div class="btn-row"><button class="btn-green" onclick="addCity()">+ 添加城市</button></div>';
+  if(cities.length){
+    html+='<div class="city-wall">';
+    for(var c of cities) html+='<span class="city-tag visited">'+esc(c)+'</span>';
+    html+='</div>';
+  } else {
+    html+='<div class="empty-state" style="padding:15px"><div class="empty-icon" style="font-size:24px">🌍</div><div class="empty-text">还没有城市记录</div></div>';
+  }
+  el.innerHTML=html;
+}
+
+function addFlight(){
+  showForm('添加航班', [
+    {key:'date',label:'日期',type:'text',placeholder:'YYYY-MM-DD'},
+    {key:'from',label:'出发地',type:'text',placeholder:'如：北京'},
+    {key:'to',label:'目的地',type:'text',placeholder:'如：上海'},
+    {key:'flight_no',label:'航班号',type:'text',placeholder:'如：CA1234'},
+    {key:'airline',label:'航空公司',type:'text',placeholder:'如：国航'},
+    {key:'miles',label:'里程(km)',type:'text',placeholder:'如：1200'}
+  ], function(d){
+    if(!DATA.footprints.flights) DATA.footprints.flights=[];
+    DATA.footprints.flights.push({id:Date.now().toString(36),date:d.date,from:d.from,to:d.to,flight_no:d.flight_no,airline:d.airline,miles:d.miles});
+    saveData();closeModal();showToast('已添加航班');
+  });
+}
+
+function editFlight(id){
+  var f=(DATA.footprints.flights||[]).find(function(x){return x.id===id}); if(!f)return;
+  showForm('编辑航班',[
+    {key:'date',label:'日期',type:'text',value:f.date},
+    {key:'from',label:'出发地',type:'text',value:f.from||''},
+    {key:'to',label:'目的地',type:'text',value:f.to||''},
+    {key:'flight_no',label:'航班号',type:'text',value:f.flight_no||''},
+    {key:'airline',label:'航空公司',type:'text',value:f.airline||''},
+    {key:'miles',label:'里程',type:'text',value:f.miles||''}
+  ],function(d){Object.assign(f,d);saveData();closeModal();showToast('已更新');});
+}
+
+function deleteFlight(id){
+  if(!confirm('删除此航班？')) return;
+  DATA.footprints.flights=(DATA.footprints.flights||[]).filter(function(x){return x.id!==id});
+  saveData();showToast('已删除');
+}
+
+function addCity(){
+  showForm('添加城市',[{key:'name',label:'城市名',type:'text',placeholder:'如：东京'}],function(d){
+    if(!DATA.footprints.cities) DATA.footprints.cities=[];
+    if(DATA.footprints.cities.includes(d.name)){showToast('城市已存在');closeModal();return;}
+    DATA.footprints.cities.push(d.name);
+    saveData();closeModal();showToast('已添加 '+d.name);
+  });
+}
+// ── Goals ──
+function renderGoals(){
+  var el=document.getElementById('tab-goals');
+  var goals=DATA.goals;
+  var html='<div class="section-title">🎯 人生目标</div>';
+  html+='<div class="btn-row"><button class="btn-gold" onclick="addGoal(\'lifetime\')">+ 人生目标</button>';
+  html+='<button class="btn-green" onclick="addGoal(\'yearly\')">+ 年度目标</button>';
+  html+='<button class="btn" onclick="addGoal(\'wishlist\')">+ 愿望清单</button></div>';
+
+  // lifetime goals
+  var lt=goals.lifetime||[];
+  html+='<div class="section-title">🏔️ 人生大目标</div>';
+  if(!lt.length) html+='<div class="empty-state" style="padding:15px"><div class="empty-text">还没有人生目标</div></div>';
+  else {
+    for(var g of lt){
+      html+='<div class="card goal"><div class="c-header"><span class="c-name">🎯 '+esc(g.name)+'</span><span class="c-tag '+(g.status||'active')+'">'+(g.status==='done'?'已完成':g.status==='active'?'进行中':'搁置')+'</span></div>';
+      if(g.target_date) html+='<div class="c-date">⏰ 目标日: '+dateStr(g.target_date)+' <span style="color:var(--gold)">(剩余 '+daysDiff(new Date().toISOString().slice(0,10),g.target_date)+' 天)</span></div>';
+      if(g.note) html+='<div class="c-note">'+esc(g.note)+'</div>';
+      if(g.milestones && g.milestones.length){
+        html+='<div style="margin-top:3px">';
+        for(var m of g.milestones){
+          var mdone=m.done?'✅ ':'⬜ ';
+          html+='<div style="font-size:10px;color:var(--text-dim)">'+mdone+esc(m.name)+(m.due?' <span style="color:var(--text-muted)">('+dateStr(m.due)+')</span>':'')+'</div>';
+        }
+        html+='</div>';
+      }
+      html+='<div style="margin-top:3px"><button class="btn" style="padding:1px 6px;font-size:10px" onclick="editGoal(\'lifetime\',\''+esc(g.id)+'\')">✏️</button> ';
+      html+='<button class="btn" style="padding:1px 6px;font-size:10px" onclick="toggleGoalMilestone(\'lifetime\',\''+esc(g.id)+'\')">🏁</button> ';
+      html+='<button class="btn-red" style="padding:1px 6px;font-size:10px" onclick="deleteGoal(\'lifetime\',\''+esc(g.id)+'\')">✕</button></div></div>';
+    }
+  }
+
+  // yearly
+  var yr=goals.yearly||[];
+  html+='<div class="section-title">📅 年度目标 ('+new Date().getFullYear()+')</div>';
+  if(!yr.length) html+='<div class="empty-state" style="padding:15px"><div class="empty-text">还没有年度目标</div></div>';
+  else for(var g of yr) html+=goalCard('yearly',g);
+
+  // wishlist
+  var wl=goals.wishlist||[];
+  html+='<div class="section-title">⭐ 愿望清单</div>';
+  if(!wl.length) html+='<div class="empty-state" style="padding:15px"><div class="empty-text">还没有愿望</div></div>';
+  else for(var g of wl) html+=goalCard('wishlist',g);
+
+  el.innerHTML=html;
+}
+
+function goalCard(cat,g){
+  var r='<div class="card goal"><div class="c-header"><span class="c-name">⭐ '+esc(g.name)+'</span><span class="c-tag '+(g.status||'pending')+'">'+(g.status==='done'?'已完成':g.status==='active'?'进行中':'想做的')+'</span></div>';
+  if(g.note) r+='<div class="c-note">'+esc(g.note)+'</div>';
+  r+='<div style="margin-top:2px"><button class="btn" style="padding:1px 6px;font-size:10px" onclick="editGoal(\''+cat+'\',\''+esc(g.id)+'\')">✏️</button> ';
+  r+='<button class="btn-red" style="padding:1px 6px;font-size:10px" onclick="deleteGoal(\''+cat+'\',\''+esc(g.id)+'\')">✕</button></div></div>';
+  return r;
+}
+
+function addGoal(cat){
+  var fields=[
+    {key:'name',label:'目标名称',type:'text',placeholder:'如：40岁攀登珠穆朗玛峰'},
+    {key:'target_date',label:'目标日期（可选）',type:'text',placeholder:'YYYY-MM-DD'},
+    {key:'status',label:'状态',type:'select',options:[{v:'active',l:'进行中'},{v:'pending',l:'待开始'},{v:'done',l:'已完成'}],value:'active'},
+    {key:'note',label:'备注',type:'textarea',placeholder:'详细描述...'}
+  ];
+  showForm('添加目标',fields,function(d){
+    if(!DATA.goals[cat]) DATA.goals[cat]=[];
+    DATA.goals[cat].push({id:Date.now().toString(36),name:d.name,target_date:d.target_date,status:d.status,note:d.note,milestones:[]});
+    saveData();closeModal();showToast('已添加');
+  });
+}
+
+function editGoal(cat,id){
+  var g=(DATA.goals[cat]||[]).find(function(x){return x.id===id}); if(!g)return;
+  showForm('编辑目标',[
+    {key:'name',label:'名称',type:'text',value:g.name},
+    {key:'target_date',label:'目标日期',type:'text',value:g.target_date||''},
+    {key:'status',label:'状态',type:'select',options:[{v:'active',l:'进行中'},{v:'pending',l:'待开始'},{v:'done',l:'已完成'}],value:g.status},
+    {key:'note',label:'备注',type:'textarea',value:g.note||''}
+  ],function(d){Object.assign(g,d);saveData();closeModal();showToast('已更新');});
+}
+
+function deleteGoal(cat,id){
+  if(!confirm('删除此目标？')) return;
+  DATA.goals[cat]=(DATA.goals[cat]||[]).filter(function(x){return x.id!==id});
+  saveData();showToast('已删除');
+}
+
+function toggleGoalMilestone(cat,id){
+  var g=(DATA.goals[cat]||[]).find(function(x){return x.id===id}); if(!g)return;
+  showForm('管理里程碑 - '+esc(g.name),[
+    {key:'milestones',label:'里程碑（每行一个，格式：名称|日期|0/1）',type:'textarea',value:(g.milestones||[]).map(function(m){return m.name+'|'+(m.due||'')+'|'+(m.done?1:0)}).join('\n')}
+  ],function(d){
+    g.milestones=(d.milestones||'').split('\n').filter(Boolean).map(function(line){
+      var parts=line.split('|');
+      return {name:parts[0]||line,due:parts[1]||'',done:parts[2]==='1'};
+    });
+    saveData();closeModal();showToast('里程碑已更新');
+  });
+}
+// ── Missions (执行计划) ──
+function renderMissions(){
+  var el=document.getElementById('tab-missions');
+  var ms=DATA.missions;
+  var html='<div class="section-title">💪 当前计划</div>';
+
+  // current plan
+  var plan=ms.current_plan;
+  if(plan){
+    html+='<div class="card mission"><div class="c-header"><span class="c-name">📋 '+esc(plan.name)+'</span><span class="c-date">'+dateStr(plan.start)+' → '+dateStr(plan.end||'')+'</span></div>';
+    if(plan.note) html+='<div class="c-note">'+esc(plan.note)+'</div>';
+    if(plan.milestones && plan.milestones.length){
+      html+='<div style="margin-top:3px">';
+      var done=0;
+      for(var m of plan.milestones){if(m.done)done++;html+='<div style="font-size:10px;color:var(--text-dim);display:flex;justify-content:space-between"><span>'+(m.done?'✅ ':'⬜ ')+esc(m.name)+'</span><span style="color:var(--text-muted)">'+dateStr(m.due)+'</span></div>';}
+      html+='</div>';
+      var pct=plan.milestones.length?Math.round(done/plan.milestones.length*100):0;
+      html+='<div class="progress-bar"><div class="fill gold" style="width:'+pct+'%"></div></div>';
+      html+='<div style="font-size:10px;color:var(--text-dim);text-align:right">'+done+'/'+plan.milestones.length+' · '+pct+'%</div>';
+    }
+    html+='<div style="margin-top:3px"><button class="btn" style="padding:1px 6px;font-size:10px" onclick="editPlan()">✏️</button> ';
+    html+='<button class="btn-red" style="padding:1px 6px;font-size:10px" onclick="clearPlan()">结束计划</button></div></div>';
+  } else {
+    html+='<div class="empty-state" style="padding:15px"><div class="empty-text">还没有执行计划</div></div>';
+  }
+  html+='<div class="btn-row"><button class="btn-green" onclick="newPlan()">+ 创建训练/计划</button></div>';
+
+  // daily checkin
+  html+='<div class="section-title">📝 每日打卡</div>';
+  html+='<div style="display:flex;gap:6px;margin-bottom:6px">';
+  html+='<input id="dailyInput" placeholder="今天做了什么？跑了几公里？" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:7px 9px;color:var(--text);font-size:12px" onkeydown="if(event.key===\'Enter\')addDailyCheckin()">';
+  html+='<button class="btn-green" onclick="addDailyCheckin()">打卡</button></div>';
+
+  var logs=ms.daily_logs||[];
+  if(logs.length){
+    var sorted=[...logs].reverse().slice(0,20);
+    for(var l of sorted){
+      html+='<div class="daily-item"><span style="color:var(--text-muted)">'+esc(l.date)+'</span><span>'+esc(l.text)+'</span></div>';
+    }
+  } else {
+    html+='<div class="empty-state" style="padding:12px"><div class="empty-icon" style="font-size:20px">💪</div><div class="empty-text">今天还没打卡</div></div>';
+  }
+  el.innerHTML=html;
+}
+
+function newPlan(){
+  showForm('创建训练/执行计划',[
+    {key:'name',label:'计划名称',type:'text',placeholder:'如：3个月减脂计划'},
+    {key:'start',label:'开始日期',type:'text',placeholder:'YYYY-MM-DD'},
+    {key:'end',label:'目标结束日期',type:'text',placeholder:'YYYY-MM-DD'},
+    {key:'note',label:'计划说明',type:'textarea',placeholder:'目标体重、训练频率等'},
+    {key:'tasks',label:'任务清单（每行一个）',type:'textarea',placeholder:'第一周:每天跑步3km\n第二周:每天跑步5km\n控制饮食\n...'}
+  ],function(d){
+    var milestones=(d.tasks||'').split('\n').filter(Boolean).map(function(t,i){return {name:t,due:'',done:false}});
+    DATA.missions.current_plan={name:d.name,start:d.start,end:d.end,note:d.note,milestones:milestones};
+    saveData();closeModal();showToast('计划已创建！');
+  });
+}
+
+function editPlan(){
+  var p=DATA.missions.current_plan; if(!p)return;
+  showForm('编辑计划',[
+    {key:'name',label:'名称',type:'text',value:p.name},
+    {key:'start',label:'开始日期',type:'text',value:p.start||''},
+    {key:'end',label:'结束日期',type:'text',value:p.end||''},
+    {key:'note',label:'说明',type:'textarea',value:p.note||''},
+    {key:'tasks',label:'任务（每行，名称|0/1）',type:'textarea',value:(p.milestones||[]).map(function(m){return m.name+'|'+(m.done?1:0)}).join('\n')}
+  ],function(d){
+    p.name=d.name;p.start=d.start;p.end=d.end;p.note=d.note;
+    p.milestones=(d.tasks||'').split('\n').filter(Boolean).map(function(line){
+      var parts=line.split('|');
+      return {name:parts[0]||line,due:'',done:parts[1]==='1'};
+    });
+    saveData();closeModal();showToast('计划已更新');
+  });
+}
+
+function clearPlan(){
+  if(!confirm('结束当前计划？数据不会丢失。')) return;
+  DATA.missions.current_plan=null;
+  saveData();showToast('计划已结束');
+}
+
+function addDailyCheckin(){
+  var inp=document.getElementById('dailyInput');
+  var text=inp.value.trim(); if(!text)return;
+  if(!DATA.missions.daily_logs) DATA.missions.daily_logs=[];
+  DATA.missions.daily_logs.push({date:new Date().toISOString().slice(0,10),text:text});
+  saveData();inp.value='';renderMissions();showToast('✅ 打卡成功');
+}
+// ── Memoir (回忆录) ──
+function renderMemoir(){
+  var el=document.getElementById('tab-memoir');
+  var acts=DATA.memoir.activities||[];
+  var html='<div class="section-title">🏅 冒险回忆录</div>';
+  html+='<div class="btn-row"><button class="btn-green" onclick="addActivity()">+ 记录冒险</button></div>';
+
+  // stats
+  var typeCount={};
+  for(var a of acts){
+    var t=a.type||'其他';
+    typeCount[t]=(typeCount[t]||0)+1;
+  }
+  if(Object.keys(typeCount).length){
+    html+='<div class="stats-grid">';
+    for(var t in typeCount){
+      var icons={攀岩:'🧗',冲浪:'🏄',滑雪:'⛷️',徒步:'🥾',潜水:'🤿',骑马:'🐎',跑步:'🏃',骑行:'🚴',游泳:'🏊',爬雪山:'🏔️',攀冰:'🧊',滑翔伞:'🪂',其他:'🏅'};
+      html+='<div class="stat-card"><div class="sn pink">'+typeCount[t]+'</div><div class="sl">'+(icons[t]||'🏅')+' '+esc(t)+'</div></div>';
+    }
+    html+='</div>';
+  }
+
+  if(!acts.length){
+    html+='<div class="empty-state"><div class="empty-icon">🏅</div><div class="empty-text">还没有冒险记录</div><div class="empty-hint">把以前攀岩、冲浪、滑雪的经历都填进来吧</div></div>';
+    el.innerHTML=html;return;
+  }
+
+  var sorted=[...acts].sort(function(a,b){return(b.date||b.created||'').localeCompare(a.date||a.created||'')});
+  for(var a of sorted){
+    html+='<div class="card activity"><div class="c-header"><span class="c-name">'+esc(a.type||'冒险')+(a.subtype?' - '+esc(a.subtype):'')+'</span><span class="c-date">'+dateStr(a.date||a.created)+'</span></div>';
+    if(a.location) html+='<div class="c-note">📍 '+esc(a.location)+'</div>';
+    if(a.duration) html+='<div class="c-note">⏱️ '+esc(a.duration)+'</div>';
+    if(a.note) html+='<div class="c-note">'+esc(a.note)+'</div>';
+    if(a.rating){
+      var stars='';
+      for(var i=0;i<5;i++) stars+=i<parseInt(a.rating)?'★':'☆';
+      html+='<div class="c-detail">'+stars+'</div>';
+    }
+    html+='<div style="margin-top:2px"><button class="btn" style="padding:1px 6px;font-size:10px" onclick="editActivity(\''+esc(a.id)+'\')">✏️</button> ';
+    html+='<button class="btn-red" style="padding:1px 6px;font-size:10px" onclick="deleteActivity(\''+esc(a.id)+'\')">✕</button></div></div>';
+  }
+  el.innerHTML=html;
+}
+
+function addActivity(){
+  var types=['攀岩','冲浪','滑雪','徒步','爬雪山','攀冰','潜水','滑翔伞','骑马','跑步','骑行','游泳','徒步','登山','其他'];
+  var typeOpts=types.map(function(t){return {v:t,l:t}});
+  showForm('记录冒险经历',[
+    {key:'type',label:'类型',type:'select',options:typeOpts,value:'爬山'},
+    {key:'subtype',label:'子类型（可选）',type:'text',placeholder:'如：抱石、野攀'},
+    {key:'date',label:'日期',type:'text',placeholder:'YYYY-MM-DD'},
+    {key:'location',label:'地点',type:'text',placeholder:'如：阳朔、崇礼'},
+    {key:'duration',label:'时长',type:'text',placeholder:'如：3天、4小时'},
+    {key:'rating',label:'评分(1-5)',type:'text',placeholder:'如：5'},
+    {key:'note',label:'感受/备注',type:'textarea',placeholder:'记录这次冒险的体验...'}
+  ],function(d){
+    if(!DATA.memoir.activities) DATA.memoir.activities=[];
+    DATA.memoir.activities.push({id:Date.now().toString(36),type:d.type,subtype:d.subtype,date:d.date,location:d.location,duration:d.duration,rating:d.rating,note:d.note,created:new Date().toISOString()});
+    saveData();closeModal();showToast('已记录！');
+  });
+}
+
+function editActivity(id){
+  var a=(DATA.memoir.activities||[]).find(function(x){return x.id===id}); if(!a)return;
+  var types=['攀岩','冲浪','滑雪','徒步','爬雪山','攀冰','潜水','滑翔伞','骑马','跑步','骑行','游泳','徒步','登山','其他'];
+  var typeOpts=types.map(function(t){return {v:t,l:t}});
+  showForm('编辑冒险',[
+    {key:'type',label:'类型',type:'select',options:typeOpts,value:a.type},
+    {key:'subtype',label:'子类型',type:'text',value:a.subtype||''},
+    {key:'date',label:'日期',type:'text',value:a.date||''},
+    {key:'location',label:'地点',type:'text',value:a.location||''},
+    {key:'duration',label:'时长',type:'text',value:a.duration||''},
+    {key:'rating',label:'评分',type:'text',value:a.rating||''},
+    {key:'note',label:'感受',type:'textarea',value:a.note||''}
+  ],function(d){Object.assign(a,d);saveData();closeModal();showToast('已更新');});
+}
+
+function deleteActivity(id){
+  if(!confirm('删除这条记录？')) return;
+  DATA.memoir.activities=(DATA.memoir.activities||[]).filter(function(x){return x.id!==id});
+  saveData();showToast('已删除');
+}
+// ── Timeline ──
+function renderTimeline(){
+  var el=document.getElementById('tab-timeline');
+  var events=[];
+
+  // collect all events
+  var flights=DATA.footprints.flights||[];
+  for(var f of flights) events.push({date:f.date,title:'✈️ '+esc(f.from||'')+' → '+esc(f.to||''),type:'flight',note:f.flight_no||''});
+
+  var activities=DATA.memoir.activities||[];
+  for(var a of activities) events.push({date:a.date||a.created,title:esc(a.type||'冒险'),type:'activity',note:(a.location||'')+(a.note?' · '+esc(a.note):'')});
+
+  var goals=DATA.goals.lifetime||[];
+  for(var g of goals){
+    if(g.target_date) events.push({date:g.target_date,title:'🎯 '+esc(g.name),type:'goal',note:'目标日'});
+    if(g.milestones) for(var m of g.milestones){
+      if(m.due) events.push({date:m.due,title:'🏁 '+(m.done?'✅ ':'⬜ ')+esc(m.name),type:'milestone',note:g.name});
+    }
+  }
+
+  events.sort(function(a,b){return a.date.localeCompare(b.date)});
+  events.reverse();
+
+  var html='<div class="section-title">📅 时间轴</div>';
+  html+='<div style="font-size:11px;color:var(--text-dim);margin-bottom:6px">共 '+events.length+' 条记录 · 按日期倒序</div>';
+
+  if(!events.length){
+    html+='<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-text">还没有时间轴数据</div><div class="empty-hint">添加航班、冒险、目标后会自动生成</div></div>';
+    el.innerHTML=html;return;
+  }
+
+  for(var e of events.slice(0,50)){
+    var colors={flight:'cyan',activity:'green',goal:'gold',milestone:'purple'};
+    html+='<div class="timeline-item"><div class="timeline-dot '+(colors[e.type]||'')+'"></div>';
+    html+='<div class="timeline-content"><div class="tl-date">'+dateStr(e.date)+'</div>';
+    html+='<div class="tl-title">'+e.title+'</div>';
+    if(e.note) html+='<div class="tl-note">'+e.note+'</div>';
+    html+='</div></div>';
+  }
+  el.innerHTML=html;
+}
+
+// ── Import ──
+function renderImport(){
+  var el=document.getElementById('tab-import');
+  var html='<div class="section-title">📥 批量导入</div>';
+  html+='<div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;line-height:1.5">';
+  html+='支持批量导入航旅纵横、12306或其他平台的数据。<br>';
+  html+='<b>格式示例：</b><br>';
+  html+='<span style="color:var(--cyan)">航班:</span> 2026-03-15 | 北京 | 上海 | CA1234 | 国航 | 1200km<br>';
+  html+='<span style="color:var(--green)">冒险:</span> 2026-02-10 | 攀岩 | 阳朔 | 难度5.10a<br>';
+  html+='<span style="color:var(--gold)">城市:</span> 东京, 大阪, 京都, 曼谷<br>';
+  html+='</div>';
+
+  html+='<div class="import-area">';
+  html+='<textarea id="importText" placeholder="直接粘贴数据..."></textarea>';
+  html+='<div class="btn-row">';
+  html+='<button class="btn-cyan" onclick="parseImport()">🔍 解析导入</button>';
+  html+='<button class="btn" onclick="document.getElementById(\'importText\').value=\'\'">清空</button></div>';
+  html+='<div id="importPreview"></div></div>';
+
+  html+='<div class="section-title" style="margin-top:10px">📸 截图导入</div>';
+  html+='<div style="font-size:11px;color:var(--text-dim);line-height:1.5">';
+  html+='你也可以直接把航旅纵横/12306的截图发给我，我帮你提取数据填进去。';
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+function parseImport(){
+  var text=document.getElementById('importText').value.trim();
+  if(!text){showToast('请先粘贴数据');return;}
+  var lines=text.split('\n').filter(Boolean);
+  var imported={flights:[],activities:[],cities:[]};
+
+  for(var line of lines){
+    line=line.trim();
+    var parts=line.split('|').map(function(s){return s.trim()});
+    // flight: date | from | to | flight_no | airline | miles
+    if(parts.length>=3 && /^\d{4}/.test(parts[0]) && parts[0].length<=12){
+      imported.flights.push({date:parts[0],from:parts[1],to:parts[2],flight_no:parts[3]||'',airline:parts[4]||'',miles:parts[5]||''});
+    }
+    // comma-separated cities
+    else if(line.includes(',')){
+      var cities=line.split(/[,，]/).map(function(s){return s.trim()}).filter(Boolean);
+      for(var c of cities) imported.cities.push(c);
+    }
+    // activity: date | type | location | note
+    else if(/^\d{4}/.test(parts[0]) && parts.length>=2){
+      imported.activities.push({date:parts[0],type:parts[1],location:parts[2]||'',note:parts.slice(3).join(', ')||''});
+    }
+  }
+
+  var preview=document.getElementById('importPreview');
+  var html='';
+  var total=0;
+  if(imported.flights.length){html+='<div style="font-size:11px;color:var(--cyan);margin:4px 0">✈️ '+imported.flights.length+' 条航班</div>';total+=imported.flights.length;}
+  if(imported.activities.length){html+='<div style="font-size:11px;color:var(--green);margin:4px 0">🏅 '+imported.activities.length+' 条冒险</div>';total+=imported.activities.length;}
+  if(imported.cities.length){html+='<div style="font-size:11px;color:var(--gold);margin:4px 0">🌏 '+imported.cities.length+' 个城市</div>';total+=imported.cities.length;}
+
+  if(total===0){
+    html+='<div style="font-size:11px;color:var(--red);margin:4px 0">⚠️ 未能识别有效数据</div>';
+  } else {
+    html+='<div class="btn-row"><button class="btn-cyan" onclick="confirmImport()">✅ 确认导入 '+total+' 条</button></div>';
+  }
+  preview.innerHTML=html;
+  window._parsedImport=imported;
+}
+
+function confirmImport(){
+  var p=window._parsedImport; if(!p)return;
+  for(var f of(p.flights||[])){f.id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);if(!DATA.footprints.flights)DATA.footprints.flights=[];DATA.footprints.flights.push(f);}
+  for(var a of(p.activities||[])){a.id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);a.created=new Date().toISOString();if(!DATA.memoir.activities)DATA.memoir.activities=[];DATA.memoir.activities.push(a);}
+  for(var c of(p.cities||[])){if(!DATA.footprints.cities)DATA.footprints.cities=[];if(!DATA.footprints.cities.includes(c))DATA.footprints.cities.push(c);}
+  saveData();
+  document.getElementById('importText').value='';
+  document.getElementById('importPreview').innerHTML='';
+  showToast('✅ 导入成功！');
+}
+
+// ── Render All ──
+function renderAll(){
+  if(!DATA)return;
+  var flights=DATA.footprints.flights||[];
+  var cities=DATA.footprints.cities||[];
+  document.getElementById('headerMeta').textContent='✈️ '+flights.length+' · 🌏 '+cities.length;
+  switch(ACTIVE_TAB){
+    case 'dashboard':renderDashboard();break;
+    case 'footprints':renderFootprints();break;
+    case 'goals':renderGoals();break;
+    case 'missions':renderMissions();break;
+    case 'memoir':renderMemoir();break;
+    case 'timeline':renderTimeline();break;
+    case 'import':renderImport();break;
+  }
+}
+
+async function init(){
+  await loadData();
+  renderAll();
+}
+init();
+</script>
+</body>
+</html>

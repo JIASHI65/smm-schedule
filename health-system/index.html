@@ -1,0 +1,724 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>🏥 莎莎的身体管理</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0e0a;--surface:#111811;--surface2:#192219;--surface3:#222f22;--border:#2a3a2a;--text:#e0f0e0;--text-dim:#88aa88;--text-muted:#557755;--green:#34d399;--red:#ef4444;--gold:#ffd700;--cyan:#06d6a0;--purple:#7b5cf6;--pink:#ff6b9d;--blue:#6366f1;--orange:#f59e0b}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.header{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,#0a0e0a,#111811);border-bottom:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
+.header h1{font-size:15px;font-weight:700;display:flex;align-items:center;gap:6px}
+.header .meta{font-size:11px;color:var(--text-dim)}
+.health-score{font-size:20px;font-weight:800;display:flex;align-items:center;gap:4px}
+.tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:54px;z-index:99;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab{padding:9px 14px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text-dim);border-bottom:2px solid transparent;transition:all .12s;white-space:nowrap;user-select:none}
+.tab:hover{color:var(--text);background:var(--surface2)}
+.tab.active{color:var(--green);border-bottom-color:var(--green)}
+.content{display:none;padding:10px 12px;max-width:700px;margin:0 auto}
+.content.active{display:block}
+.section-title{font-size:12px;font-weight:700;margin:10px 0 5px;color:var(--text-dim);display:flex;align-items:center;gap:4px}
+.btn{background:var(--surface3);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:5px;cursor:pointer;font-size:11px;font-weight:600}
+.btn:hover{background:var(--border)}
+.btn-green{background:rgba(52,211,153,0.15);border:1px solid var(--green);color:var(--green);padding:6px 12px;border-radius:5px;cursor:pointer;font-size:11px;font-weight:600}
+.btn-green:hover{background:rgba(52,211,153,0.25)}
+.btn-red{background:rgba(239,68,68,0.15);border:1px solid var(--red);color:var(--red);padding:6px 12px;border-radius:5px;cursor:pointer;font-size:11px;font-weight:600}
+.btn-red:hover{background:rgba(239,68,68,0.25)}
+.btn-row{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center}
+.modal.active{display:flex}
+.modal-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;width:90%;max-width:400px;max-height:80vh;overflow-y:auto;position:relative}
+.modal-box h2{font-size:14px;font-weight:700;margin-bottom:10px}
+.modal-close{position:absolute;top:8px;right:10px;background:none;border:none;color:var(--text-dim);font-size:16px;cursor:pointer}
+.modal-close:hover{color:var(--text)}
+.modal-box input,.modal-box textarea,.modal-box select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:7px 9px;color:var(--text);font-size:12px;margin-bottom:6px}
+.modal-box textarea{min-height:60px;resize:vertical}
+.modal-box select{appearance:none}
+.modal-btns{display:flex;gap:6px;margin-top:10px;justify-content:flex-end}
+.empty-state{padding:30px 20px;text-align:center;color:var(--text-muted)}
+.empty-state .empty-icon{font-size:36px;margin-bottom:8px}
+.empty-state .empty-text{font-size:13px;font-weight:600;margin-bottom:4px}
+.empty-state .empty-hint{font-size:11px;color:var(--text-dim);line-height:1.6}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px;margin-bottom:10px}
+.stat-card{background:var(--surface2);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--border)}
+.stat-card .sn{font-size:18px;font-weight:800}
+.stat-card .sl{font-size:10px;color:var(--text-dim);margin-top:2px}
+.profile-card{background:var(--surface);border-radius:10px;padding:14px;border:1px solid var(--border);margin-bottom:10px}
+.profile-card .pc-row{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.profile-card .pc-row:last-child{border-bottom:none}
+.profile-card .pc-label{color:var(--text-dim)}
+.profile-card .pc-val{font-weight:600;text-align:right}
+.profile-card .pc-val.empty{color:var(--text-muted);font-style:italic}
+.condition-card{background:var(--surface);border-radius:8px;padding:10px 12px;margin-bottom:4px;border:1px solid var(--border);border-left:3px solid var(--text-dim)}
+.condition-card.critical{border-left-color:var(--red)}.condition-card.warning{border-left-color:var(--orange)}.condition-card.stable{border-left-color:var(--green)}
+.condition-card .cc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.condition-card .cc-name{font-size:13px;font-weight:700}
+.condition-card .cc-status{font-size:10px;padding:1px 6px;border-radius:4px;background:var(--surface3)}
+.condition-card .cc-status.active{color:var(--red)}.condition-card .cc-status.monitoring{color:var(--orange)}.condition-card .cc-status.resolved{color:var(--green)}
+.condition-card .cc-note{font-size:11px;color:var(--text-dim);line-height:1.4}
+.condition-card .cc-date{font-size:10px;color:var(--text-muted);margin-top:2px}
+.checkup-item{background:var(--surface2);border-radius:6px;padding:8px 10px;margin-bottom:4px;border:1px solid var(--border);font-size:12px}
+.checkup-item .ci-header{display:flex;justify-content:space-between}
+.checkup-item .ci-date{color:var(--text-muted)}.checkup-item .ci-type{font-weight:600}
+.checkup-item .ci-note{color:var(--text-dim);font-size:11px;margin-top:2px}
+.checkup-item .ci-result{font-size:11px;color:var(--cyan);margin-top:2px}
+.metric-row{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:var(--surface2);border-radius:6px;margin-bottom:3px;font-size:12px}
+.metric-row .m-name{font-weight:600}.metric-row .m-range{color:var(--text-muted);font-size:10px}
+.metric-row .m-status{font-size:10px;padding:1px 5px;border-radius:3px}
+.metric-row .m-status.good{background:rgba(52,211,153,0.2);color:var(--green)}
+.metric-row .m-status.warn{background:rgba(245,158,11,0.2);color:var(--orange)}
+.metric-row .m-status.bad{background:rgba(239,68,68,0.2);color:var(--red)}
+.med-card{background:var(--surface);border-radius:8px;padding:10px 12px;margin-bottom:4px;border:1px solid var(--border)}
+.med-card .mc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.med-card .mc-name{font-size:13px;font-weight:700}.med-card .mc-dosage{font-size:11px;color:var(--text-dim)}
+.med-card .mc-schedule{font-size:10px;color:var(--text-muted)}.med-card .mc-note{font-size:11px;color:var(--text-dim);margin-top:2px}
+.import-area{background:var(--surface2);border:1px dashed var(--border);border-radius:8px;padding:14px;margin-bottom:8px}
+.import-area textarea{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:8px;color:var(--text);font-size:11px;min-height:80px;font-family:monospace;resize:vertical;margin-bottom:6px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--surface3);border:1px solid var(--green);color:var(--green);padding:8px 16px;border-radius:8px;font-size:12px;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none}.toast.show{opacity:1}
+.daily-item{background:var(--surface2);border-radius:6px;padding:6px 10px;margin-bottom:3px;font-size:12px;display:flex;justify-content:space-between}
+.symptom-tags{display:flex;gap:4px;flex-wrap:wrap;margin:4px 0}
+.symptom-tag{background:var(--surface3);border:1px solid var(--border);border-radius:12px;padding:2px 8px;font-size:10px;cursor:pointer;user-select:none}
+.symptom-tag.selected{background:rgba(52,211,153,0.15);border-color:var(--green);color:var(--green)}
+</style></head>
+<body>
+<div class="header">
+  <h1>🏥 <span id="hName">莎莎的身体管理</span></h1>
+  <div class="meta"><span id="hScore" class="health-score">—</span></div>
+</div>
+<div class="tabs" id="tabs">
+  <div class="tab active" data-tab="dashboard">📊 总览</div>
+  <div class="tab" data-tab="conditions">🩺 病史</div>
+  <div class="tab" data-tab="checkups">📋 体检</div>
+  <div class="tab" data-tab="medications">💊 药物</div>
+  <div class="tab" data-tab="metrics">📈 指标</div>
+  <div class="tab" data-tab="daily">📝 日常</div>
+  <div class="tab" data-tab="import">📥 导入</div>
+</div>
+
+<div id="tab-dashboard" class="content active"></div>
+<div id="tab-conditions" class="content"></div>
+<div id="tab-checkups" class="content"></div>
+<div id="tab-medications" class="content"></div>
+<div id="tab-metrics" class="content"></div>
+<div id="tab-daily" class="content"></div>
+<div id="tab-import" class="content"></div>
+
+<div class="modal" id="modal"><div class="modal-box" id="modalBox"></div></div>
+<div class="toast" id="toast"></div>
+<script>
+// ── Data ──
+var HEALTH = null, RECORDS = null;
+var ACTIVE_TAB = 'dashboard';
+
+// ── API ──
+async function loadData(){
+  var hr = await fetch('/api/health'); HEALTH = await hr.json();
+  var rr = await fetch('/api/records'); RECORDS = await rr.json();
+}
+async function saveHealth(){
+  await fetch('/api/health', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(HEALTH)});
+  renderAll();
+}
+async function saveRecords(){
+  await fetch('/api/records', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(RECORDS)});
+}
+
+// ── Tab switching ──
+document.getElementById('tabs').addEventListener('click', function(e){
+  var tab = e.target.closest('.tab'); if(!tab) return;
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  tab.classList.add('active');
+  document.querySelectorAll('.content').forEach(function(c){c.classList.remove('active')});
+  var id = 'tab-'+tab.dataset.tab;
+  document.getElementById(id).classList.add('active');
+  ACTIVE_TAB = tab.dataset.tab;
+  renderAll();
+});
+
+// ── Health score calc ──
+function calcScore(){
+  if(!HEALTH) return {score:0,label:'暂无数据'};
+  var score = 80;
+  if(HEALTH.conditions && HEALTH.conditions.length){
+    var active = HEALTH.conditions.filter(function(c){return c.status==='active'});
+    score -= active.length * 8;
+  }
+  if(HEALTH.metrics && HEALTH.metrics.length){
+    var bad = HEALTH.metrics.filter(function(m){return m.status==='bad'});
+    var warn = HEALTH.metrics.filter(function(m){return m.status==='warn'});
+    score -= bad.length * 10; score -= warn.length * 5;
+  }
+  var lastCP = HEALTH.checkups && HEALTH.checkups.length > 0 ? HEALTH.checkups[HEALTH.checkups.length-1] : null;
+  if(!lastCP) score -= 15;
+  else {
+    var days = Math.floor((new Date() - new Date(lastCP.date)) / 86400000);
+    if(days > 180) score -= 12; else if(days > 90) score -= 6;
+  }
+  score = Math.max(0, Math.min(100, score));
+  var label = score >= 80 ? '良好' : score >= 60 ? '一般' : score >= 40 ? '需关注' : '较差';
+  return {score:score,label:label};
+}
+// ── Helpers ──
+function esc(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2500)}
+function daysAgo(d){
+  if(!d) return '未知';
+  var days = Math.floor((new Date() - new Date(d)) / 86400000);
+  if(days < 0) return '剩余'+Math.abs(days)+'天';
+  if(days === 0) return '今天'; if(days === 1) return '昨天';
+  return days+'天前';
+}
+function dateStr(d){if(!d)return'';return d.slice(0,10)}
+function daysBetween(a,b){return Math.floor((new Date(b)-new Date(a))/86400000)}
+function futureDays(d){
+  if(!d) return null;
+  var days = Math.floor((new Date(d) - new Date()) / 86400000);
+  return days;
+}
+
+// ── Modal form ──
+var _formFields = null, _formOnSave = null;
+function showForm(title, fields, onSave){
+  var box = document.getElementById('modalBox');
+  var html = '<button class="modal-close" onclick="closeModal()">✕</button>';
+  html += '<h2>'+esc(title)+'</h2><div id="formFields">';
+  for(var f of fields){
+    html += '<div style="margin-bottom:4px"><label style="font-size:11px;color:var(--text-dim);display:block;margin-bottom:2px">'+esc(f.label)+'</label>';
+    if(f.type === 'select'){
+      html += '<select id="f_'+f.key+'">';
+      for(var o of f.options) html += '<option value="'+esc(o.v)+'" '+(f.value===o.v?'selected':'')+'>'+esc(o.l)+'</option>';
+      html += '</select>';
+    } else if(f.type === 'textarea'){
+      html += '<textarea id="f_'+f.key+'" placeholder="'+(f.placeholder||'')+'">'+(f.value||'')+'</textarea>';
+    } else {
+      html += '<input id="f_'+f.key+'" type="text" placeholder="'+(f.placeholder||'')+'" value="'+(f.value||'')+'">';
+    }
+    html += '</div>';
+  }
+  html += '</div><div class="modal-btns">';
+  html += '<button class="btn-green" onclick="saveModal()">💾 保存</button>';
+  html += '<button class="btn" onclick="closeModal()">取消</button></div>';
+  box.innerHTML = html;
+  document.getElementById('modal').classList.add('active');
+  _formFields = fields; _formOnSave = onSave;
+}
+function saveModal(){
+  var data = {};
+  for(var f of _formFields){
+    var el = document.getElementById('f_'+f.key);
+    if(el) data[f.key] = el.value;
+  }
+  if(_formOnSave) _formOnSave(data);
+}
+function closeModal(){document.getElementById('modal').classList.remove('active')}
+
+// ── Dashboard ──
+function renderDashboard(){
+  var el = document.getElementById('tab-dashboard');
+  var cs = calcScore();
+  var html = '<div class="section-title">📊 健康概览</div>';
+  html += '<div class="stats-grid">';
+  html += '<div class="stat-card"><div class="sn" style="color:'+(cs.score>=60?'var(--green)':'var(--red)')+'">'+cs.score+'</div><div class="sl">健康评分 · '+cs.label+'</div></div>';
+  var activeConds = (HEALTH.conditions||[]).filter(function(c){return c.status==='active'}).length;
+  html += '<div class="stat-card"><div class="sn">'+activeConds+'</div><div class="sl">进行中病症</div></div>';
+  var totalCP = (HEALTH.checkups||[]).length;
+  html += '<div class="stat-card"><div class="sn">'+totalCP+'</div><div class="sl">体检记录</div></div>';
+  var meds = (HEALTH.medications||[]).length;
+  html += '<div class="stat-card"><div class="sn">'+meds+'</div><div class="sl">用药中</div></div>';
+  html += '</div>';
+  
+  // next checkup reminder
+  var nextCP = HEALTH.profile && HEALTH.profile.next_checkup;
+  if(nextCP){
+    var fd = futureDays(nextCP);
+    if(fd !== null && fd <= 30) html += '<div class="condition-card warning"><div class="cc-header"><div class="cc-name">⏰ 体检提醒</div><div class="cc-date">'+fd+'天后</div></div>距离下次体检还有 '+fd+' 天</div>';
+  }
+  // last checkup
+  var lastCP = HEALTH.checkups && HEALTH.checkups.length ? HEALTH.checkups[HEALTH.checkups.length-1] : null;
+  if(lastCP){
+    var da = daysBetween(lastCP.date, new Date().toISOString().slice(0,10));
+    if(da > 90) html += '<div class="condition-card warning"><div class="cc-header"><div class="cc-name">⚠️ 已 '+da+' 天未体检</div></div>建议每3个月体检一次</div>';
+    else html += '<div class="condition-card stable"><div class="cc-header"><div class="cc-name">✅ 最近体检</div><div class="cc-date">'+da+'天前</div></div>'+esc(lastCP.type||'常规体检')+' · '+esc(lastCP.hospital||'')+'</div>';
+  } else {
+    html += '<div class="condition-card warning"><div class="cc-header"><div class="cc-name">⚠️ 尚未有体检记录</div></div>建议尽快安排一次全面体检</div>';
+  }
+  
+  // profile
+  var p = HEALTH.profile;
+  html += '<div class="section-title">👤 个人档案</div><div class="profile-card">';
+  var profileFields = [
+    {k:'name',l:'姓名'},{k:'age',l:'年龄'},{k:'height',l:'身高(cm)'},{k:'weight',l:'体重(kg)'},{k:'blood_type',l:'血型'}
+  ];
+  for(var f of profileFields){
+    var v = p[f.k];
+    html += '<div class="pc-row"><span class="pc-label">'+f.l+'</span><span class="pc-val'+(v?'':' empty')+'">'+(v||'—')+'</span></div>';
+  }
+  html += '<div class="pc-row"><span class="pc-label">过敏</span><span class="pc-val'+(p.allergies&&p.allergies.length?'':' empty')+'">'+(p.allergies&&p.allergies.length?p.allergies.join(', '):'—')+'</span></div>';
+  html += '</div><div class="btn-row"><button class="btn" onclick="editProfile()">✏️ 编辑档案</button></div>';
+  
+  // active conditions summary
+  if(activeConds > 0){
+    html += '<div class="section-title">🩺 进行中病症</div>';
+    for(var c of (HEALTH.conditions||[])){
+      if(c.status !== 'active') continue;
+      html += '<div class="condition-card '+(c.severity==='critical'?'critical':c.severity==='warning'?'warning':'stable')+'">';
+      html += '<div class="cc-header"><div class="cc-name">'+esc(c.name)+'</div><div class="cc-date">'+dateStr(c.diagnosed)+'</div></div>';
+      if(c.note) html += '<div class="cc-note">'+esc(c.note)+'</div>';
+      html += '</div>';
+    }
+  }
+  
+  // recent logs
+  var logs = RECORDS.daily_logs||[];
+  if(logs.length){
+    html += '<div class="section-title">📝 最近日常</div>';
+    for(var l of [...logs].reverse().slice(0,3)){
+      html += '<div class="daily-item"><span>'+esc(l.date)+'</span><span>'+esc(l.text)+'</span></div>';
+    }
+  }
+  
+  el.innerHTML = html;
+}
+// ── Profile Edit ──
+function editProfile(){
+  var p = HEALTH.profile;
+  showForm('编辑个人档案', [
+    {key:'name',label:'姓名',type:'text',value:p.name||''},
+    {key:'age',label:'年龄',type:'text',value:p.age||''},
+    {key:'height',label:'身高(cm)',type:'text',value:p.height||''},
+    {key:'weight',label:'体重(kg)',type:'text',value:p.weight||''},
+    {key:'blood_type',label:'血型',type:'text',value:p.blood_type||''},
+    {key:'allergies',label:'过敏（逗号分隔）',type:'text',value:(p.allergies||[]).join(', ')},
+    {key:'next_checkup',label:'下次体检日期(YYYY-MM-DD)',type:'text',value:p.next_checkup||''}
+  ], function(data){
+    p.name = data.name; p.age = data.age; p.height = data.height; p.weight = data.weight;
+    p.blood_type = data.blood_type;
+    p.allergies = data.allergies ? data.allergies.split(/[,，]\s*/).filter(Boolean) : [];
+    p.next_checkup = data.next_checkup;
+    saveHealth(); closeModal(); showToast('档案已更新');
+  });
+}
+
+// ── Conditions ──
+function renderConditions(){
+  var el = document.getElementById('tab-conditions');
+  var conds = HEALTH.conditions||[];
+  var html = '<div class="section-title">🩺 病史管理</div>';
+  html += '<div class="btn-row"><button class="btn-green" onclick="addCondition()">+ 添加病症</button></div>';
+  
+  if(!conds.length){
+    html += '<div class="empty-state"><div class="empty-icon">🩺</div><div class="empty-text">还没有病症记录</div><div class="empty-hint">添加后这里会按「进行中→观察中→已解决」排序显示</div></div>';
+    el.innerHTML = html; return;
+  }
+  
+  var sortOrder = {active:0, monitoring:1, resolved:2};
+  conds.sort(function(a,b){return (sortOrder[a.status]||9)-(sortOrder[b.status]||9)});
+  
+  var lastStatus = '';
+  for(var c of conds){
+    if(c.status !== lastStatus){
+      var labels = {active:'🔴 进行中', monitoring:'🟡 观察中', resolved:'✅ 已解决'};
+      html += '<div class="section-title" style="margin-top:8px">'+(labels[c.status]||c.status)+'</div>';
+      lastStatus = c.status;
+    }
+    var sevClass = c.severity==='critical'?'critical':c.severity==='warning'?'warning':'stable';
+    html += '<div class="condition-card '+sevClass+'">';
+    html += '<div class="cc-header"><div class="cc-name">'+esc(c.name)+'</div>';
+    html += '<div><span class="cc-status '+c.status+'">'+(c.status==='active'?'进行中':c.status==='monitoring'?'观察中':'已解决')+'</span>';
+    html += ' <button class="btn" style="padding:1px 6px;font-size:10px" onclick="editCondition(\''+esc(c.id)+'\')">✏️</button>';
+    html += ' <button class="btn-red" style="padding:1px 6px;font-size:10px" onclick="deleteCondition(\''+esc(c.id)+'\')">✕</button></div></div>';
+    if(c.diagnosed) html += '<div class="cc-date">发现于 '+dateStr(c.diagnosed)+'</div>';
+    if(c.note) html += '<div class="cc-note">'+esc(c.note)+'</div>';
+    if(c.symptoms && c.symptoms.length) html += '<div class="cc-note" style="color:var(--orange)">症状: '+esc(c.symptoms.join(', '))+'</div>';
+    if(c.treatments && c.treatments.length){
+      html += '<div class="cc-note" style="margin-top:2px">治疗: ';
+      for(var t of c.treatments) html += '<span style="background:var(--surface3);border-radius:3px;padding:1px 5px;font-size:10px;margin-right:2px">'+esc(t)+'</span>';
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+  el.innerHTML = html;
+}
+
+function addCondition(){
+  showForm('添加病症', [
+    {key:'name',label:'病症名称',type:'text',placeholder:'如：过敏性鼻炎'},
+    {key:'status',label:'状态',type:'select',options:[{v:'active',l:'进行中'},{v:'monitoring',l:'观察中'},{v:'resolved',l:'已解决'}],value:'active'},
+    {key:'severity',label:'严重程度',type:'select',options:[{v:'normal',l:'一般'},{v:'warning',l:'需注意'},{v:'critical',l:'严重'}],value:'normal'},
+    {key:'diagnosed',label:'发现日期(YYYY-MM-DD)',type:'text',placeholder:'如：2024-03-15'},
+    {key:'symptoms',label:'症状（逗号分隔）',type:'text',placeholder:'如：鼻塞,流涕,打喷嚏'},
+    {key:'treatments',label:'治疗方式（逗号分隔）',type:'text',placeholder:'如：氯雷他定,鼻喷剂'},
+    {key:'note',label:'备注',type:'textarea',placeholder:'详细说明...'}
+  ], function(data){
+    if(!HEALTH.conditions) HEALTH.conditions = [];
+    HEALTH.conditions.push({
+      id: Date.now().toString(36),
+      name: data.name,
+      status: data.status,
+      severity: data.severity,
+      diagnosed: data.diagnosed,
+      symptoms: data.symptoms ? data.symptoms.split(/[,，]\s*/).filter(Boolean) : [],
+      treatments: data.treatments ? data.treatments.split(/[,，]\s*/).filter(Boolean) : [],
+      note: data.note
+    });
+    saveHealth(); closeModal(); showToast('已添加病症');
+  });
+}
+
+function editCondition(id){
+  var c = (HEALTH.conditions||[]).find(function(x){return x.id===id});
+  if(!c) return;
+  showForm('编辑病症', [
+    {key:'name',label:'病症名称',type:'text',value:c.name},
+    {key:'status',label:'状态',type:'select',options:[{v:'active',l:'进行中'},{v:'monitoring',l:'观察中'},{v:'resolved',l:'已解决'}],value:c.status},
+    {key:'severity',label:'严重程度',type:'select',options:[{v:'normal',l:'一般'},{v:'warning',l:'需注意'},{v:'critical',l:'严重'}],value:c.severity},
+    {key:'diagnosed',label:'发现日期',type:'text',value:c.diagnosed||''},
+    {key:'symptoms',label:'症状',type:'text',value:(c.symptoms||[]).join(', ')},
+    {key:'treatments',label:'治疗方式',type:'text',value:(c.treatments||[]).join(', ')},
+    {key:'note',label:'备注',type:'textarea',value:c.note||''}
+  ], function(data){
+    c.name = data.name; c.status = data.status; c.severity = data.severity;
+    c.diagnosed = data.diagnosed;
+    c.symptoms = data.symptoms ? data.symptoms.split(/[,，]\s*/).filter(Boolean) : [];
+    c.treatments = data.treatments ? data.treatments.split(/[,，]\s*/).filter(Boolean) : [];
+    c.note = data.note;
+    saveHealth(); closeModal(); showToast('已更新');
+  });
+}
+
+function deleteCondition(id){
+  if(!confirm('确定删除此病症记录？')) return;
+  HEALTH.conditions = (HEALTH.conditions||[]).filter(function(x){return x.id!==id});
+  saveHealth(); showToast('已删除');
+}
+// ── Checkups ──
+function renderCheckups(){
+  var el = document.getElementById('tab-checkups');
+  var cps = HEALTH.checkups||[];
+  var html = '<div class="section-title">📋 体检记录</div>';
+  html += '<div class="btn-row"><button class="btn-green" onclick="addCheckup()">+ 添加体检记录</button></div>';
+  
+  if(!cps.length){
+    html += '<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">还没有体检记录</div><div class="empty-hint">上传支付宝导出或手动添加体检报告</div></div>';
+    el.innerHTML = html; return;
+  }
+  
+  // sort by date desc
+  cps.sort(function(a,b){return b.date.localeCompare(a.date)});
+  
+  for(var cp of cps){
+    html += '<div class="checkup-item">';
+    html += '<div class="ci-header"><span class="ci-type">'+esc(cp.type||'体检')+'</span><span class="ci-date">'+dateStr(cp.date)+'</span></div>';
+    if(cp.hospital) html += '<div style="color:var(--text-muted);font-size:10px">'+esc(cp.hospital)+'</div>';
+    if(cp.note) html += '<div class="ci-note">'+esc(cp.note)+'</div>';
+    if(cp.result) html += '<div class="ci-result">'+esc(cp.result)+'</div>';
+    html += '<div style="margin-top:3px"><button class="btn" style="padding:1px 6px;font-size:10px" onclick="editCheckup(\''+esc(cp.id)+'\')">✏️</button> ';
+    html += '<button class="btn-red" style="padding:1px 6px;font-size:10px" onclick="deleteCheckup(\''+esc(cp.id)+'\')">✕</button></div>';
+    html += '</div>';
+  }
+  el.innerHTML = html;
+}
+
+function addCheckup(){
+  showForm('添加体检记录', [
+    {key:'date',label:'体检日期(YYYY-MM-DD)',type:'text',placeholder:'如：2026-06-15'},
+    {key:'type',label:'体检类型',type:'text',placeholder:'如：常规体检、血液检查'},
+    {key:'hospital',label:'医院/机构',type:'text',placeholder:'如：中山三院'},
+    {key:'result',label:'总结/结果',type:'textarea',placeholder:'体检结论摘要'},
+    {key:'note',label:'备注',type:'textarea',placeholder:'异常项、建议等'}
+  ], function(data){
+    if(!HEALTH.checkups) HEALTH.checkups = [];
+    HEALTH.checkups.push({id:Date.now().toString(36),date:data.date,type:data.type,hospital:data.hospital,result:data.result,note:data.note});
+    saveHealth(); closeModal(); showToast('已添加体检记录');
+  });
+}
+
+function editCheckup(id){
+  var cp = (HEALTH.checkups||[]).find(function(x){return x.id===id});
+  if(!cp) return;
+  showForm('编辑体检记录', [
+    {key:'date',label:'日期',type:'text',value:cp.date},
+    {key:'type',label:'类型',type:'text',value:cp.type||''},
+    {key:'hospital',label:'医院',type:'text',value:cp.hospital||''},
+    {key:'result',label:'结果',type:'textarea',value:cp.result||''},
+    {key:'note',label:'备注',type:'textarea',value:cp.note||''}
+  ], function(data){
+    cp.date=data.date;cp.type=data.type;cp.hospital=data.hospital;cp.result=data.result;cp.note=data.note;
+    saveHealth();closeModal();showToast('已更新');
+  });
+}
+
+function deleteCheckup(id){
+  if(!confirm('删除此体检记录？')) return;
+  HEALTH.checkups = (HEALTH.checkups||[]).filter(function(x){return x.id!==id});
+  saveHealth(); showToast('已删除');
+}
+
+// ── Medications ──
+function renderMedications(){
+  var el = document.getElementById('tab-medications');
+  var meds = HEALTH.medications||[];
+  var html = '<div class="section-title">💊 用药管理</div>';
+  html += '<div class="btn-row"><button class="btn-green" onclick="addMedication()">+ 添加药物</button></div>';
+  
+  if(!meds.length){
+    html += '<div class="empty-state"><div class="empty-icon">💊</div><div class="empty-text">还没有用药记录</div><div class="empty-hint">添加正在服用的药物、剂量和频次</div></div>';
+    el.innerHTML = html; return;
+  }
+  
+  for(var m of meds){
+    html += '<div class="med-card">';
+    html += '<div class="mc-header"><span class="mc-name">'+esc(m.name)+'</span>';
+    html += '<div><button class="btn" style="padding:1px 6px;font-size:10px" onclick="editMedication(\''+esc(m.id)+'\')">✏️</button> ';
+    html += '<button class="btn-red" style="padding:1px 6px;font-size:10px" onclick="deleteMedication(\''+esc(m.id)+'\')">✕</button></div></div>';
+    if(m.dosage) html += '<div class="mc-dosage">剂量: '+esc(m.dosage)+'</div>';
+    if(m.schedule) html += '<div class="mc-schedule">频次: '+esc(m.schedule)+'</div>';
+    if(m.start) html += '<div class="mc-schedule">开始: '+dateStr(m.start)+(m.end?' → '+dateStr(m.end):'')+'</div>';
+    if(m.note) html += '<div class="mc-note">'+esc(m.note)+'</div>';
+    html += '</div>';
+  }
+  el.innerHTML = html;
+}
+
+function addMedication(){
+  showForm('添加药物', [
+    {key:'name',label:'药物名称',type:'text',placeholder:'如：氯雷他定'},
+    {key:'dosage',label:'剂量',type:'text',placeholder:'如：10mg'},
+    {key:'schedule',label:'服用频次',type:'text',placeholder:'如：每日一次'},
+    {key:'start',label:'开始日期',type:'text',placeholder:'YYYY-MM-DD'},
+    {key:'end',label:'结束日期（如已停药）',type:'text',placeholder:'YYYY-MM-DD'},
+    {key:'note',label:'备注',type:'textarea',placeholder:'用途、注意事项等'}
+  ], function(data){
+    if(!HEALTH.medications) HEALTH.medications = [];
+    HEALTH.medications.push({id:Date.now().toString(36),name:data.name,dosage:data.dosage,schedule:data.schedule,start:data.start,end:data.end,note:data.note});
+    saveHealth(); closeModal(); showToast('已添加药物');
+  });
+}
+
+function editMedication(id){
+  var m = (HEALTH.medications||[]).find(function(x){return x.id===id});
+  if(!m) return;
+  showForm('编辑药物', [
+    {key:'name',label:'名称',type:'text',value:m.name},
+    {key:'dosage',label:'剂量',type:'text',value:m.dosage||''},
+    {key:'schedule',label:'频次',type:'text',value:m.schedule||''},
+    {key:'start',label:'开始日期',type:'text',value:m.start||''},
+    {key:'end',label:'结束日期',type:'text',value:m.end||''},
+    {key:'note',label:'备注',type:'textarea',value:m.note||''}
+  ], function(data){
+    m.name=data.name;m.dosage=data.dosage;m.schedule=data.schedule;m.start=data.start;m.end=data.end;m.note=data.note;
+    saveHealth();closeModal();showToast('已更新');
+  });
+}
+
+function deleteMedication(id){
+  if(!confirm('删除此药物记录？')) return;
+  HEALTH.medications = (HEALTH.medications||[]).filter(function(x){return x.id!==id});
+  saveHealth(); showToast('已删除');
+}
+// ── Metrics ──
+function renderMetrics(){
+  var el = document.getElementById('tab-metrics');
+  var metrics = HEALTH.metrics||[];
+  var html = '<div class="section-title">📈 身体指标</div>';
+  html += '<div class="btn-row"><button class="btn-green" onclick="addMetric()">+ 添加指标</button></div>';
+  
+  if(!metrics.length){
+    html += '<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">还没有指标数据</div><div class="empty-hint">上传体检报告后我可以提取关键指标<br>也可以手动添加体重、血压、血糖等</div></div>';
+    el.innerHTML = html; return;
+  }
+  
+  for(var m of metrics){
+    var statusClass = 'good';
+    if(m.status === 'warn') statusClass = 'warn';
+    if(m.status === 'bad') statusClass = 'bad';
+    html += '<div class="metric-row">';
+    html += '<span class="m-name">'+esc(m.name)+'</span>';
+    html += '<span><span class="m-val">'+esc(m.value)+'</span> <span class="m-range">('+esc(m.range||'')+')</span> <span class="m-status '+statusClass+'">'+(m.status==='good'?'正常':m.status==='warn'?'偏高/偏低':'异常')+'</span></span>';
+    html += '<button class="btn" style="padding:1px 5px;font-size:9px" onclick="deleteMetric(\''+esc(m.id)+'\')">✕</button>';
+    html += '</div>';
+  }
+  el.innerHTML = html;
+}
+
+function addMetric(){
+  showForm('添加身体指标', [
+    {key:'name',label:'指标名称',type:'text',placeholder:'如：体重、血压、血糖'},
+    {key:'value',label:'数值',type:'text',placeholder:'如：65kg'},
+    {key:'range',label:'参考范围',type:'text',placeholder:'如：50-70kg'},
+    {key:'status',label:'状态',type:'select',options:[{v:'good',l:'正常'},{v:'warn',l:'偏高/偏低'},{v:'bad',l:'异常'}],value:'good'},
+    {key:'note',label:'备注',type:'textarea',placeholder:'测量时间、条件等'}
+  ], function(data){
+    if(!HEALTH.metrics) HEALTH.metrics = [];
+    HEALTH.metrics.push({id:Date.now().toString(36),name:data.name,value:data.value,range:data.range,status:data.status,note:data.note});
+    saveHealth(); closeModal(); showToast('已添加指标');
+  });
+}
+
+function deleteMetric(id){
+  if(!confirm('删除此指标？')) return;
+  HEALTH.metrics = (HEALTH.metrics||[]).filter(function(x){return x.id!==id});
+  saveHealth();
+}
+
+// ── Daily ──
+function renderDaily(){
+  var el = document.getElementById('tab-daily');
+  var logs = RECORDS.daily_logs||[];
+  var html = '<div class="section-title">📝 日常打卡</div>';
+  
+  html += '<div style="display:flex;gap:6px;margin-bottom:8px">';
+  html += '<input id="dailyInput" placeholder="记录今天的状态：睡眠、症状、情绪..." style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:7px 9px;color:var(--text);font-size:12px" onkeydown="if(event.key===\'Enter\')addDailyLog()">';
+  html += '<button class="btn-green" onclick="addDailyLog()">记录</button>';
+  html += '</div>';
+  
+  // quick symptom tags
+  var quickSymptoms = ['头痛','鼻塞','咳嗽','疲劳','发烧','失眠','胃痛','肌肉痛','皮疹','头晕'];
+  html += '<div class="section-title">快速症状</div>';
+  html += '<div class="symptom-tags">';
+  for(var s of quickSymptoms){
+    html += '<span class="symptom-tag" onclick="quickSymptom(\''+esc(s)+'\')">'+esc(s)+'</span>';
+  }
+  html += '</div>';
+  
+  if(!logs.length){
+    html += '<div class="empty-state"><div class="empty-icon">🌱</div><div class="empty-text">还没有日常记录</div><div class="empty-hint">每天花10秒记录身体状态，帮助追踪健康趋势</div></div>';
+  } else {
+    html += '<div class="section-title">📜 历史记录</div>';
+    for(var l of [...logs].reverse().slice(0,30)){
+      html += '<div class="daily-item"><span style="color:var(--text-muted)">'+esc(l.date)+'</span><span>'+esc(l.text)+'</span></div>';
+    }
+  }
+  el.innerHTML = html;
+}
+
+function addDailyLog(){
+  var inp = document.getElementById('dailyInput');
+  var text = inp.value.trim();
+  if(!text) return;
+  if(!RECORDS.daily_logs) RECORDS.daily_logs = [];
+  RECORDS.daily_logs.push({date: new Date().toISOString().slice(0,10), text: text});
+  saveRecords();
+  inp.value = '';
+  renderDaily();
+  showToast('已记录');
+}
+
+function quickSymptom(s){
+  document.getElementById('dailyInput').value = (document.getElementById('dailyInput').value ? document.getElementById('dailyInput').value + ', ' : '') + s;
+  document.getElementById('dailyInput').focus();
+}
+
+// ── Import ──
+function renderImport(){
+  var el = document.getElementById('tab-import');
+  var html = '<div class="section-title">📥 批量导入数据</div>';
+  html += '<div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;line-height:1.5">';
+  html += '粘贴你从支付宝、微信或其他地方导出的健康数据。支持格式：<br>• <b>体检报告摘要</b>：日期、类型、医院、结果<br>• <b>病症清单</b>：名称、状态、备注<br>• <b>指标数据</b>：名称、数值、参考范围';
+  html += '</div>';
+  
+  html += '<div class="import-area">';
+  html += '<textarea id="importText" placeholder="粘贴数据格式示例：&#10;2026-06-15 | 常规体检 | 中山三院 | 血脂偏高, 建议控制饮食&#10;过敏性鼻炎 | active | 春季加重, 用氯雷他定控制&#10;体重 | 68kg | 50-70kg | good"></textarea>';
+  html += '<div class="btn-row">';
+  html += '<button class="btn-green" onclick="parseImport()">🔍 解析导入</button>';
+  html += '<button class="btn" onclick="document.getElementById(\'importText\').value=\'\'">清空</button>';
+  html += '</div>';
+  html += '<div id="importPreview"></div>';
+  html += '</div>';
+  
+  html += '<div class="section-title" style="margin-top:10px">📸 图片文字识别</div>';
+  html += '<div style="font-size:11px;color:var(--text-dim);line-height:1.5">如果你有体检报告截图/化验单图片，可以直接描述给我看，我来帮你提取字段填入系统。</div>';
+  
+  el.innerHTML = html;
+}
+
+function parseImport(){
+  var text = document.getElementById('importText').value.trim();
+  if(!text) { showToast('请先粘贴数据'); return; }
+  var lines = text.split('\n').filter(Boolean);
+  var parsed = {checkups:[],conditions:[],metrics:[]};
+  
+  for(var line of lines){
+    line = line.trim();
+    // checkup format: date | type | hospital | result
+    var parts = line.split('|').map(function(s){return s.trim()});
+    if(parts.length >= 3 && /^\d{4}/.test(parts[0])){
+      parsed.checkups.push({date:parts[0],type:parts[1]||'体检',hospital:parts[2]||'',result:parts.slice(3).join(', '),note:''});
+    }
+    // condition format: name | status | note
+    else if(parts.length >= 2){
+      parsed.conditions.push({
+        name:parts[0],
+        status:['active','monitoring','resolved'].includes(parts[1])?parts[1]:'active',
+        severity:'normal',
+        note:parts.slice(2).join(', ')||'',
+        diagnosed:'',symptoms:[],treatments:[]
+      });
+    }
+  }
+  
+  var preview = document.getElementById('importPreview');
+  var html = '';
+  var total = 0;
+  if(parsed.checkups.length){
+    html += '<div style="font-size:11px;color:var(--cyan);margin:4px 0">📋 识别到 '+parsed.checkups.length+' 条体检记录</div>';
+    total += parsed.checkups.length;
+  }
+  if(parsed.conditions.length){
+    html += '<div style="font-size:11px;color:var(--orange);margin:4px 0">🩺 识别到 '+parsed.conditions.length+' 条病症</div>';
+    total += parsed.conditions.length;
+  }
+  
+  if(total === 0){
+    html += '<div style="font-size:11px;color:var(--red);margin:4px 0">⚠️ 未能识别有效数据，请检查格式</div>';
+  } else {
+    html += '<div class="btn-row"><button class="btn-green" onclick="confirmImport('+total+')">✅ 确认导入全部</button></div>';
+  }
+  
+  preview.innerHTML = html;
+  window._parsedImport = parsed;
+}
+
+function confirmImport(total){
+  var p = window._parsedImport;
+  if(!p) return;
+  
+  for(var cp of (p.checkups||[])){
+    if(!HEALTH.checkups) HEALTH.checkups = [];
+    cp.id = Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+    HEALTH.checkups.push(cp);
+  }
+  for(var c of (p.conditions||[])){
+    if(!HEALTH.conditions) HEALTH.conditions = [];
+    c.id = Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+    HEALTH.conditions.push(c);
+  }
+  
+  saveHealth();
+  document.getElementById('importText').value = '';
+  document.getElementById('importPreview').innerHTML = '';
+  showToast('✅ 成功导入 '+total+' 条数据');
+}
+// ── Render All ──
+function renderAll(){
+  if(!HEALTH) return;
+  var cs = calcScore();
+  document.getElementById('hScore').textContent = '♥ '+cs.score+' '+cs.label;
+  switch(ACTIVE_TAB){
+    case 'dashboard': renderDashboard(); break;
+    case 'conditions': renderConditions(); break;
+    case 'checkups': renderCheckups(); break;
+    case 'medications': renderMedications(); break;
+    case 'metrics': renderMetrics(); break;
+    case 'daily': renderDaily(); break;
+    case 'import': renderImport(); break;
+  }
+}
+
+// ── Init ──
+async function init(){
+  await loadData();
+  renderAll();
+}
+
+init();
+</script>
+</body>
+</html>

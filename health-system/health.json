@@ -1,0 +1,232 @@
+{
+  "meta": {
+    "name": "莎莎的身体管理系统",
+    "created": "2026-07-14",
+    "version": "v2.0"
+  },
+  "profile": {
+    "name": "李莎红羽",
+    "age": "23岁 (2002-06-05)",
+    "height": "162cm",
+    "weight": "53kg",
+    "blood_type": "",
+    "allergies": [],
+    "chronic_conditions": [],
+    "surgeries": [
+      "宫颈手术（2025年，宫颈术后诊断）"
+    ],
+    "last_physical": "2026-04-23",
+    "next_checkup": ""
+  },
+  "conditions": [
+    {
+      "id": "c1",
+      "name": "左乳结节 BI-RADS 3类",
+      "status": "monitoring",
+      "severity": "warning",
+      "diagnosed": "2025-01-24",
+      "symptoms": [],
+      "treatments": [
+        "定期复查乳腺彩超"
+      ],
+      "note": "左乳低回声结节，从2025年1月2.14*0.89cm → 2025年7月2.22*0.94cm → 2025年10月2.38*0.94cm → 2026年4月2.56*1.00cm，呈缓慢增大趋势。BI-RADS 3类（恶性可能性<2%），建议短期随访。"
+    },
+    {
+      "id": "c2",
+      "name": "双乳囊性增生",
+      "status": "active",
+      "severity": "normal",
+      "diagnosed": "2025-01-24",
+      "symptoms": [],
+      "treatments": [
+        "定期复查"
+      ],
+      "note": "双侧乳腺囊性增生，超声呈'蜂窝样'改变。"
+    },
+    {
+      "id": "c3",
+      "name": "高级别鳞状上皮内病变 HSIL (CIN 2级)",
+      "status": "monitoring",
+      "severity": "warning",
+      "diagnosed": "2025-01-24",
+      "symptoms": [],
+      "treatments": [
+        "宫颈手术",
+        "定期复查HPV"
+      ],
+      "note": "2025年1月病理诊断：宫颈12点高级别鳞状上皮内病变/HSIL（CIN 2级），局灶可疑累腺。2025年2月手术后病理：局灶CIN 2级，内外口切缘均阴性。2026年4月临床诊断：人乳头瘤病毒感染。"
+    },
+    {
+      "id": "c4",
+      "name": "人乳头瘤病毒（HPV）感染",
+      "status": "active",
+      "severity": "warning",
+      "diagnosed": "2025-01-24",
+      "symptoms": [],
+      "treatments": [
+        "宫颈手术",
+        "定期复查HPV E6/E7"
+      ],
+      "note": "宫颈癌基因E6/E7 mRNA检测中，HPV持续感染状态。"
+    },
+    {
+      "id": "c5",
+      "name": "子宫内膜息肉",
+      "status": "monitoring",
+      "severity": "normal",
+      "diagnosed": "2025-10-31",
+      "symptoms": [],
+      "treatments": [
+        "宫腔镜检查",
+        "建议手术切除"
+      ],
+      "note": "2025年10月阴道超声：宫腔内高回声团0.47*0.32cm，子宫内膜息肉可能性大。"
+    },
+    {
+      "id": "c6",
+      "name": "脊柱侧弯",
+      "status": "active",
+      "severity": "normal",
+      "diagnosed": "2025-02-12",
+      "symptoms": [],
+      "treatments": [],
+      "note": "2025年2月胸片附见：脊柱侧弯。"
+    }
+  ],
+  "checkups": [
+    {
+      "id": "cp1",
+      "date": "2023-08-02",
+      "type": "妇科超声",
+      "hospital": "浙大二院滨江",
+      "result": "",
+      "note": ""
+    },
+    {
+      "id": "cp2",
+      "date": "2023-08-14",
+      "type": "妇科超声",
+      "hospital": "浙大二院滨江",
+      "result": "",
+      "note": ""
+    },
+    {
+      "id": "cp3",
+      "date": "2025-01-24",
+      "type": "乳腺彩超+妇科检查",
+      "hospital": "浙大二院滨江",
+      "result": "左乳结节2.14*0.89cm BI-RADS 3类，双乳囊性增生",
+      "note": "首次发现左乳结节"
+    },
+    {
+      "id": "cp4",
+      "date": "2025-01-24",
+      "type": "宫颈病理活检",
+      "hospital": "浙大二院滨江",
+      "result": "HSIL/CIN 2级（宫颈12点），HPV感染征象（宫颈9点挖空细胞）",
+      "note": "宫颈ECC+4点活检"
+    },
+    {
+      "id": "cp5",
+      "date": "2025-02-12",
+      "type": "心电图",
+      "hospital": "浙大二院滨江",
+      "result": "窦性心律，正常范围心电图。心率76bpm",
+      "note": ""
+    },
+    {
+      "id": "cp6",
+      "date": "2025-02-12",
+      "type": "胸部X光",
+      "hospital": "浙大二院滨江",
+      "result": "心肺膈未见明显实质性病灶。附见：脊柱侧弯",
+      "note": ""
+    },
+    {
+      "id": "cp7",
+      "date": "2025-02-15",
+      "type": "宫颈LEEP手术病理",
+      "hospital": "浙大二院滨江",
+      "result": "局灶CIN 2级，内外口切缘均阴性",
+      "note": "术后病理诊断"
+    },
+    {
+      "id": "cp8",
+      "date": "2025-02-27",
+      "type": "睡眠监测",
+      "hospital": "浙大二院滨江",
+      "result": "AHI 1.2次/小时，最低血氧95%，未见明显异常",
+      "note": "身高162cm 体重53kg BMI 20.2"
+    },
+    {
+      "id": "cp9",
+      "date": "2025-07-15",
+      "type": "乳腺彩超",
+      "hospital": "浙大二院滨江",
+      "result": "左乳结节2.22*0.94cm BI-RADS 3类，双乳囊性增生。临床诊断：宫颈术后",
+      "note": "结节较1月略有增大"
+    },
+    {
+      "id": "cp10",
+      "date": "2025-10-31",
+      "type": "妇科超声+乳腺彩超",
+      "hospital": "浙大二院滨江",
+      "result": "子宫内膜息肉0.47*0.32cm；左乳结节2.38*0.94cm BI-RADS 3类",
+      "note": "新发现子宫内膜息肉"
+    },
+    {
+      "id": "cp11",
+      "date": "2026-04-23",
+      "type": "乳腺彩超",
+      "hospital": "浙大二院滨江",
+      "result": "左乳结节2.56*1.00cm BI-RADS 3类。临床诊断：人乳头瘤病毒感染",
+      "note": "结节持续增大"
+    },
+    {
+      "id": "cp12",
+      "date": "2026-04-23",
+      "type": "宫颈癌基因E6/E7检测",
+      "hospital": "浙大二院滨江",
+      "result": "待补充",
+      "note": "HPV E6/E7 mRNA检测"
+    }
+  ],
+  "medications": [],
+  "symptoms": [],
+  "metrics": [
+    {
+      "id": "m1",
+      "name": "身高",
+      "value": "162cm",
+      "range": "",
+      "status": "good",
+      "note": "2025年2月"
+    },
+    {
+      "id": "m2",
+      "name": "体重",
+      "value": "53kg",
+      "range": "",
+      "status": "good",
+      "note": "2025年2月 BMI 20.2"
+    },
+    {
+      "id": "m3",
+      "name": "心率",
+      "value": "76bpm",
+      "range": "60-100",
+      "status": "good",
+      "note": "2025年2月 心电图"
+    },
+    {
+      "id": "m4",
+      "name": "左乳结节",
+      "value": "2.56×1.00cm",
+      "range": "",
+      "status": "warn",
+      "note": "BI-RADS 3类，2026年4月最新，较前增大"
+    }
+  ],
+  "goals": [],
+  "logs": []
+}

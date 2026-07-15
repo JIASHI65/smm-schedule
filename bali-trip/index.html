@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌋🌴 巴厘岛+双火山 旅行计划</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0f0e17;--surface:#1a1a2e;--surface2:#1e1e36;--surface3:#2a2a4a;
+  --border:#2e2e50;--text:#fffffe;--text-dim:#a7a9be;--text-muted:#6a6a8a;
+  --gold:#ffd700;--orange:#f59e0b;--pink:#ff6b9d;--cyan:#06d6a0;
+  --purple:#7b5cf6;--red:#ef4444;--blue:#6366f1;--green:#34d399;
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;
+  background:var(--bg);color:var(--text);min-height:100vh;
+}
+.header{
+  position:sticky;top:0;z-index:100;
+  background:linear-gradient(135deg,#0f0e17,#1a1a2e);
+  border-bottom:1px solid var(--border);padding:12px 16px;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;
+}
+.header h1{font-size:15px;font-weight:700;display:flex;align-items:center;gap:6px}
+.header .meta{font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:8px}
+.countdown{color:var(--pink);font-weight:700;font-size:13px}
+/* ── Tabs ── */
+.tabs{
+  display:flex;background:var(--surface);border-bottom:1px solid var(--border);
+  position:sticky;top:55px;z-index:99;overflow-x:auto;
+}
+.tab{padding:10px 14px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text-dim);
+  border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;user-select:none}
+.tab:hover{color:var(--text);background:var(--surface2)}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab .badge{background:var(--pink);color:#fff;font-size:9px;padding:1px 5px;border-radius:8px;margin-left:3px}
+/* ── Content ── */
+.content{display:none;padding:12px 16px;max-width:900px;margin:0 auto}
+.content.active{display:block}
+.section-title{font-size:13px;font-weight:700;margin:14px 0 8px;display:flex;align-items:center;gap:6px;color:var(--text-dim)}
+/* ── Timeline ── */
+.timeline{position:relative;padding-left:20px}
+.timeline::before{content:'';position:absolute;left:6px;top:8px;bottom:8px;width:2px;background:var(--border)}
+.day-card{
+  background:var(--surface);border-radius:10px;padding:12px;margin-bottom:8px;
+  border:1px solid var(--border);cursor:pointer;transition:all .15s;position:relative;
+}
+.day-card:hover{border-color:var(--purple);background:var(--surface2)}
+.day-card::before{
+  content:'';position:absolute;left:-16px;top:16px;width:10px;height:10px;
+  border-radius:50%;background:var(--purple);border:2px solid var(--bg);
+}
+.day-card .dc-header{display:flex;justify-content:space-between;align-items:start;margin-bottom:4px}
+.day-card .dc-day{font-size:11px;color:var(--text-muted)}
+.day-card .dc-title{font-size:15px;font-weight:700}
+.day-card .dc-theme{font-size:11px;color:var(--text-dim);background:var(--surface3);padding:2px 8px;border-radius:5px;display:inline-block;margin-top:2px}
+.day-card .dc-loc{font-size:11px;color:var(--cyan);margin-top:2px}
+.day-card .dc-desc{font-size:12px;color:var(--text-dim);margin-top:4px;line-height:1.4}
+/* ── Day Detail Modal ── */
+.modal{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.7);overflow-y:auto}
+.modal.active{display:block}
+.modal-content{
+  background:var(--surface);margin:20px auto;max-width:600px;border-radius:12px;
+  border:1px solid var(--border);padding:20px;position:relative;
+}
+.modal-close{position:absolute;top:12px;right:14px;color:var(--text-dim);cursor:pointer;font-size:18px;background:none;border:none}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:4px}
+.modal-sub{font-size:12px;color:var(--text-dim);margin-bottom:12px}
+.modal-section{margin-bottom:12px}
+.modal-section h4{font-size:12px;font-weight:700;color:var(--text-dim);margin-bottom:4px}
+.modal-section ul{list-style:none}
+.modal-section li{font-size:12px;color:var(--text);padding:3px 0;padding-left:14px;position:relative}
+.modal-section li::before{content:'·';position:absolute;left:4px;color:var(--text-muted)}
+.modal-section li.pack::before{content:'🎒';left:0}
+.modal-section li.warn{color:var(--orange)}
+.modal-section li.warn::before{content:'⚠️';left:0}
+/* ── Budget ── */
+.budget-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.budget-total{font-size:24px;font-weight:800;color:var(--gold)}
+.budget-total small{font-size:12px;font-weight:400;color:var(--text-dim)}
+.budget-bar{height:8px;background:var(--surface2);border-radius:4px;margin-bottom:16px;overflow:hidden}
+.budget-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--green),var(--gold));transition:width .3s}
+.budget-fill.over{background:linear-gradient(90deg,var(--gold),var(--red))}
+.budget-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 10px;background:var(--surface2);border-radius:6px;margin-bottom:4px;
+  font-size:12px;
+}
+.budget-item .bi-cat{color:var(--text-dim)}
+.budget-item .bi-val{font-weight:700}
+.budget-item .bi-note{font-size:11px;color:var(--text-muted);margin-left:8px}
+.budget-item .bi-actual{font-size:11px;color:var(--cyan);margin-left:6px;cursor:pointer;border-bottom:1px dashed var(--text-muted)}
+/* ── Checklists ── */
+.cl-group{margin-bottom:12px}
+.cl-title{font-size:12px;font-weight:700;color:var(--text-dim);margin-bottom:4px}
+.cl-item{
+  display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;font-size:12px;user-select:none;
+}
+.cl-item .ckk{
+  width:16px;height:16px;border-radius:3px;border:2px solid var(--text-dim);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:9px;
+  transition:all .15s;background:var(--surface2);
+}
+.cl-item .ckk.done{border-color:var(--cyan);background:var(--cyan);color:var(--bg)}
+.cl-item .cl-name{flex:1}
+.cl-item .cl-name.done{color:var(--text-dim);text-decoration:line-through}
+/* ── Luggage ── */
+.luggage-cat{margin-bottom:10px}
+.luggage-cat-title{font-size:12px;font-weight:700;color:var(--text-dim);margin-bottom:4px}
+/* ── Stats ── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:14px}
+.stat-card{background:var(--surface2);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--border)}
+.stat-card .sn{font-size:20px;font-weight:800}
+.stat-card .sl{font-size:10px;color:var(--text-dim);margin-top:2px}
+/* ── Others ── */
+.info-block{background:var(--surface2);border-radius:8px;padding:12px;margin-bottom:8px;border:1px solid var(--border)}
+.info-block h4{font-size:12px;font-weight:700;margin-bottom:4px;color:var(--text-dim)}
+.info-block p{font-size:12px;color:var(--text);line-height:1.5}
+.emoji-big{font-size:28px;margin-bottom:4px}
+.tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:4px;margin:2px}
+.tag-tour{background:rgba(123,92,246,0.2);color:var(--purple)}
+.tag-free{background:rgba(6,214,160,0.2);color:var(--cyan)}
+.tag-mixed{background:rgba(255,107,157,0.2);color:var(--pink)}
+.tag-travel{background:rgba(99,102,241,0.2);color:var(--blue)}
+.empty-state{padding:20px;text-align:center;color:var(--text-muted);font-size:13px}
+@media(max-width:480px){
+  .tab{padding:8px 10px;font-size:11px}
+  .content{padding:10px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🌋🌴 巴厘岛+双火山</h1>
+  <div class="meta">
+    <span>5.5 - 5.12</span>
+    <span class="countdown" id="countdown"></span>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="timeline" onclick="switchTab('timeline')">📅 行程</div>
+  <div class="tab" data-tab="budget" onclick="switchTab('budget')">💰 预算</div>
+  <div class="tab" data-tab="todo" onclick="switchTab('todo')">✅ 待办</div>
+  <div class="tab" data-tab="luggage" onclick="switchTab('luggage')">🎒 行李</div>
+  <div class="tab" data-tab="info" onclick="switchTab('info')">ℹ️ 攻略</div>
+</div>
+
+<!-- Timeline -->
+<div id="tab-timeline" class="content active"></div>
+<!-- Budget -->
+<div id="tab-budget" class="content"></div>
+<!-- Todo -->
+<div id="tab-todo" class="content"></div>
+<!-- Luggage -->
+<div id="tab-luggage" class="content"></div>
+<!-- Info -->
+<div id="tab-info" class="content"></div>
+
+<!-- Day Detail Modal -->
+<div id="dayModal" class="modal" onclick="if(event.target===this)closeDayModal()">
+  <div class="modal-content" id="dayModalContent"></div>
+</div>
+
+<script>
+let TRIP = null, PROGRESS = null;
+
+async function init(){
+  try{
+    const [t, p] = await Promise.all([
+      fetch('/api/trip').then(r=>r.json()),
+      fetch('/api/progress').then(r=>r.json())
+    ]);
+    TRIP = t; PROGRESS = p;
+  }catch(e){
+    document.getElementById('tab-timeline').innerHTML='<div class="empty-state">⚠ 加载失败</div>';
+    return;
+  }
+  renderCountdown();
+  renderTimeline();
+  renderBudget();
+  renderTodo();
+  renderLuggage();
+  renderInfo();
+}
+function saveProgress(){
+  fetch('/api/progress', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(PROGRESS)});
+}
+
+// ── Countdown ──
+function renderCountdown(){
+  const depart = new Date(2026, 4, 5); // May 5
+  const now = new Date();
+  const diff = Math.ceil((depart - now) / (1000*60*60*24));
+  const el = document.getElementById('countdown');
+  if(diff > 0) el.textContent = `距出发 ${diff} 天`;
+  else if(diff === 0) el.textContent = '今天出发！🚀';
+  else el.textContent = '旅程已结束 🎉';
+}
+
+// ── Tab Switch ──
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  document.querySelectorAll('.content').forEach(c=>c.classList.toggle('active', c.id==='tab-'+name));
+}
+
+// ── Timeline ──
+function renderTimeline(){
+  const el = document.getElementById('tab-timeline');
+  let html = '<div class="section-title">🗺️ 8天行程</div><div class="timeline">';
+  for(const d of TRIP.days){
+    const typeTag = {'tour':'tag-tour','free':'tag-free','mixed':'tag-mixed','travel':'tag-travel'}[d.type]||'';
+    html += `<div class="day-card" onclick="showDay(${d.day})">
+      <div class="dc-header">
+        <div><span class="dc-day">Day ${d.day} · ${d.date}</span></div>
+        <span class="tag ${typeTag}">${d.theme}</span>
+      </div>
+      <div class="dc-title">${d.emoji} ${d.title}</div>
+      <div class="dc-loc">📍 ${d.location}</div>
+      <div class="dc-desc">${esc(d.description)}</div>
+    </div>`;
+  }
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function showDay(day){
+  const d = TRIP.days.find(x=>x.day===day);
+  if(!d) return;
+  const modal = document.getElementById('dayModal');
+  const content = document.getElementById('dayModalContent');
+  const typeTag = {'tour':'报团','free':'自由行','mixed':'半报团','travel':'交通转移'}[d.type]||'';
+  let html = `<button class="modal-close" onclick="closeDayModal()">✕</button>
+    <div class="modal-title">${d.emoji} Day ${d.day}：${d.title}</div>
+    <div class="modal-sub">${d.date} · ${d.theme} · 📍 ${d.location}</div>
+    <div class="modal-section"><p style="font-size:13px;line-height:1.5">${esc(d.description)}</p></div>`;
+  
+  if(d.todo && d.todo.length){
+    html += `<div class="modal-section"><h4>📋 到达后要做</h4><ul>`;
+    for(const t of d.todo) html += `<li>${esc(t)}</li>`;
+    html += `</ul></div>`;
+  }
+  if(d.pack && d.pack.length){
+    html += `<div class="modal-section"><h4>🎒 随身带</h4><ul>`;
+    for(const p of d.pack) html += `<li class="pack">${esc(p)}</li>`;
+    html += `</ul></div>`;
+  }
+  if(d.options && d.options.length){
+    html += `<div class="modal-section"><h4>🔀 可选方案</h4><ul>`;
+    for(const o of d.options) html += `<li>${esc(o.name)} · ${o.cost}</li>`;
+    html += `</ul></div>`;
+  }
+  if(d.warn) html += `<div class="modal-section"><h4>⚠️ 注意</h4><p style="font-size:12px;color:var(--orange)">${esc(d.warn)}</p></div>`;
+  html += `<div class="modal-section" style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text-dim);border-top:1px solid var(--border);padding-top:10px">
+    <span>🏨 ${esc(d.stay||'-')}</span>
+    <span>🚗 ${esc(d.transport||'-')}</span>
+    ${d.cost !== undefined ? `<span>💰 ${d.cost === 0 ? '团含' : '¥'+d.cost}</span>` : ''}
+  </div>`;
+  content.innerHTML = html;
+  modal.classList.add('active');
+}
+function closeDayModal(){document.getElementById('dayModal').classList.remove('active')}
+
+// ── Budget ──
+function renderBudget(){
+  const el = document.getElementById('tab-budget');
+  const budget = TRIP.budget;
+  const items = Object.values(budget);
+  const totalTarget = items.reduce((s,i)=>s+(i.target||0), 0);
+  const actualCosts = PROGRESS.actual_costs||{};
+  const totalActual = Object.values(actualCosts).reduce((s,v)=>s+(parseFloat(v)||0), 0);
+  const pct = Math.min(totalActual / totalTarget * 100, 100);
+  
+  let html = `<div class="budget-header">
+    <div><div style="font-size:11px;color:var(--text-dim)">预算目标</div>
+    <div class="budget-total">¥${totalTarget.toLocaleString()} <small>总预算</small></div></div>
+    <div style="text-align:right"><div style="font-size:11px;color:var(--text-dim)">实际花费</div>
+    <div style="font-size:20px;font-weight:800;color:${totalActual>totalTarget?'var(--red)':'var(--cyan)'}">¥${totalActual.toLocaleString()}</div></div>
+  </div>`;
+  html += `<div class="budget-bar"><div class="budget-fill ${totalActual>totalTarget?'over':''}" style="width:${pct}%"></div></div>`;
+  
+  for(const [k, item] of Object.entries(budget)){
+    const actual = actualCosts[k];
+    html += `<div class="budget-item">
+      <span><span class="bi-cat">${esc(item.item)}</span>
+        ${item.note ? `<span class="bi-note">${esc(item.note)}</span>` : ''}
+        ${item.range ? `<span class="bi-note">(${item.range})</span>` : ''}
+      </span>
+      <span>
+        <span class="bi-val">¥${item.target}</span>
+        <span class="bi-actual" onclick="editActual('${k}')">${actual ? '已花¥'+actual : '+记录'}</span>
+      </span>
+    </div>`;
+  }
+  
+  // budget tips
+  html += `<div class="section-title">💡 弹性控制</div>`;
+  html += `<div class="info-block"><p>💚 机票压到2500 → 总花费约 7000-8000<br>🟡 机票3000左右 → 总花费约 8500-9500<br>🟠 机票3500 → 总花费约 9500-10500</p></div>`;
+  el.innerHTML = html;
+}
+
+function editActual(key){
+  const val = prompt('输入实际花费金额（¥）：', PROGRESS.actual_costs[key]||'');
+  if(val === null) return;
+  if(val === '') delete PROGRESS.actual_costs[key];
+  else PROGRESS.actual_costs[key] = parseFloat(val) || 0;
+  saveProgress();
+  renderBudget();
+}
+
+// ── Todo ──
+function renderTodo(){
+  const el = document.getElementById('tab-todo');
+  const cl = TRIP.checklists;
+  const checked = new Set(PROGRESS.todo_checked||[]);
+  let html = `<div class="section-title">⏰ 出发前倒计时清单</div>`;
+  
+  // count
+  const total = Object.values(cl).flat().length;
+  const done = [...checked].filter(id => {
+    const [cat, idx] = id.split('::');
+    return cl[cat] && cl[cat][parseInt(idx)];
+  }).length;
+  html += `<div style="font-size:12px;color:var(--text-dim);margin-bottom:8px">已完成 ${done}/${total}</div>`;
+  
+  for(const [cat, items] of Object.entries(cl)){
+    html += `<div class="cl-group"><div class="cl-title">${esc(cat)}</div>`;
+    items.forEach((item, idx) => {
+      const id = cat+'::'+idx;
+      const isChecked = checked.has(id);
+      html += `<div class="cl-item" onclick="toggleTodo('${esc(id)}')">
+        <div class="ckk ${isChecked?'done':''}">${isChecked?'✓':''}</div>
+        <div class="cl-name ${isChecked?'done':''}">${esc(item)}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+  el.innerHTML = html;
+}
+
+function toggleTodo(id){
+  const arr = PROGRESS.todo_checked;
+  const idx = arr.indexOf(id);
+  if(idx > -1) arr.splice(idx, 1);
+  else arr.push(id);
+  saveProgress();
+  renderTodo();
+}
+
+// ── Luggage ──
+function renderLuggage(){
+  const el = document.getElementById('tab-luggage');
+  const luggage = TRIP.luggage;
+  const checked = new Set(PROGRESS.luggage_checked||[]);
+  
+  const total = Object.values(luggage).flat().length;
+  const done = [...checked].filter(id => {
+    const [cat, idx] = id.split('::');
+    return luggage[cat] && luggage[cat][parseInt(idx)];
+  }).length;
+  
+  let html = `<div class="section-title">🎒 行李清单</div>`;
+  html += `<div style="font-size:12px;color:var(--text-dim);margin-bottom:8px">已打包 ${done}/${total}</div>`;
+  
+  for(const [cat, items] of Object.entries(luggage)){
+    html += `<div class="luggage-cat"><div class="luggage-cat-title">${esc(cat)}</div>`;
+    items.forEach((item, idx) => {
+      const id = cat+'::'+idx;
+      const isChecked = checked.has(id);
+      html += `<div class="cl-item" onclick="toggleLuggage('${esc(id)}')">
+        <div class="ckk ${isChecked?'done':''}">${isChecked?'✓':''}</div>
+        <div class="cl-name ${isChecked?'done':''}">${esc(item)}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+  el.innerHTML = html;
+}
+
+function toggleLuggage(id){
+  const arr = PROGRESS.luggage_checked;
+  const idx = arr.indexOf(id);
+  if(idx > -1) arr.splice(idx, 1);
+  else arr.push(id);
+  saveProgress();
+  renderLuggage();
+}
+
+// ── Info ──
+function renderInfo(){
+  const el = document.getElementById('tab-info');
+  const t = TRIP;
+  let html = '';
+  
+  // Stats
+  html += '<div class="section-title">📊 旅行概览</div>';
+  html += '<div class="stats-grid">';
+  html += `<div class="stat-card"><div class="sn" style="color:var(--gold)">8天</div><div class="sl">行程天数</div></div>`;
+  html += `<div class="stat-card"><div class="sn" style="color:var(--cyan)">¥${t.meta.budget/10000}万</div><div class="sl">预算目标</div></div>`;
+  html += `<div class="stat-card"><div class="sn" style="color:var(--pink)">${t.days.length}</div><div class="sl">目的地</div></div>`;
+  html += `<div class="stat-card"><div class="sn" style="color:var(--purple)">${t.meta.style}</div><div class="sl">旅行方式</div></div>`;
+  html += '</div>';
+  
+  // Flights
+  html += `<div class="info-block">
+    <h4>✈️ 机票</h4>
+    <p>${esc(t.flights.outbound)} → ${esc(t.flights.return)}<br>目标价：¥${t.flights.target_price}以内<br>💡 ${esc(t.flights.tips)}</p>
+  </div>`;
+  
+  // Visa
+  html += `<div class="info-block">
+    <h4>🛂 签证</h4>
+    <p>${esc(t.visa.type)} · ¥${t.visa.cost} · ${t.visa.valid_days}天有效<br>办理：${esc(t.visa.place)}<br>材料：${esc(t.visa.requirements)}</p>
+  </div>`;
+  
+  // Apps
+  html += `<div class="info-block">
+    <h4>📱 必装APP</h4>
+    <p>${t.apps.map(a=>esc(a)).join(' · ')}</p>
+  </div>`;
+  
+  // Emergency
+  html += `<div class="info-block" style="border-left:3px solid var(--red)">
+    <h4>🆘 紧急联系</h4>
+    <p>报警 ${t.emergency.police} · 急救 ${t.emergency.ambulance}<br>中国驻登巴萨总领馆 ${t.emergency.consulate}<br>24h领事保护 ${t.emergency.consulate_hotline}</p>
+  </div>`;
+  
+  // Safety tips from markdown
+  
+  el.innerHTML = html;
+}
+
+function esc(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{
+  "profile": {"name": "莎莎", "created": "2026-07-14"},
+  "footprints": {
+    "flights": [],
+    "trains": [],
+    "cities": [],
+    "trips": []
+  },
+  "goals": {
+    "lifetime": [],
+    "yearly": [],
+    "wishlist": []
+  },
+  "missions": {
+    "current_plan": null,
+    "daily_logs": [],
+    "checkins": []
+  },
+  "memoir": {
+    "activities": [],
+    "achievements": []
+  },
+  "timeline": {
+    "events": []
+  }
+}

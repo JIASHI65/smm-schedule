@@ -174,16 +174,25 @@ let curM = (new Date()).getMonth()+1;
 let curY = (new Date()).getFullYear();
 
 function goToMonth(delta){
-  curM += delta;
-  if(curM>12){curM=1;curY++}
-  if(curM<1){curM=12;curY--}
+  // delta: -1 for previous month, +1 for next month
+  let newM = curM + delta;
+  let newY = curY;
+  if(newM > 12){ newM = 1; newY++; }
+  if(newM < 1){ newM = 12; newY--; }
+  curM = newM;
+  curY = newY;
   document.getElementById('monthLabel').textContent = curY+'年'+curM+'月';
+  // Re-render with same data, just different month filter
   loadAndRender();
 }
 
+let cachedData = null;
+
 async function loadAndRender(){
-  const data = await loadData();
-  if(data) render(data);
+  if(!cachedData){
+    cachedData = await loadData();
+  }
+  if(cachedData) render(cachedData);
   else render(null);
 }
 

@@ -341,9 +341,9 @@ body{
   <div style="display:flex;align-items:center;gap:6px">
     <h1>📅 7月社媒排期 <span>| 竖排时间线</span></h1>
   <div class="month-nav">
-    <button class="month-nav-btn" onclick="goToMonth(curM-1)" title="上个月">◀</button>
+    <button class="month-nav-btn" onclick="goToMonth(-1)" title="上个月">◀</button>
     <span class="month-label" id="navMonthLabel" style="font-size:13px;font-weight:600;color:var(--text);min-width:80px;text-align:center;display:inline-block"></span>
-    <button class="month-nav-btn" onclick="goToMonth(curM+1)" title="下个月">▶</button>
+    <button class="month-nav-btn" onclick="goToMonth(1)" title="下个月">▶</button>
   </div>
     <div class="status-bar" id="syncStatus">
       <span class="sync-dot on" id="syncDot"></span>
@@ -756,10 +756,12 @@ function switchMonth(delta){
   if(curM<1){curM=12;curY--;}
   updateMonthDisplay();render();
 }
-function goToMonth(m){
-  curM=m;
-  if(curM>12){curM=1;curY++}
-  if(curM<1){curM=12;curY--}
+function goToMonth(delta){
+  let newM = curM + delta;
+  let newY = curY;
+  if(newM>12){newM=1;newY++}
+  if(newM<1){newM=12;newY--}
+  curM=newM; curY=newY;
   updateMonthDisplay();render();
 }
 function updateMonthDisplay(){

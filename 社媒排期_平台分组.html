@@ -39,9 +39,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helveti
 <div class="header">
   <h1>📱 社媒排期 · 账号分组</h1>
   <div style="display:flex;align-items:center;gap:6px">
-    <button class="btn" onclick="goToMonth(curM-1)" title="上个月">◀</button>
+    <button class="btn" onclick="goToMonth(-1)" title="上个月">◀</button>
     <span id="monthLabel" style="font-size:13px;font-weight:600;color:#d6336c;min-width:80px;text-align:center"></span>
-    <button class="btn" onclick="goToMonth(curM+1)" title="下个月">▶</button>
+    <button class="btn" onclick="goToMonth(1)" title="下个月">▶</button>
     <a href="%E7%A4%BE%E5%AA%92%E6%8E%92%E6%9C%9F_%E7%AB%96%E6%8E%92%E6%97%B6%E9%97%B4%E7%BA%BF.html" class="btn">⬅ 返回时间线</a>
   </div>
 </div>
@@ -189,10 +189,8 @@ function goToMonth(delta){
 let cachedData = null;
 
 async function loadAndRender(){
-  if(!cachedData){
-    cachedData = await loadData();
-  }
-  if(cachedData) render(cachedData);
+  const data = await loadData();
+  if(data) render(data);
   else render(null);
 }
 

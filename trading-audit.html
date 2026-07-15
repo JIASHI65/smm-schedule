@@ -575,6 +575,10 @@ switch (action) {
         this._notify('snapshot');
         break;
       }
+      default: {
+        console.warn('handleAction: unknown action', action);
+        break;
+      }
     }
   },
 
@@ -2141,6 +2145,7 @@ switch (action) {
           this._refreshPromptVersions();
         }
         break;
+      }
       case 'editPrompt': {
         var idx = parseInt(target.dataset.idx);
         if (isNaN(idx)) return;
@@ -2162,7 +2167,6 @@ switch (action) {
         Store.deletePrompt(Store.state.currentLane, idx);
         break;
       }
-            }
       case 'loadPromptVersion2': {
         var lane = Store.state.currentLane;
         var prompts = Store.getPrompts(lane);
@@ -2303,11 +2307,6 @@ switch (action) {
       const first = savedModels[0];
       Store.dispatch('SET_MODEL', first);
       this.loadModelUI(first);
-
-      // ===== 未知 action — 调试用 =====
-      default:
-        console.warn('[审计台] 未知 action:', action, ctx);
-        break;
     }
   },
 
@@ -2711,16 +2710,11 @@ document.addEventListener('DOMContentLoaded', () => {
         + '</div>';
     }
     cardList.innerHTML = h;
-    // 绑定折叠展开
+    // 绑定折叠展开（防止重复绑定）
     cardList.querySelectorAll('.prompt-toggle').forEach(function(el) {
-      
-    // 防止事件堆积：如果 toggle 已有监听器，不再重复绑定
-    var toggles = cardList.querySelectorAll('.prompt-toggle');
-    toggles.forEach(function(el) {
       if (el._promptBound) return;
       el._promptBound = true;
-    });
-el.addEventListener('click', function(e) {
+      el.addEventListener('click', function(e) {
         var card = el.closest('.prompt-card');
         var preview = card.querySelector('.prompt-preview');
         var full = card.querySelector('.prompt-full');

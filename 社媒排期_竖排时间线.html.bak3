@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<!-- v=1784093564 -->
-<!-- v2.1 - refs fix -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🌸 7月社媒排期 · 竖排时间线</title>
@@ -342,9 +340,9 @@ body{
   <div style="display:flex;align-items:center;gap:6px">
     <h1>📅 7月社媒排期 <span>| 竖排时间线</span></h1>
   <div class="month-nav">
-    <button class="month-nav-btn" onclick="goToMonth(-1)" title="上个月">◀</button>
+    <button class="month-nav-btn" onclick="goToMonth(curM-1)" title="上个月">◀</button>
     <span class="month-label" id="navMonthLabel" style="font-size:13px;font-weight:600;color:var(--text);min-width:80px;text-align:center;display:inline-block"></span>
-    <button class="month-nav-btn" onclick="goToMonth(1)" title="下个月">▶</button>
+    <button class="month-nav-btn" onclick="goToMonth(curM+1)" title="下个月">▶</button>
   </div>
     <div class="status-bar" id="syncStatus">
       <span class="sync-dot on" id="syncDot"></span>
@@ -475,8 +473,6 @@ async function loadFromServer(){
   try{
     const ls=localStorage.getItem(LS_KEY);
     if(ls){const p=JSON.parse(ls);S=p.slots||{};R=p.refs||{};setSync(false);
-    // Clean stale July default refs when loaded from localStorage
-    if(curM!==7) for(let k in R){if(!R[k]?.[0]?.userAdded) delete R[k];}
     document.getElementById('dataSource').textContent='本地';return true}
   }catch(e2){}
   // 3. Ultimate fallback: embedded defaults
@@ -520,11 +516,9 @@ async function init(){
   curM = (new Date()).getMonth()+1;
   curY = (new Date()).getFullYear();
   const ok = await loadFromServer();
-  // Clean stale July default refs if we're not in July
-  if(curM!==7) for(let k in R){if(!R[k]?.[0]?.userAdded) delete R[k];}
   const daysInMonth = new Date(curY, curM, 0).getDate();
   for(let d=1;d<=daysInMonth;d++){
-    if(curM===7&&!R[d]) R[d]=JSON.parse(JSON.stringify(REF_DEFAULTS[d]||[]));
+    if(!R[d]) R[d]=JSON.parse(JSON.stringify(REF_DEFAULTS[d]||[]));
   }
   updateMonthDisplay();
   render();
@@ -597,10 +591,10 @@ document.addEventListener('keydown',function(e){
 });
 
 // ── Ref CRUD ──
-function ur(d,i,v){if(R[d]&&R[d][i]){R[d][i].text=v;R[d][i].userAdded=true;}scheduleSave();render()}
-function ar(d){if(!R[d])R[d]=[];R[d].push({type:'活动',text:'新活动...',userAdded:true});scheduleSave();render()}
+function ur(d,i,v){if(R[d]&&R[d][i])R[d][i].text=v;scheduleSave();render()}
+function ar(d){if(!R[d])R[d]=[];R[d].push({type:'活动',text:'新活动...'});scheduleSave();render()}
 function rr(d,i){if(R[d])R[d].splice(i,1);scheduleSave();render()}
-function crt(d,i){const C=['版本','节日','IP','活动'];const r=R[d]&&R[d][i];if(!r)return;const ci=C.indexOf(r.type);r.type=C[(ci+1)%C.length];r.userAdded=true;scheduleSave();render()}
+function crt(d,i){const C=['版本','节日','IP','活动'];const r=R[d]&&R[d][i];if(!r)return;const ci=C.indexOf(r.type);r.type=C[(ci+1)%C.length];scheduleSave();render()}
 
 // ── Parse date ranges ──
 function parseRange(text){
@@ -618,15 +612,11 @@ function parseRange(text){
 }
 
 // ── Parse refs with ranges ──
-// REF_DEFAULTS are keyed by day (1-31) without month context.
-// They are only valid for July. For other months, clear them.
 function getRefsWithRanges(){
   const result = {};
   const ranges = [];
-  // If not July, R holds nothing useful (REF_DEFAULTS are July-only)
   for(let d=1;d<=31;d++){
-    // Only show July default refs in July, show user-added refs anytime
-    const refs = (R[d]||[]).filter(r => curM===7 || r.userAdded);
+    const refs = R[d]||[];
     result[d] = [];
     refs.forEach((r,idx)=>{
       const range = parseRange(r.text);
@@ -761,21 +751,9 @@ function switchMonth(delta){
   curM+=delta;
   if(curM>12){curM=1;curY++;}
   if(curM<1){curM=12;curY--;}
-  updateMonthDisplay();
-  if(curM!==7) for(let k in R){if(!R[k]?.[0]?.userAdded) delete R[k];}
-  render();
+  updateMonthDisplay();render();
 }
-function goToMonth(delta){
-  let newM = curM + delta;
-  let newY = curY;
-  if(newM>12){newM=1;newY++}
-  if(newM<1){newM=12;newY--}
-  curM=newM; curY=newY;
-  updateMonthDisplay();
-  // Clean stale July default refs when not in July
-  if(curM!==7) for(let k in R){if(!R[k]?.[0]?.userAdded) delete R[k];}
-  render();
-}
+function goToMonth(m){curM=m;updateMonthDisplay();render();}
 function updateMonthDisplay(){
   const navLabel=document.getElementById('navMonthLabel');
   const txt=curY+'年'+curM+'月';

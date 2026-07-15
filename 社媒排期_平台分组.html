@@ -176,8 +176,8 @@ let curY = (new Date()).getFullYear();
 
 function goToMonth(delta){
   // delta: -1 for previous month, +1 for next month
-  let newM = curM + delta;
-  let newY = curY;
+  let newM = parseInt(curM) + delta;
+  let newY = parseInt(curY);
   if(newM > 12){ newM = 1; newY++; }
   if(newM < 1){ newM = 12; newY--; }
   curM = newM;

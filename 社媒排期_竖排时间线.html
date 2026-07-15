@@ -628,78 +628,58 @@ function parseRange(text){
 // They are only valid for July. For other months, clear them.
 function getRefsWithRanges(){
   const result = {};
-  const ranges = [];
-  // For each day, collect refs:
-  // - July: REF_DEFAULTS (from constant) + user-added refs (from R)
-  // - Other months: only user-added refs (from R)
-  for(let d=1;d<=31;d++){
-    const refs = [];
-    // Add REF_DEFAULTS for July (from constant, never from localStorage)
-    if(curM===7 && REF_DEFAULTS[d]){
-      REF_DEFAULTS[d].forEach(r => {
-        refs.push({...r, userAdded: false});
+  for(let d=1;d<=31;d++) result[d] = [];
+  
+  // Collect ALL refs first (from REF_DEFAULTS constant for July, and R for user-added)
+  const allRefs = [];
+  
+  // REF_DEFAULTS from constant (July only)
+  if(curM===7 && typeof REF_DEFAULTS !== 'undefined'){
+    for(let d=1;d<=31;d++){
+      if(REF_DEFAULTS[d]){
+        REF_DEFAULTS[d].forEach(r => {
+          allRefs.push({...r, userAdded: false, srcDay: d});
+        });
+      }
+    }
+  }
+  
+  // User-added refs from R (all months)
+  for(let k in R){
+    if(R[k]){
+      R[k].forEach(r => {
+        if(r.userAdded) allRefs.push({...r, srcDay: parseInt(k)});
       });
     }
-    // Add user-added refs from R (any month)
-    if(R[d]){
-      R[d].forEach(r => {
-        if(r.userAdded) refs.push({...r});
-      });
-    }
-    result[d] = [];
-    refs.forEach((r,idx)=>{
-      const range = parseRange(r.text);
-      if(range){
-        // Check if range covers current month+day
-        // Range is active if: start month < curM < end month, or (curM===start month && d>=sd), or (curM===end month && d<=ed)
+  }
+  
+  // Now determine where each ref shows based on its date range
+  allRefs.forEach(r => {
+    const range = parseRange(r.text);
+    if(range){
+      // Multi-day range ref
+      const daysInMonth = new Date(curY, curM, 0).getDate();
+      for(let d=1; d<=daysInMonth; d++){
+        // Check if this day falls within the date range for the CURRENT month
         const inRange = (range.sm < curM && curM < range.em) ||
                         (curM === range.sm && d >= range.sd) ||
                         (curM === range.em && d <= range.ed);
         if(inRange){
-          const isEnd = (curM === range.em && d === range.ed);
           const isStart = (curM === range.sm && d === range.sd);
-          if(range.em > range.sm || range.ed > d){
-            // Multi-day range
-            if(isStart){
-              ranges.push({sm:range.sm, sd:range.sd, em:range.em, ed:range.ed, type:r.type, text:r.text, key:d+'_'+idx});
-              result[d].push({...r, rangeStart:true, rangeEnd:false});
-            } else if(isEnd){
-              result[d].push({...r, rangeStart:false, rangeEnd:true});
-            } else {
-              result[d].push({...r, rangeMid:true});
-            }
-          } else {
-            result[d].push({...r});
-          }
-        } else {
-          result[d].push({...r});
+          const isEnd = (curM === range.em && d === range.ed);
+          if(isStart) result[d].push({...r, rangeStart: true});
+          else if(isEnd) result[d].push({...r, rangeEnd: true});
+          else result[d].push({...r, rangeMid: true});
         }
-      } else {
-        result[d].push({...r});
       }
-    });
-  }
-  ranges.forEach(rg=>{
-    // For range display, iterate from start to end
-    // Start at sd in start month, end at ed in end month
-    for(let m = rg.sm; m <= rg.em; m++){
-      if(m < curM || m > curM) continue; // Only show range lines for current month
-      const startDay = (m === rg.sm) ? rg.sd : 1;
-      const endDay = (m === rg.em) ? rg.ed : 31;
-      for(let d = startDay; d <= endDay; d++){
-        if(!result[d]) result[d]=[];
-        const exists = result[d].some(r => r.text === rg.text);
-        if(!exists){
-          const isRangeEnd = (m === rg.em && d === rg.ed);
-          result[d].push({
-            type: rg.type, text: rg.text,
-            rangeContinued: true,
-            rangeEnd: isRangeEnd
-          });
-        }
+    } else {
+      // Single-day ref - only show in July (its source month)
+      if(curM === 7 && r.srcDay) {
+        result[r.srcDay].push({...r});
       }
     }
   });
+  
   return result;
 }
 

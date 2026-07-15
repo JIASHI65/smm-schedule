@@ -563,7 +563,8 @@ function us(d,t,i,f,v){
 }
 function as(d,t){
   let i=0;while(S[sk(d,t,i)])i++;
-  S[sk(d,t,i)]={t:'',l:'',pd:'',p:'素材未到位',s:'投放视频',n:''};
+  const autoPd = curY+'-'+String(curM).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+  S[sk(d,t,i)]={t:'',l:'',pd:autoPd,p:'素材未到位',s:'投放视频',n:''};
   scheduleSave();render();expandSlot(d,t,i);
 }
 function rs(d,t,i){delete S[sk(d,t,i)];scheduleSave();render()}
@@ -715,7 +716,13 @@ function render(){
     const slots=[];
     for(const k in S){
       const m=k.match(/^(\d+)_(uw|tt|hkig|usig|ustt|usfb|usigoff)_(\d+)$/);
-      if(m&&(!S[k].pd||S[k].pd.startsWith(curY+'-'+String(curM).padStart(2,'0')))&&parseInt(m[1])===d) slots.push({idx:parseInt(m[3]),type:m[2],key:k,data:S[k]});
+      if(m){
+        const slotPd = S[k].pd || '';
+        // Show slots that match current month by pd, OR empty-pd slots (only in July)
+        const monthPrefix = curY+'-'+String(curM).padStart(2,'0');
+        const shouldShow = slotPd.startsWith(monthPrefix) || (!slotPd && curM===7);
+        if(shouldShow && parseInt(m[1])===d) slots.push({idx:parseInt(m[3]),type:m[2],key:k,data:S[k]});
+      }
     }
     slots.sort((a,b)=>a.type.localeCompare(b.type)||a.idx-b.idx);
     slots.forEach(s=>{sc.appendChild(makeSlot(d,s.type,s.idx,s.key,s.data))});

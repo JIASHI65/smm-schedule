@@ -101,7 +101,9 @@ function render(data){
   const prefix = curY+'-'+String(curM).padStart(2,'0');
   const filtered = {};
   for(const k in data){
-    if(!data[k].pd || data[k].pd.startsWith(prefix)){
+    const pd = data[k].pd || '';
+    // Show slots matching current month, or empty-pd slots (only in July)
+    if(pd.startsWith(prefix) || (!pd && curM===7)){
       filtered[k] = data[k];
     }
   }

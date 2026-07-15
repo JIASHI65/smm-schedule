@@ -666,6 +666,8 @@ function render(){
   const today=(()=>{const n=new Date();const u=n.getTime()+n.getTimezoneOffset()*60000;const s=new Date(u+8*3600000);return{m:s.getMonth()+1,d:s.getDate()}})();
   const el=document.getElementById('timeline');el.innerHTML='';
   const W=['W1','W2','W3','W4','W5'];
+  // Force-clean stale July refs from R (belt-and-suspenders)
+  if(curM!==7){let cleaned=0;for(let k in R){if(!R[k]?.[0]?.userAdded){delete R[k];cleaned++;}}console.log('[clean] removed',cleaned,'stale ref groups for month',curM);}
   const refsWithRanges = getRefsWithRanges();
 
   for(let d=1;d<=31;d++){

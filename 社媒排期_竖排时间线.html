@@ -466,7 +466,7 @@ async function loadFromServer(){
     if(r.ok){
       const d=await r.json();
       if(d.slots&&Object.keys(d.slots).length>0){
-        S=d.slots;R=d.refs||{};setSync(true);
+        S=d.slots;R=d.refs||{};for(let k in REF_DEFAULTS){if(!R[k])R[k]=REF_DEFAULTS[k];}setSync(true);
         document.getElementById('dataSource').textContent='GitHub';return true}}
   }catch(e){}
   // 2. Fallback: localStorage

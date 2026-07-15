@@ -592,10 +592,10 @@ document.addEventListener('keydown',function(e){
 });
 
 // ── Ref CRUD ──
-function ur(d,i,v){if(R[d]&&R[d][i])R[d][i].text=v;scheduleSave();render()}
-function ar(d){if(!R[d])R[d]=[];R[d].push({type:'活动',text:'新活动...'});scheduleSave();render()}
+function ur(d,i,v){if(R[d]&&R[d][i]){R[d][i].text=v;R[d][i].userAdded=true;}scheduleSave();render()}
+function ar(d){if(!R[d])R[d]=[];R[d].push({type:'活动',text:'新活动...',userAdded:true});scheduleSave();render()}
 function rr(d,i){if(R[d])R[d].splice(i,1);scheduleSave();render()}
-function crt(d,i){const C=['版本','节日','IP','活动'];const r=R[d]&&R[d][i];if(!r)return;const ci=C.indexOf(r.type);r.type=C[(ci+1)%C.length];scheduleSave();render()}
+function crt(d,i){const C=['版本','节日','IP','活动'];const r=R[d]&&R[d][i];if(!r)return;const ci=C.indexOf(r.type);r.type=C[(ci+1)%C.length];r.userAdded=true;scheduleSave();render()}
 
 // ── Parse date ranges ──
 function parseRange(text){

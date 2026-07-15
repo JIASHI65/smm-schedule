@@ -756,7 +756,12 @@ function switchMonth(delta){
   if(curM<1){curM=12;curY--;}
   updateMonthDisplay();render();
 }
-function goToMonth(m){curM=m;updateMonthDisplay();render();}
+function goToMonth(m){
+  curM=m;
+  if(curM>12){curM=1;curY++}
+  if(curM<1){curM=12;curY--}
+  updateMonthDisplay();render();
+}
 function updateMonthDisplay(){
   const navLabel=document.getElementById('navMonthLabel');
   const txt=curY+'年'+curM+'月';

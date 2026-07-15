@@ -475,8 +475,6 @@ async function loadFromServer(){
   try{
     const ls=localStorage.getItem(LS_KEY);
     if(ls){const p=JSON.parse(ls);S=p.slots||{};R=p.refs||{};setSync(false);
-    // Clean stale July default refs when loaded from localStorage
-    if(curM!==7) for(let k in R){if(!R[k]?.[0]?.userAdded) delete R[k];}
     document.getElementById('dataSource').textContent='本地';return true}
   }catch(e2){}
   // 3. Ultimate fallback: embedded defaults
@@ -520,12 +518,7 @@ async function init(){
   curM = (new Date()).getMonth()+1;
   curY = (new Date()).getFullYear();
   const ok = await loadFromServer();
-  // Clean stale July default refs if we're not in July
-  if(curM!==7) for(let k in R){if(!R[k]?.[0]?.userAdded) delete R[k];}
   const daysInMonth = new Date(curY, curM, 0).getDate();
-  for(let d=1;d<=daysInMonth;d++){
-    if(curM===7&&!R[d]) R[d]=JSON.parse(JSON.stringify(REF_DEFAULTS[d]||[]));
-  }
   updateMonthDisplay();
   render();
   setInterval(async ()=>{
@@ -623,10 +616,23 @@ function parseRange(text){
 function getRefsWithRanges(){
   const result = {};
   const ranges = [];
-  // If not July, R holds nothing useful (REF_DEFAULTS are July-only)
+  // For each day, collect refs:
+  // - July: REF_DEFAULTS (from constant) + user-added refs (from R)
+  // - Other months: only user-added refs (from R)
   for(let d=1;d<=31;d++){
-    // Only show July default refs in July, show user-added refs anytime
-    const refs = (R[d]||[]).filter(r => curM===7 || r.userAdded);
+    const refs = [];
+    // Add REF_DEFAULTS for July (from constant, never from localStorage)
+    if(curM===7 && REF_DEFAULTS[d]){
+      REF_DEFAULTS[d].forEach(r => {
+        refs.push({...r, userAdded: false});
+      });
+    }
+    // Add user-added refs from R (any month)
+    if(R[d]){
+      R[d].forEach(r => {
+        if(r.userAdded) refs.push({...r});
+      });
+    }
     result[d] = [];
     refs.forEach((r,idx)=>{
       const range = parseRange(r.text);
@@ -762,7 +768,6 @@ function switchMonth(delta){
   if(curM>12){curM=1;curY++;}
   if(curM<1){curM=12;curY--;}
   updateMonthDisplay();
-  if(curM!==7) for(let k in R){if(!R[k]?.[0]?.userAdded) delete R[k];}
   render();
 }
 function goToMonth(delta){
@@ -772,8 +777,6 @@ function goToMonth(delta){
   if(newM<1){newM=12;newY--}
   curM=newM; curY=newY;
   updateMonthDisplay();
-  // Clean stale July default refs when not in July
-  if(curM!==7) for(let k in R){if(!R[k]?.[0]?.userAdded) delete R[k];}
   render();
 }
 function updateMonthDisplay(){

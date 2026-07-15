@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<!-- v=1784094578 1784094299 -->
+<!-- v2.1 - refs fix -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌸 7月社媒排期 · 竖排时间线</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#fef6f9;--surface:#ffffff;--surface2:#fff0f5;--surface3:#ffeaf2;
+  --border:#e0c4d4;--border-light:#eccedc;
+  --text:#2d1b3d;--text-dim:#8a7a9a;--text-muted:#baaaba;
+  --accent:#ff6b9d;--green:#34d399;--orange:#f59e0b;--amber:#d97706;
+  --pink:#f472b6;--red:#ef4444;--purple:#8b5cf6;--cyan:#06b6d4;--blue:#6366f1;
+  --today:#fff0f5;--glow:0 0 20px rgba(255,107,157,0.12)
+}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;
+  background:var(--bg);color:var(--text);min-height:100vh;
+}
+.header{
+  position:sticky;top:0;z-index:100;
+  background:linear-gradient(135deg,#ff6b9d,#c084fc);
+  border-bottom:1px solid rgba(255,255,255,0.2);padding:10px 16px;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;
+}
+.header h1{font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.header h1 span{color:var(--text-dim);font-weight:400;font-size:11px}
+.header .meta{font-size:10px;color:var(--text-dim);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.header .actions{display:flex;gap:4px}
+.btn{
+  padding:3px 8px;border:1px solid var(--border);border-radius:4px;
+  background:var(--surface2);color:var(--text);font-size:10px;cursor:pointer;transition:all .1s;
+}
+.btn:hover{border-color:#ff6b9d;color:#ff6b9d;background:rgba(255,107,157,0.06)}
+.btn-primary{background:#ff6b9d;border-color:#ff6b9d;color:#fff}
+.btn-sm{padding:2px 5px;font-size:9px}
+.container{max-width:1360px;margin:0 auto;display:flex;flex-direction:column}
+
+/* ── Column Headers ── */
+.col-header{
+  display:grid;grid-template-columns:54px 1fr 260px;
+  position:sticky;top:39px;z-index:99;
+  background:var(--surface);
+  border-bottom:2px solid var(--accent);
+  font-size:10px;font-weight:600;letter-spacing:.4px;color:var(--text-dim);
+}
+.col-header>div{
+  padding:7px 8px;
+}
+.col-header>div:first-child{text-align:center;border-right:1.5px solid var(--border)}
+.col-header>div:nth-child(2){
+  text-align:left;border-right:1.5px solid var(--border);
+  padding-left:12px;
+}
+.col-header>div:last-child{text-align:left;padding-left:10px}
+.col-header .ch-label{display:flex;align-items:center;gap:4px}
+.col-header .ch-label .ch-icon{opacity:0.5}
+
+/* ── Day Row ── */
+.day-row{
+  display:grid;grid-template-columns:54px 1fr 260px;
+  margin-bottom:8px;
+  transition:all .15s;position:relative;
+  background:rgba(255,255,255,0.5);
+  border-radius:8px;
+  overflow:hidden;
+  box-shadow:0 1px 3px rgba(0,0,0,0.03), 0 1px 2px rgba(0,0,0,0.02);
+}
+.day-row:nth-child(4n+2):not(.today):not(.weekend){background:rgba(255,250,252,0.7)}
+.day-row:nth-child(4n+3):not(.today):not(.weekend){background:rgba(255,255,255,0.5)}
+.day-row:hover{
+  box-shadow:0 3px 10px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.03);
+}
+.day-row.today{
+  background:#fff2f6;
+  border-left:3px solid var(--accent);
+  box-shadow:0 3px 12px rgba(255,107,157,0.12), 0 1px 4px rgba(255,107,157,0.07);
+}
+.day-row.weekend{background:rgba(248,242,248,0.45)}
+.day-row.weekend.today{background:#fff2f6}
+
+/* ── Week separator ── */
+.day-row.week-start{border-top:3px solid #ff6b9d80;margin-top:-1px}
+.day-row.week-start .day-date .tag{color:var(--accent);font-weight:700}
+.day-row.week-start .day-date .tag::before{content:'· ';font-weight:700;color:var(--accent)}
+
+/* ── Week label banner ── */
+.week-banner{
+  grid-column:1/-1;background:linear-gradient(90deg,var(--accent),#c084fc);
+  color:#fff;font-size:9px;font-weight:600;letter-spacing:1px;
+  padding:2px 12px;text-align:center;
+}
+
+/* Date */
+.day-date{
+  padding:8px 2px 6px;text-align:center;
+  border-right:2px solid var(--border);
+  background:rgba(255,107,157,0.06);
+  position:relative;border-radius:8px 0 0 8px;
+}
+.day-date .num{font-size:17px;font-weight:800;line-height:1.2;color:#2d1b3d}
+.day-date .dow{
+  font-size:9px;color:#8a7a9a;
+  text-transform:uppercase;letter-spacing:.5px;margin-top:2px;
+}
+.day-date .dow.we{color:#d97706;font-weight:700}
+.day-date .tag{font-size:8px;color:#baaaba;margin-top:2px;font-weight:500;letter-spacing:.5px}
+
+/* Today dot indicator */
+.day-row.today .day-date .num{color:var(--accent)}
+.day-row.today .day-date .num::after{
+  content:'';display:inline-block;width:6px;height:6px;
+  background:var(--accent);border-radius:50%;margin-left:3px;vertical-align:super
+}
+
+/* ── Schedule Column ── */
+.day-schedule{
+  padding:6px 8px;display:flex;flex-direction:column;gap:3px;
+  border-right:1px solid var(--border-light);min-height:36px;
+}
+
+/* ── Slot Card ── */
+.slot{
+  border-radius:4px;cursor:pointer;
+  transition:all .1s ease;
+  display:flex;align-items:center;gap:4px;padding:2px 4px;
+}
+.slot:hover{
+  background:rgba(255,107,157,0.04);
+}
+.slot.collapsed{min-height:20px}
+.slot .badge{
+  font-size:9px;font-weight:600;padding:2px 6px;border-radius:4px;
+  white-space:nowrap;flex-shrink:0;letter-spacing:.2px;
+}
+.slot .badge.uw{
+  background:rgba(139,92,246,0.06);
+  color:#8b5cf6;border:none;
+}
+.slot .badge.tt{
+  background:rgba(16,185,129,0.06);
+  color:#10b981;border:none;
+}
+.slot .badge.hkig{
+  background:rgba(251,146,60,0.06);
+  color:#f59e0b;border:none;
+}
+.slot .badge.usig{
+  background:rgba(99,102,241,0.06);
+  color:#6366f1;border:none;
+}
+.slot .badge.ustt{
+  background:rgba(6,182,212,0.05);
+  color:#06b6d4;border:none;
+}
+.slot .badge.usfb{
+  background:rgba(24,119,242,0.05);
+  color:#1877F2;border:none;
+}
+.slot .badge.usigoff{
+  background:rgba(244,63,94,0.05);
+  color:#e11d48;border:none;
+}
+.slot .summary{
+  display:flex;align-items:center;gap:4px;min-width:0;
+  flex:1;font-size:10px;color:var(--text);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.slot .summary .tp{
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.slot .summary .sp{color:var(--text-muted);font-size:9px;flex-shrink:0}
+.slot .summary .pg{
+  font-size:7px;font-weight:500;padding:1px 4px;border-radius:2px;
+  white-space:nowrap;flex-shrink:0;letter-spacing:.1px;
+}
+.pg.p0{background:rgba(148,163,184,0.08);color:#94a3b8;border:none}
+.pg.p1{background:rgba(245,158,11,0.07);color:#f59e0b;border:none}
+.pg.p2{background:rgba(6,182,212,0.06);color:#06b6d4;border:none}
+.pg.p3{background:rgba(16,185,129,0.06);color:#10b981;border:none}
+.pg.p4{background:rgba(16,185,129,0.08);color:#10b981;border:none}
+.slot .cl{
+  background:none;border:none;color:var(--text-muted);font-size:10px;cursor:pointer;
+  padding:0 3px;border-radius:2px;opacity:0;transition:all .1s;flex-shrink:0;
+}
+.slot:hover .cl{opacity:0.4}
+.cl:hover{opacity:1!important;color:#ff6b9d;background:rgba(255,107,157,0.08)}
+.slot .del{
+  background:none;border:none;color:var(--text-muted);font-size:9px;cursor:pointer;
+  padding:0 3px;border-radius:2px;opacity:0;transition:all .1s;flex-shrink:0;margin-left:auto;
+}
+.slot:hover .del{opacity:0.2}
+.del:hover{opacity:1!important;color:var(--red);background:rgba(239,68,68,0.1)}
+
+/* Expanded */
+.slot.expanded{
+  background:var(--surface2);border:1px solid var(--border);
+  cursor:default;flex-wrap:wrap;padding:6px 8px;gap:4px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.04);
+}
+.slot.expanded .sg{display:grid;grid-template-columns:1fr 1fr;gap:3px 6px;width:100%}
+.sg .fd{display:flex;flex-direction:column;gap:1px}
+.sg .fd.fu{grid-column:1/-1}
+.sg .fd label{font-size:8px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.2px}
+.sg .fd input,.sg .fd select,.sg .fd textarea{
+  background:rgba(255,255,255,0.5);border:1px solid var(--border-light);border-radius:4px;
+  padding:3px 5px;color:var(--text);font-size:10px;font-family:inherit;width:100%;
+}
+.sg .fd input:focus,.sg .fd select:focus,.sg .fd textarea:focus{
+  outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(255,107,157,0.1)
+}
+.sg .fd textarea{resize:vertical;min-height:16px}
+.cb{
+  background:none;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;
+  padding:0 4px;border-radius:3px;flex-shrink:0;
+}
+.cb:hover{color:var(--accent);background:rgba(255,107,157,0.08)}
+
+.add-bar{display:flex;gap:2px;padding:1px 4px;margin-top:1px;flex-wrap:wrap}
+.account-picker{position:relative;margin-top:4px}
+.picker-header{display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:5px 10px;border:1.5px solid #ff6b9d;border-radius:8px;background:linear-gradient(135deg,#fff5f8,#fff0f5);color:#d6336c;cursor:pointer;font-weight:500;transition:.2s}
+.picker-header:hover{background:linear-gradient(135deg,#fff0f5,#ffe8ef)}
+.picker-arrow{font-size:10px;transition:.3s}
+.account-picker.open .picker-arrow{transform:rotate(180deg)}
+.picker-body{display:none;margin-top:6px;flex-direction:column;gap:8px}
+.account-picker.open .picker-body{display:flex}
+.picker-group{background:#fff;border:1px solid #f0e4e8;border-radius:10px;padding:8px 10px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.picker-group-label{font-size:11px;font-weight:600;color:#666;margin-bottom:5px;padding-bottom:4px;border-bottom:1px dashed #f0e4e8}
+.picker-btn{display:inline-block;font-size:11px;padding:4px 10px;margin:2px 3px;border:1px solid #ffc0d0;border-radius:6px;background:#fffafc;color:#d6336c;cursor:pointer;transition:.15s}
+.picker-btn:hover{background:#ff6b9d;color:#fff;border-color:#ff6b9d}
+.add-btn{
+  background:rgba(255,107,157,0.06);border:1px dashed var(--accent);border-radius:4px;
+  color:var(--accent);font-size:8px;padding:1px 6px;cursor:pointer;
+  opacity:0.9;transition:all .12s;font-weight:600;
+}
+.day-row:hover .add-btn{opacity:0.95}
+.add-btn:hover{opacity:1!important;border-color:var(--accent);color:#fff!important;background:var(--accent);border-style:solid}
+
+/* ── Reference Column ── */
+.day-ref{
+  padding:6px 10px;display:flex;flex-direction:column;gap:2px;
+  position:relative;background:rgba(255,107,157,0.008);border-radius:0 8px 8px 0;
+}
+.ref-item{
+  display:flex;gap:4px;align-items:flex-start;
+  padding:2px 0;border-left:3px solid transparent;
+  padding-left:6px;transition:all .1s;border-radius:0 3px 3px 0;
+}
+.ref-item:hover{
+  background:rgba(255,107,157,0.025);
+}
+.ref-item.range-start{
+  border-left-color:var(--accent);
+  background:linear-gradient(90deg,rgba(255,107,157,0.04),transparent);
+}
+.ref-item.range-mid{border-left-color:var(--accent);opacity:0.8}
+.ref-item.range-end{
+  border-left-color:var(--accent);
+  background:linear-gradient(90deg,rgba(255,107,157,0.04),transparent);
+}
+.ref-item .rt{
+  font-size:8px;font-weight:600;padding:1px 6px;border-radius:4px;
+  white-space:nowrap;flex-shrink:0;margin-top:1px;cursor:pointer;
+  letter-spacing:.3px;
+}
+.rt.h{
+  background:rgba(245,158,11,0.28);color:#b45309;
+  border:1px solid rgba(245,158,11,0.35);
+}
+.rt.v{
+  background:rgba(99,102,241,0.22);color:#4f46e5;
+  border:1px solid rgba(99,102,241,0.28);
+}
+.rt.i{
+  background:rgba(244,114,182,0.22);color:#be185d;
+  border:1px solid rgba(244,114,182,0.28);
+}
+.rt.e{
+  background:rgba(6,182,212,0.2);color:#0e7490;
+  border:1px solid rgba(6,182,212,0.25);
+}
+.ref-item .rtx{
+  font-size:10px;color:#2d1b3d;line-height:1.5;cursor:pointer;flex:1;
+  padding:0 3px;border-radius:2px;font-weight:500;
+}
+.ref-item .rtx:hover{background:rgba(255,107,157,0.04)}
+.ref-item .rd{
+  background:none;border:none;color:var(--red);font-size:8px;cursor:pointer;
+  opacity:0;padding:0 3px;margin-top:2px;border-radius:2px;
+}
+.ref-item:hover .rd{opacity:0.35}
+.rd:hover{opacity:1!important;background:rgba(239,68,68,0.08)}
+.ref-empty{
+  color:var(--text-dim);opacity:0.35;font-size:9px;font-style:italic;padding:5px 0;
+}
+.ref-add{
+  background:transparent;border:1px dashed var(--border);border-radius:4px;
+  color:var(--text-dim);font-size:9px;padding:1px 8px;cursor:pointer;
+  opacity:0.5;transition:all .12s;margin-top:2px;align-self:flex-start;font-weight:500;
+}
+.day-row:hover .ref-add{opacity:0.7}
+.ref-add:hover{opacity:1!important;border-color:var(--accent);color:var(--accent);background:rgba(255,107,157,0.04)}
+
+/* Modal */
+.modal-overlay{
+  display:none;position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,0.75);z-index:200;justify-content:center;align-items:center
+}
+.modal-overlay.active{display:flex}
+.modal{
+  background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  padding:14px;max-width:500px;width:90%;max-height:70vh;overflow-y:auto
+}
+.modal h2{font-size:13px;margin-bottom:6px}
+.modal textarea{
+  width:100%;min-height:150px;background:var(--bg);
+  border:1px solid var(--border);border-radius:4px;
+  padding:6px;color:var(--text);font-size:10px;font-family:monospace;resize:vertical
+}
+.modal .br{display:flex;gap:5px;margin-top:6px;justify-content:flex-end}
+.status-bar{display:flex;align-items:center;gap:4px;font-size:9px}
+.sync-dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.sync-dot.on{background:#34d399;box-shadow:0 0 4px rgba(63,185,80,0.4)}
+.sync-dot.off{background:var(--red);box-shadow:0 0 4px rgba(248,81,73,0.4)}
+.sync-dot.saving{background:var(--orange);animation:pulse .6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+@media(max-width:900px){
+  .day-row{grid-template-columns:42px 1fr}
+  .col-header{grid-template-columns:42px 1fr}
+  .col-header>div:last-child{display:none}
+  .day-ref{display:none}
+}
+</style>
+<script>
+// NUCLEAR CLEANUP: force-remove ALL non-user-added refs from localStorage
+try{const r=localStorage.getItem('smm_v3_fallback');if(r){const d=JSON.parse(r);if(d&&d.refs){let c=0;for(const k in d.refs){if(d.refs[k]&&d.refs[k].length>0&&!d.refs[k][0].userAdded){delete d.refs[k];c++;}}localStorage.setItem('smm_v3_fallback',JSON.stringify(d));console.log('[boom] cleaned',c,'old refs');}}}catch(e){}
+// VERSION CHECK - added 1784094385
+document.addEventListener('DOMContentLoaded', function(){
+  console.log('✅ TIMELINE VERSION: 2026-07-15-fix3 (REF_DEFAULTS from constant)');
+  console.log('localStorage smm_v3_fallback:', localStorage.getItem('smm_v3_fallback') ? 'EXISTS' : 'EMPTY');
+});
+</script>
+</head>
+<body>
+<div style="background:#d6336c;color:white;text-align:center;padding:4px;font-size:12px;font-weight:bold;position:sticky;top:0;z-index:9999">
+  🟢 最新版本 2026-07-15-fix7 | 8月右边应是空的 | 按 F12→Console 看 [boom] 日志
+</div>
+
+<div class="header">
+  <div style="display:flex;align-items:center;gap:6px">
+    <h1>📅 7月社媒排期 <span>| 竖排时间线</span></h1>
+  <div class="month-nav">
+    <button type="button" class="month-nav-btn" onclick="goToMonth(-1)" title="上个月">◀</button>
+    <span class="month-label" id="navMonthLabel" style="font-size:13px;font-weight:600;color:var(--text);min-width:80px;text-align:center;display:inline-block"></span>
+    <button type="button" class="month-nav-btn" onclick="goToMonth(1)" title="下个月">▶</button>
+  </div>
+    <div class="status-bar" id="syncStatus">
+      <span class="sync-dot on" id="syncDot"></span>
+      <span id="syncText">已同步</span>
+    </div>
+  </div>
+  <div class="meta">
+    <span id="slotCount">0</span>
+    <span>|</span>
+    <span id="dataSource">云端</span>
+  </div>
+  <div class="actions">
+    <button class="btn" onclick="exportData()">📤 导出</button>
+    <a href="社媒排期_平台分组.html" class="btn" style="background:#ff6b9d;border-color:#ff6b9d;color:#fff">📂 平台分组</a>
+    <button class="btn btn-sm" onclick="clearAll()">🗑️</button>
+  </div>
+</div>
+
+<div class="container">
+  <div class="col-header">
+    <div><span class="ch-label">📅 日期</span></div>
+    <div><span class="ch-label"><span class="ch-icon">📋</span> 排期</span></div>
+    <div><span class="ch-label"><span class="ch-icon">📎</span> 版本·活动·IP</span></div>
+  </div>
+  <div id="timeline"></div>
+</div>
+
+<div class="modal-overlay" id="exportModal">
+  <div class="modal">
+    <h2>📤 导出排期</h2>
+    <textarea id="exportText" readonly></textarea>
+    <div class="br">
+      <button class="btn" onclick="copyExport()">📋 复制</button>
+      <button class="btn btn-primary" onclick="closeExport()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Data ──
+const GH_USER = 'jiashi65';
+const GH_REPO = 'smm-schedule';
+const GH_BRANCH = 'main';
+const RAW_URL = 'https://cdn.jsdelivr.net/gh/'+GH_USER+'/'+GH_REPO+'@'+GH_BRANCH+'/smm_data.json';
+const LS_KEY = 'smm_v3_fallback';
+
+const REF_DEFAULTS = {"1": [{"type": "版本", "text": "沁夏臻境套间"}, {"type": "IP", "text": "联动签到 12天 持续一个月"}, {"type": "IP", "text": "kitty拼图"}, {"type": "IP", "text": "kitty委托 7/1-7/30"}, {"type": "版本", "text": "沁夏插画动态视频"}, {"type": "IP", "text": "KT上线PV"}, {"type": "IP", "text": "更换kitty联动头像&Banner"}], "2": [{"type": "版本", "text": "滑雪礼包 7/2-7/27"}, {"type": "版本", "text": "滑雪服装礼包宣发"}], "3": [], "4": [{"type": "节日", "text": "🎆 美国独立日"}], "5": [{"type": "IP", "text": "kitty小镇打卡二创活动"}], "6": [], "7": [{"type": "版本", "text": "儿童节家具礼包"}, {"type": "IP", "text": "KT联动预告三（转盘+寻物）"}, {"type": "IP", "text": "KT创作大赛 投稿：7/7-7/22"}], "8": [], "9": [{"type": "版本", "text": "绒雪套间展示（转盘预告）国服复用"}], "10": [{"type": "版本", "text": "往日预购"}, {"type": "版本", "text": "限时转盘"}, {"type": "IP", "text": "kitty转盘开启（融雪动态KV）"}], "11": [{"type": "版本", "text": "庙会服装礼包"}], "12": [], "13": [{"type": "版本", "text": "往日回响套间"}, {"type": "活动", "text": "玫瑰卡牌 7/13-7/22"}], "14": [], "15": [], "16": [], "17": [{"type": "节日", "text": "世界emoji日"}, {"type": "版本", "text": "烘焙套间展示（寻物预告）国服复用"}], "18": [{"type": "IP", "text": "kitty寻物"}, {"type": "IP", "text": "kitty寻物开启（烘焙动态KV）"}, {"type": "IP", "text": "kitty端内寻物社区配套活动"}], "19": [{"type": "版本", "text": "劳动节签到礼包"}], "20": [{"type": "版本", "text": "花影预购"}], "21": [], "22": [], "23": [{"type": "版本", "text": "花影乞巧套间"}, {"type": "活动", "text": "乞巧敲敲寻宝 7/23-8/1"}], "24": [], "25": [{"type": "版本", "text": "服装（男）礼包"}], "26": [], "27": [{"type": "版本", "text": "鹊桥星轨进阶礼包（主界面）"}], "28": [], "29": [], "30": [{"type": "版本", "text": "齿轮预购"}], "31": []};
+const DEFAULT_SLOTS = {
+    "11_uw_0": {"t":"🌸 日式庭院别墅AI渲染，禅意满满","l":"","pd":"2026-07-11","p":"已发布","s":"AI生成","n":"AI视频 · 搬运素材"},
+    "13_uw_0": {"t":"🌌 星空下的玻璃房｜AI建筑设计","l":"","pd":"2026-07-13","p":"已发布","s":"AI生成","n":"AI视频 · 搬运素材"},
+    "14_hkig_0": {"t":"📖 条漫《星星落在你肩上》EP.1","l":"","pd":"2026-07-14","p":"已排期","s":"外部KOC","n":"港台条漫分发"},
+    "14_tt_0": {"t":"🏔️ 滑雪服装礼包实穿测评来了","l":"","pd":"2026-07-14","p":"已排期","s":"官方素材","n":"官方号素材 · 脚本产出"},
+    "14_usigoff_0": {"t":"🎀 Official IG: Kitty Collab Behind the Scenes","l":"","pd":"2026-07-14","p":"已排期","s":"官方素材","n":"官方IG导流"},
+    "15_usfb_0": {"t":"📢 New Kitty Collaboration Event! Join Now","l":"","pd":"2026-07-15","p":"已排期","s":"官方素材","n":"导流贴文"},
+    "15_usig_0": {"t":"✨ Webcomic: Stars on Your Shoulder Ep.1","l":"","pd":"2026-07-15","p":"已排期","s":"外部KOC","n":"欧美条漫分发"},
+    "15_uw_0": {"t":"🏯 未来城市公寓概念设计","l":"","pd":"2026-07-15","p":"已排期","s":"AI生成","n":"AI视频 · 搬运素材"},
+    "16_tt_0": {"t":"🎪 庙会服装礼包展示｜节日氛围拉满","l":"","pd":"2026-07-16","p":"已排期","s":"官方素材","n":"官方号素材 · 脚本产出"},
+    "16_usigoff_0": {"t":"🏔️ Official IG: July New Items Preview","l":"","pd":"2026-07-16","p":"已排期","s":"官方素材","n":"官方IG导流"},
+    "16_ustt_0": {"t":"✨ Stars on Your Shoulder - Full Episode 🎬","l":"","pd":"2026-07-16","p":"已排期","s":"外部KOC","n":"条漫TT推广"},
+    "17_hkig_0": {"t":"📖 条漫《星星落在你肩上》EP.2","l":"","pd":"2026-07-17","p":"已排期","s":"外部KOC","n":"港台条漫分发"},
+    "17_usfb_0": {"t":"🎁 July Event Calendar - Don\'t Miss Out!","l":"","pd":"2026-07-17","p":"已排期","s":"官方素材","n":"导流贴文"},
+    "17_usig_0": {"t":"✨ Webcomic: Stars on Your Shoulder Ep.2","l":"","pd":"2026-07-17","p":"已排期","s":"外部KOC","n":"欧美条漫分发"},
+    "18_usigoff_0": {"t":"🌸 Official IG: Community Artwork Showcase","l":"","pd":"2026-07-18","p":"已排期","s":"官方素材","n":"官方IG导流"},
+    "18_uw_0": {"t":"🎭 复古欧式风格室内AI创意设计","l":"","pd":"2026-07-18","p":"已排期","s":"AI生成","n":"AI视频 · 搬运素材"},
+    "1_uw_0": {"t":"🏠 超治愈！AI设计的未来之家室内设计","l":"","pd":"2026-07-01","p":"已发布","s":"AI生成","n":"AI视频 · 搬运素材"},
+    "20_usfb_0": {"t":"🌟 Creator Spotlight: Meet Our Top KOC","l":"","pd":"2026-07-20","p":"已排期","s":"官方素材","n":"导流贴文"},
+    "20_ustt_0": {"t":"🍋 Summer Lemonade - Full Episode 🎬","l":"","pd":"2026-07-20","p":"已排期","s":"外部KOC","n":"条漫TT推广"},
+    "20_uw_0": {"t":"🌿 森林中的玻璃豪宅｜AI景观设计","l":"","pd":"2026-07-20","p":"已排期","s":"AI生成","n":"AI视频 · 搬运素材"},
+    "21_hkig_0": {"t":"📖 条漫《夏日柠檬汽水》EP.1","l":"","pd":"2026-07-21","p":"已排期","s":"外部KOC","n":"港台条漫分发"},
+    "21_tt_0": {"t":"🦋 花影乞巧套间｜七夕限定美哭","l":"","pd":"2026-07-21","p":"已排期","s":"官方素材","n":"官方号素材 · 脚本产出"},
+    "21_usigoff_0": {"t":"🎪 Official IG: Event Calendar July Week 3","l":"","pd":"2026-07-21","p":"已排期","s":"官方素材","n":"官方IG导流"},
+    "22_usfb_0": {"t":"📣 Exclusive: New Furniture Collection Sneak Peek","l":"","pd":"2026-07-22","p":"已排期","s":"官方素材","n":"导流贴文"},
+    "22_usig_0": {"t":"🍋 Webcomic: Summer Lemonade Ep.1","l":"","pd":"2026-07-22","p":"已排期","s":"外部KOC","n":"欧美条漫分发"},
+    "22_uw_0": {"t":"💫 极简主义卧室AI概念，高级感满满","l":"","pd":"2026-07-22","p":"已排期","s":"AI生成","n":"AI视频 · 搬运素材"},
+    "23_tt_0": {"t":"🏠 烘焙套间开箱｜KitchenAid联名款","l":"","pd":"2026-07-23","p":"已排期","s":"官方素材","n":"官方号素材 · 脚本产出"},
+    "23_usigoff_0": {"t":"📸 Official IG: Fan Art Friday Feature","l":"","pd":"2026-07-23","p":"已排期","s":"官方素材","n":"官方IG导流"},
+    "23_ustt_0": {"t":"🌙 Moonlight Promise - Episode 1 🎬","l":"","pd":"2026-07-23","p":"已排期","s":"外部KOC","n":"条漫TT推广"},
+    "24_hkig_0": {"t":"📖 条漫《夏日柠檬汽水》EP.2","l":"","pd":"2026-07-24","p":"已排期","s":"外部KOC","n":"港台条漫分发"},
+    "24_usfb_0": {"t":"🎪 Community Event: Share Your Best Design!","l":"","pd":"2026-07-24","p":"已排期","s":"官方素材","n":"导流贴文"},
+    "24_usig_0": {"t":"🍋 Webcomic: Summer Lemonade Ep.2","l":"","pd":"2026-07-24","p":"已排期","s":"外部KOC","n":"欧美条漫分发"},
+    "25_usigoff_0": {"t":"💫 Official IG: New Update Highlights","l":"","pd":"2026-07-25","p":"已排期","s":"官方素材","n":"官方IG导流"},
+    "25_uw_0": {"t":"🏡 智能家居未来概念AI渲染图","l":"","pd":"2026-07-25","p":"已排期","s":"AI生成","n":"AI视频 · 搬运素材"},
+    "27_usfb_0": {"t":"📢 Weekly Event Roundup - July 3rd Week","l":"","pd":"2026-07-27","p":"已排期","s":"官方素材","n":"导流贴文"},
+    "27_ustt_0": {"t":"☕ Cloud Cafe - Full Episode 🎬","l":"","pd":"2026-07-27","p":"已排期","s":"外部KOC","n":"条漫TT推广"},
+    "27_uw_0": {"t":"🌺 热带雨林风格浴室设计AI创意","l":"","pd":"2026-07-27","p":"已排期","s":"AI生成","n":"AI视频 · 搬运素材"},
+    "28_hkig_0": {"t":"📖 條漫《月光下的約定》EP.1","l":"","pd":"2026-07-28","p":"已排期","s":"外部KOC","n":"港台条漫分发"},
+    "28_tt_0": {"t":"🎠 旋转木马家具套间展示｜童话感满满","l":"","pd":"2026-07-28","p":"已排期","s":"官方素材","n":"官方号素材 · 脚本产出"},
+    "28_usigoff_0": {"t":"🎭 Official IG: Creator Interview Series","l":"","pd":"2026-07-28","p":"已排期","s":"官方素材","n":"官方IG导流"},
+    "29_usfb_0": {"t":"🌟 Creator Tips: How to Make Viral Content","l":"","pd":"2026-07-29","p":"已排期","s":"官方素材","n":"导流贴文"},
+    "29_usig_0": {"t":"🌙 Webcomic: Moonlight Promise Ep.1","l":"","pd":"2026-07-29","p":"已排期","s":"外部KOC","n":"欧美条漫分发"},
+    "29_uw_0": {"t":"🪐 太空站风格室内设计｜未来感MAX","l":"","pd":"2026-07-29","p":"已排期","s":"AI生成","n":"AI视频 · 搬运素材"},
+    "2_tt_0": {"t":"🌸 沁夏套间开箱｜每一件都想拥有","l":"","pd":"2026-07-02","p":"已发布","s":"官方素材","n":"官方号素材 · 脚本产出"},
+    "30_tt_0": {"t":"🌟 往日回响套间返场｜经典永不过时","l":"","pd":"2026-07-30","p":"已排期","s":"官方素材","n":"官方号素材 · 脚本产出"},
+    "30_usigoff_0": {"t":"🎀 Official IG: Kitty Collab Behind the Scenes","l":"","pd":"2026-07-30","p":"已排期","s":"官方素材","n":"官方IG导流"},
+    "30_ustt_0": {"t":"🌸 New Webcomic Sneak Peek! 🎬","l":"","pd":"2026-07-30","p":"已排期","s":"外部KOC","n":"条漫TT推广"},
+    "31_hkig_0": {"t":"📖 條漫《月光下的約定》EP.2","l":"","pd":"2026-07-31","p":"已排期","s":"外部KOC","n":"港台条漫分发"},
+    "31_usfb_0": {"t":"📢 New Kitty Collaboration Event! Join Now","l":"","pd":"2026-07-31","p":"已排期","s":"官方素材","n":"导流贴文"},
+    "31_usig_0": {"t":"🌙 Webcomic: Moonlight Promise Ep.2","l":"","pd":"2026-07-31","p":"已排期","s":"外部KOC","n":"欧美条漫分发"},
+    "4_uw_0": {"t":"🎨 用AI生成的梦幻卧室，每一帧都是壁纸","l":"","pd":"2026-07-04","p":"已发布","s":"AI生成","n":"AI视频 · 搬运素材"},
+    "6_uw_0": {"t":"🌊 水下宫殿概念设计｜AI视觉震撼","l":"","pd":"2026-07-06","p":"已发布","s":"AI生成","n":"AI视频 · 搬运素材"},
+    "7_tt_0": {"t":"🎀 Kitty联动最新套装展示，可爱暴击！","l":"","pd":"2026-07-07","p":"已发布","s":"官方素材","n":"官方号素材 · 脚本产出"},
+    "8_uw_0": {"t":"✨ 赛博朋克风格客厅设计，科技感拉满","l":"","pd":"2026-07-08","p":"已发布","s":"AI生成","n":"AI视频 · 搬运素材"},
+    "9_tt_0": {"t":"✨ 7月新版本预告：滑雪礼包抢先看","l":"","pd":"2026-07-09","p":"已发布","s":"官方素材","n":"官方号素材 · 脚本产出"}
+  };
+
+const DOW=['日','一','二','三','四','五','六'];
+const DOW_EN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const PROGRESS=['素材未到位','制作中','已完成','待发布','已发布'];
+const SOURCES=['投放视频','自制视频','脚本输出','外部KOC','官方素材','其他'];
+const CONTENT_TYPES=['图文','视频','直播','共创','其他'];
+
+let S={}, R={}; // slots, refs
+let editingSlot = null;
+let dirty = false;
+
+// ── API ──
+async function loadFromServer(){
+  // 1. Try GitHub CDN data
+  try{
+    const r=await fetch(RAW_URL, {cache:'no-store'});
+    if(r.ok){
+      const d=await r.json();
+      if(d.slots&&Object.keys(d.slots).length>0){
+        S=d.slots;R=d.refs||{};setSync(true);
+        document.getElementById('dataSource').textContent='GitHub';return true}}
+  }catch(e){}
+  // 2. Fallback: localStorage
+  try{
+    const ls=localStorage.getItem(LS_KEY);
+    if(ls){const p=JSON.parse(ls);S=p.slots||{};R=p.refs||{};setSync(false);
+    // Strip non-user-added refs from localStorage (old code may have saved REF_DEFAULTS)
+    for(let k in R){if(R[k]&&R[k].length&&!R[k][0].userAdded) delete R[k];}
+    document.getElementById('dataSource').textContent='本地';return true}
+  }catch(e2){}
+  // 3. Ultimate fallback: embedded defaults
+  S=JSON.parse(JSON.stringify(DEFAULT_SLOTS));
+  setSync(true);
+  document.getElementById('dataSource').textContent='默认';
+  try{localStorage.setItem(LS_KEY,JSON.stringify({slots:S,refs:R}))}catch(e){}
+  return true;
+}
+
+let saveTimer = null;
+function scheduleSave(){
+  dirty = true;
+  document.getElementById('syncText').textContent='待保存...';
+  document.getElementById('syncDot').className='sync-dot saving';
+  if(saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveToServer, 800);
+}
+
+async function saveToServer(){
+  const payload = JSON.stringify({slots:S, refs:R});
+  try{
+    localStorage.setItem(LS_KEY, payload);
+    setSync(true);
+    document.getElementById('syncText').textContent='已保存';
+    dirty=false;
+  }catch(e){
+    setSync(false);
+    document.getElementById('syncText').textContent='保存失败';
+  }
+  updateCount();
+}
+
+function setSync(on){
+  const dot=document.getElementById('syncDot');
+  dot.className='sync-dot '+(on?'on':'off');
+}
+
+// ── Init ──
+async function init(){
+  curM = (new Date()).getMonth()+1;
+  curY = (new Date()).getFullYear();
+  const ok = await loadFromServer();
+  // Clean any stale refs from localStorage fallback
+  if(curM!==7) for(let k in R){if(!R[k]?.[0]?.userAdded) delete R[k];}
+  const daysInMonth = new Date(curY, curM, 0).getDate();
+  updateMonthDisplay();
+  render();
+  setInterval(async ()=>{
+    if(!dirty){
+      const fresh = await loadFromServer();
+      if(fresh) render();
+    }
+  }, 30000);
+}
+
+function updateCount(){
+  let c=0;
+  for(const k in S){if(S[k]&&S[k].t&&S[k].t.trim())c++}
+  document.getElementById('slotCount').textContent=c+' 条';
+}
+
+// ── Slot CRUD ──
+function sk(d,t,i){return d+'_'+t+'_'+i}
+function gs(d,t,i){
+  const k=sk(d,t,i);
+  if(!S[k]) S[k]={t:'',l:'',pd:'',p:'素材未到位',s:'投放视频',n:''};
+  return S[k];
+}
+function us(d,t,i,f,v){
+  const k=sk(d,t,i);
+  if(!S[k]) S[k]={t:'',l:'',pd:'',p:'素材未到位',s:'投放视频',n:''};
+  S[k][f]=v;
+  scheduleSave();
+}
+function as(d,t){
+  let i=0;while(S[sk(d,t,i)])i++;
+  const autoPd = curY+'-'+String(curM).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+  S[sk(d,t,i)]={t:'',l:'',pd:autoPd,p:'素材未到位',s:'投放视频',n:''};
+  scheduleSave();render();expandSlot(d,t,i);
+}
+function rs(d,t,i){delete S[sk(d,t,i)];scheduleSave();render()}
+function expandSlot(d,t,i){
+  editingSlot=sk(d,t,i);
+  render();
+  setTimeout(()=>{
+    const inp=document.querySelector(`[data-sk="${sk(d,t,i)}"] .ef-t`);
+    if(inp) inp.focus();
+  },50);
+}
+function collapseSlot(){editingSlot=null;render()}
+
+// Save input and collapse on Enter
+function saveSlot(inp){var evt=new Event('change',{bubbles:true});inp.dispatchEvent(evt);collapseSlot()}
+
+// Click outside expanded slot to collapse
+document.addEventListener('click',function(e){
+  if(editingSlot){
+    var el=document.querySelector('[data-sk="'+editingSlot+'"]');
+    if(el&&!el.contains(e.target)){editingSlot=null;render()}
+  }
+});
+
+// Escape or Enter key to collapse
+document.addEventListener('keydown',function(e){
+  if(editingSlot){
+    if(e.key==='Escape'){editingSlot=null;render()}
+    else if(e.key==='Enter'&&e.target.closest('.slot.expanded')){
+      e.preventDefault();
+      var inp=e.target;
+      var evt=new Event('change',{bubbles:true});
+      inp.dispatchEvent(evt);
+      collapseSlot();
+    }
+  }
+});
+
+// ── Ref CRUD ──
+function ur(d,i,v){if(R[d]&&R[d][i]){R[d][i].text=v;R[d][i].userAdded=true;}scheduleSave();render()}
+function ar(d){if(!R[d])R[d]=[];R[d].push({type:'活动',text:'新活动...',userAdded:true});scheduleSave();render()}
+function rr(d,i){if(R[d])R[d].splice(i,1);scheduleSave();render()}
+function crt(d,i){const C=['版本','节日','IP','活动'];const r=R[d]&&R[d][i];if(!r)return;const ci=C.indexOf(r.type);r.type=C[(ci+1)%C.length];r.userAdded=true;scheduleSave();render()}
+
+// ── Parse date ranges ──
+function parseRange(text){
+  // Match "M/D - M/D" pattern
+  const m=text.match(/(\d+)\/(\d+)\s*[-–]\s*(\d+)\/(\d+)/);
+  if(m){
+    const sm=parseInt(m[1]),sd=parseInt(m[2]),em=parseInt(m[3]),ed=parseInt(m[4]);
+    return {sm, sd, em, ed};
+  }
+  // Match "M/D - D" (same month)
+  const m2=text.match(/(\d+)\/(\d+)\s*[-–]\s*(\d+)/);
+  if(m2){
+    const sm=parseInt(m2[1]),sd=parseInt(m2[2]),ed=parseInt(m2[3]);
+    return {sm, sd, em: sm, ed};
+  }
+  return null;
+}
+
+// ── Parse refs with ranges ──
+// REF_DEFAULTS are keyed by day (1-31) without month context.
+// They are only valid for July. For other months, clear them.
+function getRefsWithRanges(){
+  const result = {};
+  for(let d=1;d<=31;d++) result[d] = [];
+  
+  // Collect ALL refs first (from REF_DEFAULTS constant for July, and R for user-added)
+  const allRefs = [];
+  
+  // REF_DEFAULTS from constant (July only)
+  if(curM===7 && typeof REF_DEFAULTS !== 'undefined'){
+    for(let d=1;d<=31;d++){
+      if(REF_DEFAULTS[d]){
+        REF_DEFAULTS[d].forEach(r => {
+          allRefs.push({...r, userAdded: false, srcDay: d});
+        });
+      }
+    }
+  }
+  
+  // User-added refs from R (all months)
+  for(let k in R){
+    if(R[k]){
+      R[k].forEach(r => {
+        if(r.userAdded) allRefs.push({...r, srcDay: parseInt(k)});
+      });
+    }
+  }
+  
+  // Now determine where each ref shows based on its date range
+  allRefs.forEach(r => {
+    const range = parseRange(r.text);
+    if(range){
+      // Multi-day range ref
+      const daysInMonth = new Date(curY, curM, 0).getDate();
+      for(let d=1; d<=daysInMonth; d++){
+        // Check if this day falls within the date range for the CURRENT month
+        const inRange = (range.sm < curM && curM < range.em) ||
+                        (curM === range.sm && d >= range.sd) ||
+                        (curM === range.em && d <= range.ed);
+        if(inRange){
+          const isStart = (curM === range.sm && d === range.sd);
+          const isEnd = (curM === range.em && d === range.ed);
+          if(isStart) result[d].push({...r, rangeStart: true});
+          else if(isEnd) result[d].push({...r, rangeEnd: true});
+          else result[d].push({...r, rangeMid: true});
+        }
+      }
+    } else {
+      // Single-day ref - only show in July (its source month)
+      if(curM === 7 && r.srcDay) {
+        result[r.srcDay].push({...r});
+      }
+    }
+  });
+  
+  return result;
+}
+
+// ── Render ──
+function render(){
+  const today=(()=>{const n=new Date();const u=n.getTime()+n.getTimezoneOffset()*60000;const s=new Date(u+8*3600000);return{m:s.getMonth()+1,d:s.getDate()}})();
+  const el=document.getElementById('timeline');el.innerHTML='';
+  const W=['W1','W2','W3','W4','W5'];
+  // Force-clean: keep ONLY user-added refs in non-July months
+  if(curM!==7){for(let k in R){if(!R[k]?.[0]?.userAdded) delete R[k];}}
+  const refsWithRanges = getRefsWithRanges();
+
+  for(let d=1;d<=31;d++){
+    const dt=new Date(curY, curM-1, d);
+    const dw=dt.getDay();
+    const iT=today.m===curM&&today.d===d;
+    const iW=dw===0||dw===6;
+    const wk=W[Math.min(Math.floor((d-1)/7),4)];
+    const isWeekStart=dw===1||d===1;
+
+    const row=document.createElement('div');
+    row.className='day-row'+(iT?' today':'')+(iW?' weekend':'')+(isWeekStart?' week-start':'');
+
+    // Date
+    const dc=document.createElement('div');dc.className='day-date';
+    dc.innerHTML=`<div class="num">${d}${iT?' <span class=\"today-badge\">今天</span>':''}</div><div class="dow${iW?' we':''}">${DOW_EN[dw]}</div><div class="tag">${wk}</div>`;
+    row.appendChild(dc);
+
+    // Schedule
+    const sc=document.createElement('div');sc.className='day-schedule';
+    const slots=[];
+    for(const k in S){
+      const m=k.match(/^(\d+)_(uw|tt|hkig|usig|ustt|usfb|usigoff)_(\d+)$/);
+      if(m){
+        const slotPd = S[k].pd || '';
+        // Show slots that match current month by pd, OR empty-pd slots (only in July)
+        const monthPrefix = curY+'-'+String(curM).padStart(2,'0');
+        const shouldShow = slotPd.startsWith(monthPrefix) || (!slotPd && curM===7);
+        if(shouldShow && parseInt(m[1])===d) slots.push({idx:parseInt(m[3]),type:m[2],key:k,data:S[k]});
+      }
+    }
+    slots.sort((a,b)=>a.type.localeCompare(b.type)||a.idx-b.idx);
+    slots.forEach(s=>{sc.appendChild(makeSlot(d,s.type,s.idx,s.key,s.data))});
+
+    const ab=document.createElement('div');ab.className='add-bar';
+    ab.innerHTML=`<div class="account-picker">
+  <div class="picker-header" onclick="this.parentNode.classList.toggle('open')">
+    <span>+ 选择账号添加</span>
+    <span class="picker-arrow">▾</span>
+  </div>
+  <div class="picker-body">
+    <div class="picker-group">
+      <div class="picker-group-label">🌊 欧美水下</div>
+      <button class="picker-btn" onclick="as(${d},'uw')">欧美水下号</button>
+    </div>
+    <div class="picker-group">
+      <div class="picker-group-label">📱 欧美社媒官号</div>
+      <button class="picker-btn" onclick="as(${d},'tt')">欧美TT官号</button>
+      <button class="picker-btn" onclick="as(${d},'usfb')">欧美FB官号</button>
+      <button class="picker-btn" onclick="as(${d},'usigoff')">欧美IG官号</button>
+    </div>
+    <div class="picker-group">
+      <div class="picker-group-label">🎨 欧美条漫</div>
+      <button class="picker-btn" onclick="as(${d},'usig')">欧美条漫IG</button>
+      <button class="picker-btn" onclick="as(${d},'ustt')">欧美条漫TT</button>
+    </div>
+    <div class="picker-group">
+      <div class="picker-group-label">🌏 港台</div>
+      <button class="picker-btn" onclick="as(${d},'hkig')">港台条漫IG</button>
+    </div>
+  </div>
+</div>`;
+    sc.appendChild(ab);
+    row.appendChild(sc);
+
+    // Reference
+    const rc=document.createElement('div');rc.className='day-ref';
+    const dayRefs = refsWithRanges[d]||[];
+    dayRefs.forEach((r,i)=>{
+      const item=document.createElement('div');item.className='ref-item';
+      let rangeCls = '';
+      if(r.rangeStart) rangeCls=' range-start';
+      else if(r.rangeMid) rangeCls=' range-mid';
+      else if(r.rangeEnd) rangeCls=' range-end';
+      if(rangeCls) item.className='ref-item'+rangeCls;
+
+      const tc={'版本':'rt v','节日':'rt h','IP':'rt i','活动':'rt e'}[r.type]||'rt e';
+      let displayText = r.text;
+      if(r.rangeContinued && !r.rangeEnd && !r.rangeStart){
+        displayText = '↳ ' + r.text.replace(/[\d]+\/[\d]+[-–][\d]+\/[\d]+/g,'').trim();
+      }
+      if(r.rangeEnd && r.rangeContinued){
+        displayText = '↳ ' + r.text.replace(/[\d]+\/[\d]+[-–][\d]+\/[\d]+/g,'').trim() + ' (结束)';
+      }
+
+      item.innerHTML=`
+        <span class="${tc}" onclick="crt(${d},${i})">${r.type}</span>
+        <span class="rtx">${esc(displayText)}</span>
+        <button class="rd" onclick="rr(${d},${i})">✕</button>
+      `;
+      rc.appendChild(item);
+    });
+    if(dayRefs.length===0) rc.innerHTML+=`<div class="ref-empty">—</div>`;
+    const addB=document.createElement('button');addB.className='ref-add';addB.textContent='+';addB.onclick=()=>ar(d);
+    rc.appendChild(addB);
+    row.appendChild(rc);
+
+    el.appendChild(row);
+  }
+  updateCount();
+}
+
+
+function switchMonth(delta){
+  curM+=delta;
+  if(curM>12){curM=1;curY++;}
+  if(curM<1){curM=12;curY--;}
+  updateMonthDisplay();
+  render();
+}
+function goToMonth(delta){
+  let newM = curM + delta;
+  let newY = curY;
+  if(newM>12){newM=1;newY++}
+  if(newM<1){newM=12;newY--}
+  curM=newM; curY=newY;
+  updateMonthDisplay();
+  render();
+}
+function updateMonthDisplay(){
+  const navLabel=document.getElementById('navMonthLabel');
+  const txt=curY+'年'+curM+'月';
+  if(navLabel) navLabel.textContent=txt;
+}
+function makeSlot(d,t,i,k,data){
+  const isExpanded = editingSlot===k;
+  const LABELS={'uw':'欧美水下号','tt':'欧美TT官号','hkig':'港台条漫IG','usig':'欧美条漫IG','ustt':'欧美条漫TT','usfb':'欧美FB官号','usigoff':'欧美IG官号'};
+  const label = LABELS[t]||t;
+  const bc = t;
+  const pi = Math.max(0,PROGRESS.indexOf(data.p));
+  const pc = 'p'+pi;
+  const summary = data.t||'(未填写)';
+  const hasLink = data.l&&data.l.trim();
+
+  if(!isExpanded){
+    const div=document.createElement('div');
+    div.className='slot collapsed';div.setAttribute('data-sk',k);
+    div.ondblclick=()=>expandSlot(d,t,i);
+    div.innerHTML=`
+      <span class="badge ${bc}">${label}</span>
+      <div class="summary">
+        <span class="tp">${esc(summary)}</span>
+        ${hasLink?`<span class="sp">·</span><span style="color:var(--text-muted);font-size:9px">🔗</span>`:''}
+        <span class="pg ${pc}">${data.p}</span>
+      </div>
+      ${hasLink?`<button class="cl" onclick="event.stopPropagation();copyText('${esc(data.l)}')" title="复制链接">📋</button>`:''}
+      <button class="del" onclick="event.stopPropagation();rs(${d},'${t}',${i})">✕</button>
+    `;
+    return div;
+  }else{
+    const div=document.createElement('div');
+    div.className='slot expanded';div.setAttribute('data-sk',k);
+    const dv=data.pd||'';
+    div.innerHTML=`
+      <div style="display:flex;align-items:center;gap:4px;width:100%">
+        <span class="badge ${bc}">${label}</span>
+        <span style="flex:1;font-size:10px;color:var(--text-dim)">编辑中 · Enter 折叠</span>
+        <button class="del" style="opacity:0.4" onclick="rs(${d},'${t}',${i})">✕</button>
+      </div>
+      <div class="sg">
+        <div class="fd fu">
+          <label>📝 标题/文案</label>
+          <input class="ef-t" type="text" value="${esc(data.t||'')}" placeholder="输入标题或文案..."
+            onchange="us(${d},'${t}',${i},'t',this.value)"
+            >
+        </div>
+        <div class="fd">
+          <label>🔗 素材公共盘</label>
+          <div style="display:flex;gap:2px;align-items:center">
+            <input type="text" value="${esc(data.l||'')}" placeholder="链接或路径..." onchange="us(${d},'${t}',${i},'l',this.value)" style="flex:1">
+            ${data.l&&data.l.trim()?`<button class="cb" onclick="copyText('${esc(data.l)}')">📋</button>`:''}
+          </div>
+        </div>
+        <div class="fd">
+          <label>📅 发布日</label>
+          <input type="date" value="${dv}" onchange="us(${d},'${t}',${i},'pd',this.value)">
+        </div>
+        <div class="fd">
+          <label>⏰ 发布时间</label>
+          <input type="time" value="${esc(data.tm||'')}" onchange="us(${d},'${t}',${i},'tm',this.value)">
+        </div>
+        <div class="fd">
+          <label>📊 来源</label>
+          <select onchange="us(${d},'${t}',${i},'s',this.value)">${SOURCES.map(o=>`<option value="${o}" ${data.s===o?'selected':''}>${o}</option>`).join('')}</select>
+        </div>
+        <div class="fd">
+          <label>🎯 内容类型</label>
+          <select onchange="us(${d},'${t}',${i},'c',this.value)">
+            <option value="">选择类型…</option>
+            ${CONTENT_TYPES.map(o=>`<option value="${o}" ${data.c===o?'selected':''}>${o}</option>`).join('')}
+          </select>
+        </div>
+        <div class="fd">
+          <label>📈 进度</label>
+          <select onchange="us(${d},'${t}',${i},'p',this.value)">${PROGRESS.map(o=>`<option value="${o}" ${data.p===o?'selected':''}>${o}</option>`).join('')}</select>
+        </div>
+        <div class="fd fu">
+          <label>💬 备注</label>
+          <textarea rows="1" placeholder="其他说明..." onchange="us(${d},'${t}',${i},'n',this.value)">${esc(data.n||'')}</textarea>
+        </div>
+      </div>
+    `;
+    return div;
+  }
+}
+
+function copyText(t){
+  if(!t)return;
+  navigator.clipboard.writeText(t).then(()=>{
+    const btn=event&&event.target;
+    if(btn){const o=btn.textContent;btn.textContent='✅';setTimeout(()=>{btn.textContent=o},800)}
+  }).catch(()=>{});
+}
+
+function exportData(){
+  let txt='📅 7月社媒排期\n═══════════\n\n';
+  for(let d=1;d<=31;d++){
+    const items=[];
+    for(const k in S){
+      const m=k.match(/^(\d+)_(uw|tt|hkig|usig|ustt|usfb|usigoff)_(\d+)$/);
+      if(m&&parseInt(m[1])===d){const s=S[k];if(s.t&&s.t.trim()) items.push({type:({'uw':'欧美水下号','tt':'欧美TT官号','hkig':'港台条漫IG','usig':'欧美条漫IG','ustt':'欧美条漫TT','usfb':'欧美FB官号','usigoff':'欧美IG官号'}[m[2]]||m[2]),data:s})}
+    }
+    if(items.length===0)continue;
+    const dt=new Date(2026,6,d);
+    txt+=`── 7月${d}日 周${DOW[dt.getDay()]} ──\n`;
+    items.forEach(s=>{
+      txt+=`【${s.type}】\n 标题：${s.data.t||'-'}\n`;
+      if(s.data.l) txt+=` 素材：${s.data.l}\n`;
+      if(s.data.pd) txt+=` 发布：${s.data.pd}\n`;
+      txt+=` 来源：${s.data.s||'-'} | 进度：${s.data.p||'-'}\n`;
+      if(s.data.n) txt+=` 备注：${s.data.n}\n\n`;
+    });
+  }
+  document.getElementById('exportText').value=txt;
+  document.getElementById('exportModal').classList.add('active');
+}
+function closeExport(){document.getElementById('exportModal').classList.remove('active')}
+function copyExport(){
+  const ta=document.getElementById('exportText');ta.select();
+  navigator.clipboard.writeText(ta.value).then(()=>alert('✅ 已复制')).catch(()=>{document.execCommand('copy');alert('✅ 已复制')});
+}
+function clearAll(){if(!confirm('确定清空所有？'))return;S={};scheduleSave();render()}
+function esc(s){if(!s)return '';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+
+init();
+</script>
+</body>
+</html>

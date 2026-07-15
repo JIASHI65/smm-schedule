@@ -608,15 +608,17 @@ function crt(d,i){const C=['版本','节日','IP','活动'];const r=R[d]&&R[d][i
 
 // ── Parse date ranges ──
 function parseRange(text){
+  // Match "M/D - M/D" pattern
   const m=text.match(/(\d+)\/(\d+)\s*[-–]\s*(\d+)\/(\d+)/);
   if(m){
     const sm=parseInt(m[1]),sd=parseInt(m[2]),em=parseInt(m[3]),ed=parseInt(m[4]);
-    if(sm===7) return {start:sd, end:ed};
+    return {sm, sd, em, ed};
   }
+  // Match "M/D - D" (same month)
   const m2=text.match(/(\d+)\/(\d+)\s*[-–]\s*(\d+)/);
   if(m2){
     const sm=parseInt(m2[1]),sd=parseInt(m2[2]),ed=parseInt(m2[3]);
-    if(sm===7) return {start:sd, end:ed};
+    return {sm, sd, em: sm, ed};
   }
   return null;
 }
@@ -647,25 +649,54 @@ function getRefsWithRanges(){
     result[d] = [];
     refs.forEach((r,idx)=>{
       const range = parseRange(r.text);
-      if(range && range.end > d){
-        ranges.push({start:d, end:range.end, type:r.type, text:r.text, key:d+'_'+idx});
-        result[d].push({...r, rangeStart:true, rangeEnd:false});
-      } else if(range && range.end === d){
-        result[d].push({...r, rangeStart:true, rangeEnd:true});
+      if(range){
+        // Check if range covers current month+day
+        // Range is active if: start month < curM < end month, or (curM===start month && d>=sd), or (curM===end month && d<=ed)
+        const inRange = (range.sm < curM && curM < range.em) ||
+                        (curM === range.sm && d >= range.sd) ||
+                        (curM === range.em && d <= range.ed);
+        if(inRange){
+          const isEnd = (curM === range.em && d === range.ed);
+          const isStart = (curM === range.sm && d === range.sd);
+          if(range.em > range.sm || range.ed > d){
+            // Multi-day range
+            if(isStart){
+              ranges.push({sm:range.sm, sd:range.sd, em:range.em, ed:range.ed, type:r.type, text:r.text, key:d+'_'+idx});
+              result[d].push({...r, rangeStart:true, rangeEnd:false});
+            } else if(isEnd){
+              result[d].push({...r, rangeStart:false, rangeEnd:true});
+            } else {
+              result[d].push({...r, rangeMid:true});
+            }
+          } else {
+            result[d].push({...r});
+          }
+        } else {
+          result[d].push({...r});
+        }
       } else {
         result[d].push({...r});
       }
     });
   }
   ranges.forEach(rg=>{
-    for(let d=rg.start+1; d<=rg.end; d++){
-      if(!result[d]) result[d]=[];
-      const exists = result[d].some(r => r.text === rg.text);
-      if(!exists){
-        result[d].push({
-          type: rg.type, text: rg.text,
-          rangeMid: (d < rg.end), rangeEnd: (d === rg.end), rangeContinued: true
-        });
+    // For range display, iterate from start to end
+    // Start at sd in start month, end at ed in end month
+    for(let m = rg.sm; m <= rg.em; m++){
+      if(m < curM || m > curM) continue; // Only show range lines for current month
+      const startDay = (m === rg.sm) ? rg.sd : 1;
+      const endDay = (m === rg.em) ? rg.ed : 31;
+      for(let d = startDay; d <= endDay; d++){
+        if(!result[d]) result[d]=[];
+        const exists = result[d].some(r => r.text === rg.text);
+        if(!exists){
+          const isRangeEnd = (m === rg.em && d === rg.ed);
+          result[d].push({
+            type: rg.type, text: rg.text,
+            rangeContinued: true,
+            rangeEnd: isRangeEnd
+          });
+        }
       }
     }
   });

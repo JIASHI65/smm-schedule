@@ -38,7 +38,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helveti
 
 <div class="header">
   <h1>📱 社媒排期 · 账号分组</h1>
-  <a href="%E7%A4%BE%E5%AA%92%E6%8E%92%E6%9C%9F_%E7%AB%96%E6%8E%92%E6%97%B6%E9%97%B4%E7%BA%BF.html" class="btn">⬅ 返回时间线</a>
+  <div style="display:flex;align-items:center;gap:6px">
+    <button class="btn" onclick="goToMonth(curM-1)" title="上个月">◀</button>
+    <span id="monthLabel" style="font-size:13px;font-weight:600;color:#d6336c;min-width:80px;text-align:center"></span>
+    <button class="btn" onclick="goToMonth(curM+1)" title="下个月">▶</button>
+    <a href="%E7%A4%BE%E5%AA%92%E6%8E%92%E6%9C%9F_%E7%AB%96%E6%8E%92%E6%97%B6%E9%97%B4%E7%BA%BF.html" class="btn">⬅ 返回时间线</a>
+  </div>
 </div>
 <div class="container" id="app">
   <div class="loading">⏳ 加载中...</div>
@@ -91,6 +96,15 @@ function render(data){
     app.innerHTML = '<div class="empty">暂无排期数据</div>';
     return;
   }
+  // Filter by current month
+  const prefix = curY+'-'+String(curM).padStart(2,'0');
+  const filtered = {};
+  for(const k in data){
+    if(!data[k].pd || data[k].pd.startsWith(prefix)){
+      filtered[k] = data[k];
+    }
+  }
+  data = filtered;
 
   // Group slots by account prefix
   const grouped = {};
@@ -156,11 +170,25 @@ function esc(s){
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-(async function(){
+let curM = (new Date()).getMonth()+1;
+let curY = (new Date()).getFullYear();
+
+function goToMonth(delta){
+  curM += delta;
+  if(curM>12){curM=1;curY++}
+  if(curM<1){curM=12;curY--}
+  document.getElementById('monthLabel').textContent = curY+'年'+curM+'月';
+  loadAndRender();
+}
+
+async function loadAndRender(){
   const data = await loadData();
   if(data) render(data);
   else render(null);
-})();
+}
+
+document.getElementById('monthLabel').textContent = curY+'年'+curM+'月';
+loadAndRender();
 </script>
 </body>
 </html>

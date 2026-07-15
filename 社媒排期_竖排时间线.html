@@ -612,11 +612,13 @@ function parseRange(text){
 }
 
 // ── Parse refs with ranges ──
+// REF_DEFAULTS are July-only events; clear them for other months
 function getRefsWithRanges(){
   const result = {};
   const ranges = [];
+  // Only show REF_DEFAULTS for July (month 7)
   for(let d=1;d<=31;d++){
-    const refs = R[d]||[];
+    const refs = (curM===7 ? (R[d]||[]) : []);
     result[d] = [];
     refs.forEach((r,idx)=>{
       const range = parseRange(r.text);

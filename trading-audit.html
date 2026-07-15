@@ -1930,7 +1930,7 @@ const App = {
     // 直接绑定提示词按钮（不依赖事件委托）
     var promptBtn = document.getElementById('promptBtn');
     
-    }
+
     var testBtn = document.querySelector('[data-action="testBtn"]');
     if (testBtn) {
       testBtn.addEventListener('click', function() {
@@ -1956,9 +1956,9 @@ const App = {
     // [FIX Bug 5] 不再30秒自动刷新追踪（通过subscribe机制在数据变化时刷新）
     // 保留定时器仅用于检查外部数据变化
     Store.state.pendingTrackerTimer = (_t_trk = setInterval(() => {
-      const t = document.querySelector('.tab-content.active');) && window._auditTimers.push(_t_trk);
+      const t = document.querySelector('.tab-content.active');
       if (t && t.id === 'tab-tracker') Renderer.renderTracker();
-    }, 30000);
+    }, 30000)) && window._auditTimers.push(_t_trk);
 
     // 初始化 UI
     this.restoreUI();

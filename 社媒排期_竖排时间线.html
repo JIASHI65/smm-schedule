@@ -467,7 +467,7 @@ async function loadFromServer(){
     if(r.ok){
       const d=await r.json();
       if(d.slots&&Object.keys(d.slots).length>0){
-        S=d.slots;R=d.refs||{};for(let k in REF_DEFAULTS){if(!R[k])R[k]=REF_DEFAULTS[k];}setSync(true);
+        S=d.slots;R=d.refs||{};setSync(true);
         document.getElementById('dataSource').textContent='GitHub';return true}}
   }catch(e){}
   // 2. Fallback: localStorage
@@ -613,13 +613,15 @@ function parseRange(text){
 }
 
 // ── Parse refs with ranges ──
-// REF_DEFAULTS are July-only events; clear them for other months
+// REF_DEFAULTS are keyed by day (1-31) without month context.
+// They are only valid for July. For other months, clear them.
 function getRefsWithRanges(){
   const result = {};
   const ranges = [];
-  // Only show REF_DEFAULTS for July (month 7)
+  // If not July, R holds nothing useful (REF_DEFAULTS are July-only)
   for(let d=1;d<=31;d++){
-    const refs = R[d]||[];
+    // Only show July default refs in July, show user-added refs anytime
+    const refs = (R[d]||[]).filter(r => curM===7 || r.userAdded);
     result[d] = [];
     refs.forEach((r,idx)=>{
       const range = parseRange(r.text);

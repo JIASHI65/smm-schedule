@@ -518,7 +518,7 @@ async function init(){
   const ok = await loadFromServer();
   const daysInMonth = new Date(curY, curM, 0).getDate();
   for(let d=1;d<=daysInMonth;d++){
-    if(!R[d]) R[d]=JSON.parse(JSON.stringify(REF_DEFAULTS[d]||[]));
+    if(curM===7&&!R[d]) R[d]=JSON.parse(JSON.stringify(REF_DEFAULTS[d]||[]));
   }
   updateMonthDisplay();
   render();
@@ -618,7 +618,7 @@ function getRefsWithRanges(){
   const ranges = [];
   // Only show REF_DEFAULTS for July (month 7)
   for(let d=1;d<=31;d++){
-    const refs = (curM===7 ? (R[d]||[]) : []);
+    const refs = R[d]||[];
     result[d] = [];
     refs.forEach((r,idx)=>{
       const range = parseRange(r.text);

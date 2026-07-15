@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<!-- v=1784094299 -->
+<!-- v=1784094578 1784094299 -->
 <!-- v2.1 - refs fix -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -335,6 +335,13 @@ body{
   .day-ref{display:none}
 }
 </style>
+<script>
+// VERSION CHECK - added 1784094385
+document.addEventListener('DOMContentLoaded', function(){
+  console.log('✅ TIMELINE VERSION: 2026-07-15-fix3 (REF_DEFAULTS from constant)');
+  console.log('localStorage smm_v3_fallback:', localStorage.getItem('smm_v3_fallback') ? 'EXISTS' : 'EMPTY');
+});
+</script>
 </head>
 <body>
 
@@ -475,6 +482,8 @@ async function loadFromServer(){
   try{
     const ls=localStorage.getItem(LS_KEY);
     if(ls){const p=JSON.parse(ls);S=p.slots||{};R=p.refs||{};setSync(false);
+    // Strip non-user-added refs from localStorage (old code may have saved REF_DEFAULTS)
+    for(let k in R){if(R[k]&&R[k].length&&!R[k][0].userAdded) delete R[k];}
     document.getElementById('dataSource').textContent='本地';return true}
   }catch(e2){}
   // 3. Ultimate fallback: embedded defaults
@@ -518,6 +527,8 @@ async function init(){
   curM = (new Date()).getMonth()+1;
   curY = (new Date()).getFullYear();
   const ok = await loadFromServer();
+  // Clean any stale refs from localStorage fallback
+  if(curM!==7) for(let k in R){if(!R[k]?.[0]?.userAdded) delete R[k];}
   const daysInMonth = new Date(curY, curM, 0).getDate();
   updateMonthDisplay();
   render();
@@ -666,8 +677,8 @@ function render(){
   const today=(()=>{const n=new Date();const u=n.getTime()+n.getTimezoneOffset()*60000;const s=new Date(u+8*3600000);return{m:s.getMonth()+1,d:s.getDate()}})();
   const el=document.getElementById('timeline');el.innerHTML='';
   const W=['W1','W2','W3','W4','W5'];
-  // Force-clean stale July refs from R (belt-and-suspenders)
-  if(curM!==7){let cleaned=0;for(let k in R){if(!R[k]?.[0]?.userAdded){delete R[k];cleaned++;}}console.log('[clean] removed',cleaned,'stale ref groups for month',curM);}
+  // Force-clean: keep ONLY user-added refs in non-July months
+  if(curM!==7){for(let k in R){if(!R[k]?.[0]?.userAdded) delete R[k];}}
   const refsWithRanges = getRefsWithRanges();
 
   for(let d=1;d<=31;d++){

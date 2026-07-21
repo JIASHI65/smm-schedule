@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<!-- v=3.0 -->
-<!-- v3.0 - picker fix + date in collapsed -->
+<!-- v=1784094578 1784094299 -->
+<!-- v2.1 - refs fix -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🌸 7月社媒排期 · 竖排时间线</title>
@@ -136,7 +136,6 @@ body{
   font-size:9px;font-weight:600;padding:2px 6px;border-radius:4px;
   white-space:nowrap;flex-shrink:0;letter-spacing:.2px;
 }
-.slot .slot-date{font-size:9px;color:var(--text-muted);flex-shrink:0;margin-right:2px}
 .slot .badge.uw{
   background:rgba(139,92,246,0.06);
   color:#8b5cf6;border:none;
@@ -733,23 +732,29 @@ function render(){
 
     const ab=document.createElement('div');ab.className='add-bar';
     ab.innerHTML=`<div class="account-picker">
-  <div class="picker-header" onclick="event.stopPropagation();this.parentNode.classList.toggle('open')">
+  <div class="picker-header" onclick="this.parentNode.classList.toggle('open')">
     <span>+ 选择账号添加</span>
     <span class="picker-arrow">▾</span>
   </div>
   <div class="picker-body">
     <div class="picker-group">
       <div class="picker-group-label">🌊 欧美水下</div>
-      <button class="picker-btn" onclick="event.stopPropagation();as(${d},'uw')">欧美水下号</button>
+      <button class="picker-btn" onclick="as(${d},'uw')">欧美水下号</button>
+    </div>
+    <div class="picker-group">
+      <div class="picker-group-label">📱 欧美社媒官号</div>
+      <button class="picker-btn" onclick="as(${d},'tt')">欧美TT官号</button>
+      <button class="picker-btn" onclick="as(${d},'usfb')">欧美FB官号</button>
+      <button class="picker-btn" onclick="as(${d},'usigoff')">欧美IG官号</button>
     </div>
     <div class="picker-group">
       <div class="picker-group-label">🎨 欧美条漫</div>
-      <button class="picker-btn" onclick="event.stopPropagation();as(${d},'usig')">欧美条漫IG</button>
-      <button class="picker-btn" onclick="event.stopPropagation();as(${d},'ustt')">欧美条漫TT</button>
+      <button class="picker-btn" onclick="as(${d},'usig')">欧美条漫IG</button>
+      <button class="picker-btn" onclick="as(${d},'ustt')">欧美条漫TT</button>
     </div>
     <div class="picker-group">
       <div class="picker-group-label">🌏 港台</div>
-      <button class="picker-btn" onclick="event.stopPropagation();as(${d},'hkig')">港台条漫IG</button>
+      <button class="picker-btn" onclick="as(${d},'hkig')">港台条漫IG</button>
     </div>
   </div>
 </div>`;
@@ -831,7 +836,6 @@ function makeSlot(d,t,i,k,data){
     div.ondblclick=()=>expandSlot(d,t,i);
     div.innerHTML=`
       <span class="badge ${bc}">${label}</span>
-      <span class="slot-date">${data.pd||''}</span>
       <div class="summary">
         <span class="tp">${esc(summary)}</span>
         ${hasLink?`<span class="sp">·</span><span style="color:var(--text-muted);font-size:9px">🔗</span>`:''}

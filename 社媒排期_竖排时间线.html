@@ -587,6 +587,12 @@ function saveSlot(inp){var evt=new Event('change',{bubbles:true});inp.dispatchEv
 
 // Click outside expanded slot to collapse
 document.addEventListener('click',function(e){
+  // Handle picker toggle
+  if(e.target.closest('.picker-header')){
+    var picker = e.target.closest('.account-picker');
+    if(picker) picker.classList.toggle('open');
+    return;
+  }
   if(editingSlot){
     var el=document.querySelector('[data-sk="'+editingSlot+'"]');
     if(el&&!el.contains(e.target)){editingSlot=null;render()}
@@ -733,29 +739,29 @@ function render(){
 
     const ab=document.createElement('div');ab.className='add-bar';
     ab.innerHTML=`<div class="account-picker">
-  <div class="picker-header" onclick="event.stopPropagation();this.parentNode.classList.toggle('open')">
+  <div class="picker-header">
     <span>+ 选择账号添加</span>
     <span class="picker-arrow">▾</span>
   </div>
   <div class="picker-body">
     <div class="picker-group">
       <div class="picker-group-label">🌊 欧美水下</div>
-      <button class="picker-btn" onclick="event.stopPropagation();as(${d},'uw')">欧美水下号</button>
+      <button class="picker-btn" onclick="as(${d},'uw')">欧美水下号</button>
     </div>
     <div class="picker-group">
       <div class="picker-group-label">📱 欧美社媒官号</div>
-      <button class="picker-btn" onclick="event.stopPropagation();as(${d},'tt')">欧美TT官号</button>
-      <button class="picker-btn" onclick="event.stopPropagation();as(${d},'usfb')">欧美FB官号</button>
-      <button class="picker-btn" onclick="event.stopPropagation();as(${d},'usigoff')">欧美IG官号</button>
+      <button class="picker-btn" onclick="as(${d},'tt')">欧美TT官号</button>
+      <button class="picker-btn" onclick="as(${d},'usfb')">欧美FB官号</button>
+      <button class="picker-btn" onclick="as(${d},'usigoff')">欧美IG官号</button>
     </div>
     <div class="picker-group">
       <div class="picker-group-label">🎨 欧美条漫</div>
-      <button class="picker-btn" onclick="event.stopPropagation();as(${d},'usig')">欧美条漫IG</button>
-      <button class="picker-btn" onclick="event.stopPropagation();as(${d},'ustt')">欧美条漫TT</button>
+      <button class="picker-btn" onclick="as(${d},'usig')">欧美条漫IG</button>
+      <button class="picker-btn" onclick="as(${d},'ustt')">欧美条漫TT</button>
     </div>
     <div class="picker-group">
       <div class="picker-group-label">🌏 港台</div>
-      <button class="picker-btn" onclick="event.stopPropagation();as(${d},'hkig')">港台条漫IG</button>
+      <button class="picker-btn" onclick="as(${d},'hkig')">港台条漫IG</button>
     </div>
   </div>
 </div>`;

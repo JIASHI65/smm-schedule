@@ -243,10 +243,11 @@
     "22_usig_0": {
       "t": "🍋 Webcomic: Summer Lemonade Ep.1",
       "l": "",
-      "pd": "2026-07-22",
+      "pd": "2026-07-24",
       "p": "已排期",
       "s": "外部KOC",
-      "n": "欧美条漫分发"
+      "n": "欧美条漫分发",
+      "d": "Friday"
     },
     "22_usfb_0": {
       "t": "📣 Exclusive: New Furniture Collection Sneak Peek",
@@ -267,10 +268,11 @@
     "23_ustt_0": {
       "t": "🌙 Moonlight Promise - Episode 1 🎬",
       "l": "",
-      "pd": "2026-07-23",
+      "pd": "2026-07-26",
       "p": "已排期",
       "s": "外部KOC",
-      "n": "条漫TT推广"
+      "n": "条漫TT推广",
+      "d": "Sunday"
     },
     "23_usigoff_0": {
       "t": "📸 Official IG: Fan Art Friday Feature",
@@ -283,18 +285,20 @@
     "24_hkig_0": {
       "t": "📖 条漫《夏日柠檬汽水》EP.2",
       "l": "",
-      "pd": "2026-07-24",
+      "pd": "2026-07-22",
       "p": "已排期",
       "s": "外部KOC",
-      "n": "港台条漫分发"
+      "n": "港台条漫分发",
+      "d": "Wednesday"
     },
     "24_usig_0": {
       "t": "🍋 Webcomic: Summer Lemonade Ep.2",
       "l": "",
-      "pd": "2026-07-24",
+      "pd": "2026-07-31",
       "p": "已排期",
       "s": "外部KOC",
-      "n": "欧美条漫分发"
+      "n": "欧美条漫分发",
+      "d": "Friday"
     },
     "24_usfb_0": {
       "t": "🎪 Community Event: Share Your Best Design!",
@@ -331,10 +335,11 @@
     "27_ustt_0": {
       "t": "☕ Cloud Cafe - Full Episode 🎬",
       "l": "",
-      "pd": "2026-07-27",
+      "pd": "2026-08-02",
       "p": "已排期",
       "s": "外部KOC",
-      "n": "条漫TT推广"
+      "n": "条漫TT推广",
+      "d": "Sunday"
     },
     "27_usfb_0": {
       "t": "📢 Weekly Event Roundup - July 3rd Week",
@@ -355,10 +360,11 @@
     "28_hkig_0": {
       "t": "📖 條漫《月光下的約定》EP.1",
       "l": "",
-      "pd": "2026-07-28",
+      "pd": "2026-07-29",
       "p": "已排期",
       "s": "外部KOC",
-      "n": "港台条漫分发"
+      "n": "港台条漫分发",
+      "d": "Wednesday"
     },
     "28_usigoff_0": {
       "t": "🎭 Official IG: Creator Interview Series",
@@ -379,10 +385,11 @@
     "29_usig_0": {
       "t": "🌙 Webcomic: Moonlight Promise Ep.1",
       "l": "",
-      "pd": "2026-07-29",
+      "pd": "2026-08-07",
       "p": "已排期",
       "s": "外部KOC",
-      "n": "欧美条漫分发"
+      "n": "欧美条漫分发",
+      "d": "Friday"
     },
     "29_usfb_0": {
       "t": "🌟 Creator Tips: How to Make Viral Content",
@@ -403,10 +410,11 @@
     "30_ustt_0": {
       "t": "🌸 New Webcomic Sneak Peek! 🎬",
       "l": "",
-      "pd": "2026-07-30",
+      "pd": "2026-08-09",
       "p": "已排期",
       "s": "外部KOC",
-      "n": "条漫TT推广"
+      "n": "条漫TT推广",
+      "d": "Sunday"
     },
     "30_usigoff_0": {
       "t": "🎀 Official IG: Kitty Collab Behind the Scenes",
@@ -419,18 +427,20 @@
     "31_hkig_0": {
       "t": "📖 條漫《月光下的約定》EP.2",
       "l": "",
-      "pd": "2026-07-31",
+      "pd": "2026-08-05",
       "p": "已排期",
       "s": "外部KOC",
-      "n": "港台条漫分发"
+      "n": "港台条漫分发",
+      "d": "Wednesday"
     },
     "31_usig_0": {
       "t": "🌙 Webcomic: Moonlight Promise Ep.2",
       "l": "",
-      "pd": "2026-07-31",
+      "pd": "2026-08-12",
       "p": "已排期",
       "s": "外部KOC",
-      "n": "欧美条漫分发"
+      "n": "欧美条漫分发",
+      "d": "Wednesday"
     },
     "31_usfb_0": {
       "t": "📢 New Kitty Collaboration Event! Join Now",
